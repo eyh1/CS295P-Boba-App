@@ -28,13 +28,14 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     
-    restaurant = "Fake Place"
-    address = "Address"
+        restaurant = "Fake Place"
+        address = "Address"
 
-    new_restaurant = Restaurant(restaurant_name=restaurant, address=address)
-    try:
-        db.session.add(new_restaurant)
-        db.session.commit()
-    except Exception as e:
-        print("oopsie")
+        new_restaurant = Restaurant(restaurant_name=restaurant, address=address)
+        try:
+            db.session.add(new_restaurant)
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            print("e")
     app.run(debug=True, port=8000)
