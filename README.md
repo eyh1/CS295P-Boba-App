@@ -3,6 +3,8 @@ Boba App for CS295 Capstone/Keystone project
 
 How to install and run the flask app:
 
+sudo apt update
+sudo apt install pip
 python3 -m venv venv
 . venv/bin/activate
 pip install Flask
