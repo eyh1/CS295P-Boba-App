@@ -1,9 +1,9 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  /* padding: 2rem; */
   text-align: center;
-  background: #6BAB90;
+  /* background: #6BAB90; */
 }
 
 .background {
@@ -43,6 +43,9 @@
 
 @media (prefers-reduced-motion: no-preference) {
 .Petr.logo {
+    position: absolute;
+    top: 0;
+    left: 0;
     animation: logo-spin infinite 20s linear;
   }
 }
