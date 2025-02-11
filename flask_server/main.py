@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder="../templates")
 
 # Allow React frontend to communicate with Flask backend
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
