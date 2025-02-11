@@ -14,8 +14,8 @@ const RestaurantList = ({restaurants}) => {
             <tbody>
                 {restaurants.map((restaurants) => (
                     <tr key={restaurants.id}>
-                        <td>{restaurants.firstName}</td>
-                        <td>{contact.lastName}</td>
+                        <td>{restaurants.restaurantName}</td>
+                        <td>{restaurants.address}</td>
                     </tr>
                 ))}
             </tbody>
