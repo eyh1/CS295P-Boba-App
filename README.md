@@ -3,15 +3,30 @@ Boba App for CS295 Capstone/Keystone project
 
 How to install and run the flask app, locally or in AWS:
 
-cd flask_server
 sudo apt update
+
 sudo apt install pip
+
 sudo apt install python3-venv
+
 python3 -m venv venv
+
 . venv/bin/activate
+
+cd backend
+
 pip install -r requirements.txt
-export FLASK_APP=main.py
-python3 -m flask run --host=0.0.0.0
+
+python manage.py runserver
+
+
+When making changes to the models:
+
+cd backend
+
+python manage.py makemigrations
+
+python manage.py migrate
 # connect to 54.193.65.182:5000
 
 How to connect to the AWS intance:
