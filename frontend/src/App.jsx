@@ -33,14 +33,22 @@ function App() {
     </div>
   );
 }
+  
+  function EntryCard({restaurant, pic_source}) {
+      return(<div className="entry-card">
+      
+        <div className="card-grid-container">
+            <img src={pic_source} className="drink-cha" /> 
+            <h1 className = "titleCha">{restaurant} </h1> 
+        </div>
+        
+      
+    </div>);
+  }
   function CardGrid() {
   return (
       <div className="grid-container">
-      <div className="entry-card" >
-          <div className="card-grid-container"><img src={boba} className="drink-cha" /> 
-          <h1 className = "titleCha">Cha For Tea </h1> </div>
-          
-        </div>
+      <EntryCard pic_source={boba} restaurant="Cha For Tea"></EntryCard>
       <div className="entry-card">Card 2</div>
       <div className="entry-card">Card 3</div>
       <div className="entry-card">Card 4</div>
