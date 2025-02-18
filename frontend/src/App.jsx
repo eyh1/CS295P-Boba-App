@@ -34,12 +34,24 @@ function App() {
   );
 }
   
+  function RatingCard({entry_name, rating}){
+      return(<div className="rating-card">
+          {entry_name} {rating} ⭐
+      </div>);
+  }
+
   function EntryCard({restaurant, pic_source}) {
       return(<div className="entry-card">
       
         <div className="card-grid-container">
             <img src={pic_source} className="drink-cha" /> 
-            <h1 className = "titleCha">{restaurant} </h1> 
+            <div className="card-inside-grid-container">
+                <h1 className = "titleCha">{restaurant} </h1> 
+                <RatingCard entry_name="Creme Brule" rating="5"></RatingCard>
+                <RatingCard entry_name="Matcha" rating="3"></RatingCard>
+                <RatingCard entry_name="Fruit Tea" rating="4"></RatingCard>
+            </div>
+            
         </div>
         
       
