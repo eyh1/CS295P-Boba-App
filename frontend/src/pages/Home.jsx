@@ -5,6 +5,7 @@ import omomo from ".././assets/omomo.png";
 import bako from ".././assets/bako.png";
 // import "./App.css";
 import TextField from "@mui/material/TextField";
+import { Button } from "@mui/material";
 // import RestaurantList from "./RestaurantList";
 // import Login from "./pages/Login";
 // import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
@@ -22,7 +23,7 @@ function Home() {
       <div
         style={{
           backgroundColor: "#529176",
-          display: "flex",
+          // display: "flex",
           alignItems: "center",
           justifyContent: "center",
           height: 70,
@@ -30,6 +31,13 @@ function Home() {
       >
         <img src={petr} className="Petr logo" />
         <h1 className="textZoba">Zoba</h1>
+        <div style = {{
+          paddingLeft: "50%",
+          }}>
+          <Button className="loginButton" variant="contained" color="#6BAB90" href="/login">
+            Login
+          </Button>
+        </div>
       </div>
     );
   }

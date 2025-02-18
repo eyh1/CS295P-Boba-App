@@ -1,6 +1,5 @@
 form {
     margin: 20px; 
-    border: 2px solid gray;
     display: flex;
     flex-direction: column;
 }
@@ -21,12 +20,13 @@ form {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 400px;
-    text-align: center;
+    text-align: left;
 }
 
 .login-box h1 {
     color: black;
     font-size: 2em;
+    text-align: center;
 }
 
 input[type="text"], input[type="password"] {
@@ -46,4 +46,8 @@ button {
     cursor: pointer;
     margin-top: 15px;
     font-size: 1.2em;
+}
+
+.petr-logo {
+    margin: 0 auto;
 }
