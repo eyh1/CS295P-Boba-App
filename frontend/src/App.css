@@ -85,6 +85,11 @@
   outline-style: solid;
   outline-width: 1px;
   outline-color: black;
+  transition: transform 0.2s ease-in-out;
+}
+
+.entry-card:hover {
+  transform: scale(1.05);
 }
 
 .rating-card {
@@ -111,3 +116,4 @@
     color: black;
     font-size: 30px;
 }
+
