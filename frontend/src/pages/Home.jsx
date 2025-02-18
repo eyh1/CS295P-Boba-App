@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
-import petr from "./assets/petrdrink.png";
-import boba from "./assets/chafortea.png";
-import omomo from "./assets/omomo.png";
-import bako from "./assets/bako.png";
-import "./App.css";
+import petr from ".././assets/petrdrink.png";
+import boba from ".././assets/chafortea.png";
+import omomo from ".././assets/omomo.png";
+import bako from ".././assets/bako.png";
+// import "./App.css";
 import TextField from "@mui/material/TextField";
-import RestaurantList from "./RestaurantList";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+// import RestaurantList from "./RestaurantList";
+// import Login from "./pages/Login";
+// import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
 
-function App() {
+function Home() {
   // const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // Use this state to help keep track of the searchbar and update the list of entries
 
@@ -100,19 +99,29 @@ function App() {
   // };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<Home />}
-        />
-        <Route path="/login" element={<Login />} />
-        {/* <Route path="/logout" element={<Logout />} />
-        <Route path="/register" element={<RegisterAndLogout />} /> */}
-        {/* <Route path="*" element={<NotFound />}></Route> */}
-      </Routes>
-    </BrowserRouter>
-  )
+    <>
+      <div>
+        <TopBar />
+        {/* <div className = "login_button">
+            <form route="/login"/>
+        </div> */}
+        <div className="card">
+          <div className="search"> 
+            <TextField
+              style={{ width: 500 }}
+              id="outlined-basic"
+              variant="outlined"
+              label="Search for a drink or cafe"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm on change
+            />
+            <CardGrid />
+            {/* <RestaurantList restaurants={restaurants} /> */}
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
-export default App;
+export default Home;
