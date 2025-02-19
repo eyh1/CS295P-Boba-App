@@ -23,21 +23,25 @@ function Home() {
       <div
         style={{
           backgroundColor: "#529176",
-          // display: "flex",
+          display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           height: 70,
+          padding: "0 20px",
         }}
       >
-        <img src={petr} className="Petr logo" />
-        <h1 className="textZoba">Zoba</h1>
-        <div style = {{
-          paddingLeft: "50%",
-          }}>
-          <Button className="loginButton" variant="contained" color="#6BAB90" href="/login">
-            Login
-          </Button>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <img src={petr} className="Petr logo" alt="Petr logo" />
         </div>
+        <h1 style={{color: "#5E4C5A", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
+        <Button
+          className="loginButton"
+          variant="contained"
+          color="#6BAB90"
+          href="/login"
+        >
+          Login
+        </Button>
       </div>
     );
   }
