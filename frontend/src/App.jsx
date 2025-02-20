@@ -8,7 +8,21 @@ import TextField from "@mui/material/TextField";
 import RestaurantList from "./RestaurantList";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import NotFound from "./pages/NotFound";
+import Register from "./pages/Register";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Profile from "./pages/Profile";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+
+function Logout() {
+  localStorage.clear()
+  return <Navigate to="/login" />
+}
+
+function RegisterAndLogout() {
+  localStorage.clear()
+  return <Register />
+}
 
 function App() {
   // const [restaurants, setRestaurants] = useState([]);
@@ -107,9 +121,15 @@ function App() {
           element={<Home />}
         />
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/logout" element={<Logout />} />
-        <Route path="/register" element={<RegisterAndLogout />} /> */}
-        {/* <Route path="*" element={<NotFound />}></Route> */}
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/register" element={<RegisterAndLogout />} />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+            </ProtectedRoute>
+          }
+          />
+        <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </BrowserRouter>
   )

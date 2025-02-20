@@ -9,13 +9,13 @@ api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem(ACCESS_TOKEN)
         if (token) { // look in local storage for the token
-            config.headers.Authorization = `Bearer ${token}` // add token to the header
+            config.headers.Authorization = `Bearer ${token}`; // add token to the header
         }
-        return config
+        return config;
     },
     (error) => {
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
-)
+);
 
-export default api
+export default api;
