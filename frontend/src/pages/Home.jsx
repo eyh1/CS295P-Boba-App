@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import petr from ".././assets/petrdrink.png";
+import Zooba from ".././assets/Zooba.png";
 import boba from ".././assets/chafortea.png";
 import omomo from ".././assets/omomo.png";
 import bako from ".././assets/bako.png";
-// import "./App.css";
+import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
 // import RestaurantList from "./RestaurantList";
@@ -31,7 +31,7 @@ function Home() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center" }}>
-          <img src={petr} className="Petr logo" alt="Petr logo" />
+          <img src={Zooba} className="Zooba logo" alt="Zooba logo" />
         </div>
         <h1 style={{color: "#5E4C5A", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
         <Button
