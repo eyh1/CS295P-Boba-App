@@ -20,6 +20,20 @@ class CreateReviewView(generics.CreateAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [AllowAny]
 
+    def perform_create(self, serializer):
+        restaurant = self.kwargs.get('restaurantPk')
+        user = self.kwargs.get('userPk')
+        restaurant_instance = Restaurant.objects.get(pk=restaurant)
+        serializer.save(restaurant=restaurant_instance)
+        if user:
+            print(user)
+            user_instance = User.objects.get(pk=user)
+            serializer.save(user=user_instance)
+    
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        return response 
+
 class ListReviewsForRestauarantView(generics.ListAPIView):
     serializer_class = RestaurantSerializer
     permission_classes = [AllowAny]

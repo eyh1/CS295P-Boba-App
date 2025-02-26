@@ -13,9 +13,13 @@ python3 -m venv venv
 
 . venv/bin/activate
 
-cd backend
+OR
+
+venv/Scripts/activate
 
 pip install -r requirements.txt
+
+cd backend
 
 python manage.py runserver
 

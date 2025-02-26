@@ -23,7 +23,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/user/register/", CreateUserView.as_view(), name="register"),
     path("api/restaurants/", ListRestaurantView.as_view(), name="get_restaurants"),
-    path("api/review/create/", CreateReviewView.as_view(), name="create_review"),
+    path("api/review/<int:userPk>/<int:restaurantPk>/create/", CreateReviewView.as_view(), name="create_review"),
     path('api/restaurant/<int:pk>/reviews/', ListReviewsForRestauarantView.as_view(), name='get_restaurant_reviews'),
     path("api/token/", TokenObtainPairView.as_view(), name="get_token"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),

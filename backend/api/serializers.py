@@ -12,11 +12,14 @@ class UserSerializer(serializers.ModelSerializer):
         print(validated_data)
         user = User.objects.create_user(**validated_data)
         return user
-        
+
 class ReviewSerializer(serializers.ModelSerializer):
+    restaurant = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Review
-        fields = ['id', 'content', 'created_at', 'author', 'restaurant', 'anonymous', 'pricing', 'sweetness']
+        fields = ['id', 'content', 'created_at', 'user', 'restaurant', 'anonymous', 'pricing', 'sweetness']
         
 
 class RestaurantSerializer(serializers.ModelSerializer):
