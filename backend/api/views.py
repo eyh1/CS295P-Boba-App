@@ -40,11 +40,3 @@ class ListReviewsForRestauarantView(generics.ListAPIView):
     def get_queryset(self):
         restaurant_id = self.kwargs['pk']
         return Restaurant.objects.filter(id=restaurant_id)
-
-class DeleteReviewView(generics.DestroyAPIView):
-    serializer_class = ReviewSerializer
-    permission_classes = [AllowAny]
-
-    def get_object(self):
-        user = self.request.user
-        return Review.objects.get(pk=self.kwargs['pk'])
