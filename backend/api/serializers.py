@@ -18,7 +18,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["category_name"]
 
 class ReviewCategoryRatingSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(slug_field='category_name', queryset=Category.objects.all())
+    # category = serializers.SlugRelatedField(slug_field='category_name', queryset=Category.objects.all())
     class Meta:
         model = ReviewCategoryRating
         fields = ["category", "rating"]
