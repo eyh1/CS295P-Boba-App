@@ -29,7 +29,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         category_ratings_data = validated_data.pop('review_category_ratings')
         review = Review.objects.create(**validated_data)
-        print(category_ratings_data)
         for category_rating_data in category_ratings_data:
             ReviewCategoryRating.objects.create(review=review, **category_rating_data)
         return review    
