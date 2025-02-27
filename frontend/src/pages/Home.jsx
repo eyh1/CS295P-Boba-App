@@ -41,7 +41,7 @@ function Home() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center" }}>
-          <img src={Zooba} className="Zooba logo" alt="Zooba logo" />
+          <img src={Zooba} className="zooba-logo" alt="Zooba logo" />
         </div>
         <h1 style={{color: "black", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
         <Button

@@ -117,3 +117,8 @@
     font-size: 30px;
 }
 
+.zooba-logo {
+  height: 100%; /* Make the image fit the height of the top bar */
+  max-height: 70px; /* Ensure the image does not exceed the height of the top bar */
+  width: auto; /* Maintain the aspect ratio */
+}
