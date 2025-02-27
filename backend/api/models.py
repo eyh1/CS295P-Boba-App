@@ -19,4 +19,18 @@ class Review(models.Model):
     pricing = models.FloatField()
     sweetness = models.FloatField()
 
+class Category(models.Model):
+    category_name = models.CharField(max_length = 100, unique = True)
+
+class ReviewCategoryRating(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    review = models.ForeignKey('Review', on_delete=models.CASCADE, related_name='review_category_ratings')
+    rating = models.DecimalField(max_digits = 3, decimal_places = 2)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(rating__gte=0, rating__lte=5),
+                name='rating_between_0_and_5'
+            )        ]
     
