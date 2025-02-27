@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import Zooba from ".././assets/Zooba.png";
-import boba from ".././assets/chafortea.png";
-import omomo from ".././assets/omomo.png";
-import bako from ".././assets/bako.png";
+import boba from "/public/chafortea.png";
+import omomo from "/public/omomo.png";
+import bako from "/public/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 // import RestaurantList from "./RestaurantList";
 // import Login from "./pages/Login";
 // import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
@@ -55,8 +56,21 @@ function Home() {
   }
   // The card that contains the pics and cafe info
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) { 
+
+    const navigate = useNavigate();
+    const handleClick = () => {
+        navigate("/restaurant", { 
+            state: { 
+                name_from_home: restaurant, 
+                pic_from_from: pic_source, 
+                ratings_from_home: [rating1, rating2, rating3] 
+            } 
+        });
+    };
+    
     return (
-      <div className="entry-card">
+    // <a href={"/restaurant"}>
+      <div className="entry-card" onClick={handleClick}>
         <div className="card-grid-container">
           <img src={pic_source} className="drink-cha" />
           <div className="card-inside-grid-container">
@@ -67,6 +81,7 @@ function Home() {
           </div>
         </div>
       </div>
+    // </a>
     );
   }
 
@@ -81,7 +96,9 @@ function Home() {
     // Filter based on whats in the search bar
     const filteredEntries = entries.filter((entry) =>
       entry.name.toLowerCase().includes(searchTerm.toLowerCase())
+    
     );
+
 
     return (
       <div className="grid-container">

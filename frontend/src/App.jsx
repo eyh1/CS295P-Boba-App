@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
+import RestaurantPlaceholder from "./pages/Restaurant";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
 function Logout() {
@@ -123,6 +124,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/register" element={<RegisterAndLogout />} />
+        <Route path="/restaurant" element={<RestaurantPlaceholder/>} />
         <Route path="/profile" element={
           <ProtectedRoute>
             <Profile />
