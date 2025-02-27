@@ -64,13 +64,14 @@ function Home() {
     );
   }
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) { 
+  function EntryCard({ restaurant, address, pic_source, rating1, rating2, rating3 }) { 
     return (
       <div className="entry-card">
         <div className="card-grid-container">
           <img src={pic_source} className="drink-cha" />
           <div className="card-inside-grid-container">
             <h1 className="titleCha">{restaurant} </h1>
+            <h2 className="address">{address} </h2>
             <RatingCard entry_name="Creme Brule" rating={rating1}></RatingCard>
             <RatingCard entry_name="Matcha" rating={rating2}></RatingCard>
             <RatingCard entry_name="Fruit Tea" rating={rating3}></RatingCard>
@@ -82,15 +83,27 @@ function Home() {
 
   function CardGrid() {
     // List of restaurant entries, add as many as we need
-    const entries = [
-      { pic: boba, name: "Cha For Tea", ratings: ["5", "3", "4"] },
-      { pic: omomo, name: "Omomo", ratings: ["3", "1", "5"] },
-      { pic: bako, name: "Bako", ratings: ["2", "4", "2"] },
-    ];
+    const ratingsKey = 'ratings';
+    const ratingsValue = ["5", "3", "4"];
+
+    const bobaKey = 'pic';
+    const bobaValue = boba;
+    // Add the new field to each map in the list
+    var updatedRestaurants = restaurants.map(obj => {
+      obj[ratingsKey] = ratingsValue;
+      return obj; // Return the updated map
+    });
+
+    updatedRestaurants = updatedRestaurants.map(obj => {
+      obj[bobaKey] = bobaValue;
+      return obj; // Return the updated map
+    });
+
+    const entries = updatedRestaurants;
 
     // Filter based on whats in the search bar
     const filteredEntries = entries.filter((entry) =>
-      entry.name.toLowerCase().includes(searchTerm.toLowerCase())
+      entry.restaurant_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -99,7 +112,8 @@ function Home() {
           <EntryCard
             key={index}
             pic_source={entry.pic}
-            restaurant={entry.name}
+            restaurant={entry.restaurant_name}
+            address = {entry.address}
             rating1={entry.ratings[0]}
             rating2={entry.ratings[1]}
             rating3={entry.ratings[2]}
