@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Restaurant, Review
+from .models import Restaurant, Review, ReviewCategoryRating
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,14 +13,27 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
+class ReviewCategoryRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewCategoryRating
+        fields = ["category", "rating"]
+
 class ReviewSerializer(serializers.ModelSerializer):
     restaurant = serializers.PrimaryKeyRelatedField(read_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
+    review_category_ratings = ReviewCategoryRatingSerializer(many=True)
 
     class Meta:
         model = Review
-        fields = ['id', 'content', 'created_at', 'user', 'restaurant', 'anonymous', 'pricing', 'sweetness']
-        
+        fields = ['id', 'content', 'created_at', 'user', 'restaurant', 'anonymous', 'pricing', 'sweetness', 'review_category_ratings']
+    
+    def create(self, validated_data):
+        category_ratings_data = validated_data.pop('review_category_ratings')
+        review = Review.objects.create(**validated_data)
+        print(category_ratings_data)
+        for category_rating_data in category_ratings_data:
+            ReviewCategoryRating.objects.create(review=review, **category_rating_data)
+        return review    
 
 class RestaurantSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
