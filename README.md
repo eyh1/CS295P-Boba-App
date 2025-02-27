@@ -45,4 +45,5 @@ npm install @mui/material
 npm i @emotion/react @emotion/styled
 npm install @mui/icons-material
 npm install tailwindcss @tailwindcss/vite
+npm install axios react-router-dom jwt-decode
 npm run dev\
