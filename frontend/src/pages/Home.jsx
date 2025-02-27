@@ -22,7 +22,7 @@ function Home() {
     return (
       <div
         style={{
-          backgroundColor: "#529176",
+          backgroundColor: "#B3A494",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",

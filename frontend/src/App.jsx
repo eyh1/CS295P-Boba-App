@@ -32,22 +32,22 @@ function App() {
   //   getRestaurants();
   // }, []);
 
-  function TopBar() {
-    return (
-      <div
-        style={{
-          backgroundColor: "#529176",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: 70,
-        }}
-      >
-        <img src={petr} className="Petr logo" />
-        <h1 className="textZoba">Zoba</h1>
-      </div>
-    );
-  }
+  // function TopBar() {
+  //   return (
+  //     <div
+  //       style={{
+  //         backgroundColor: "#529176",
+  //         display: "flex",
+  //         alignItems: "center",
+  //         justifyContent: "center",
+  //         height: 70,
+  //       }}
+  //     >
+  //       <img src={petr} className="Petr logo" />
+  //       <h1 className="textZoba">Zoba</h1>
+  //     </div>
+  //   );
+  // }
 
   function RatingCard({ entry_name, rating }) {
     return (
@@ -57,50 +57,50 @@ function App() {
     );
   }
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) { 
-    return (
-      <div className="entry-card">
-        <div className="card-grid-container">
-          <img src={pic_source} className="drink-cha" />
-          <div className="card-inside-grid-container">
-            <h1 className="titleCha">{restaurant} </h1>
-            <RatingCard entry_name="Creme Brule" rating={rating1}></RatingCard>
-            <RatingCard entry_name="Matcha" rating={rating2}></RatingCard>
-            <RatingCard entry_name="Fruit Tea" rating={rating3}></RatingCard>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) { 
+  //   return (
+  //     <div className="entry-card">
+  //       <div className="card-grid-container">
+  //         <img src={pic_source} className="drink-cha" />
+  //         <div className="card-inside-grid-container">
+  //           <h1 className="titleCha">{restaurant} </h1>
+  //           <RatingCard entry_name="Creme Brule" rating={rating1}></RatingCard>
+  //           <RatingCard entry_name="Matcha" rating={rating2}></RatingCard>
+  //           <RatingCard entry_name="Fruit Tea" rating={rating3}></RatingCard>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  function CardGrid() {
-    // List of restaurant entries, add as many as we need
-    const entries = [
-      { pic: boba, name: "Cha For Tea", ratings: ["5", "3", "4"] },
-      { pic: omomo, name: "Omomo", ratings: ["3", "1", "5"] },
-      { pic: bako, name: "Bako", ratings: ["2", "4", "2"] },
-    ];
+  // function CardGrid() {
+  //   // List of restaurant entries, add as many as we need
+  //   const entries = [
+  //     { pic: boba, name: "Cha For Tea", ratings: ["5", "3", "4"] },
+  //     { pic: omomo, name: "Omomo", ratings: ["3", "1", "5"] },
+  //     { pic: bako, name: "Bako", ratings: ["2", "4", "2"] },
+  //   ];
 
-    // Filter based on whats in the search bar
-    const filteredEntries = entries.filter((entry) =>
-      entry.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  //   // Filter based on whats in the search bar
+  //   const filteredEntries = entries.filter((entry) =>
+  //     entry.name.toLowerCase().includes(searchTerm.toLowerCase())
+  //   );
 
-    return (
-      <div className="grid-container">
-        {filteredEntries.map((entry, index) => (
-          <EntryCard
-            key={index}
-            pic_source={entry.pic}
-            restaurant={entry.name}
-            rating1={entry.ratings[0]}
-            rating2={entry.ratings[1]}
-            rating3={entry.ratings[2]}
-          />
-        ))}
-      </div>
-    );
-  }
+  //   return (
+  //     <div className="grid-container">
+  //       {filteredEntries.map((entry, index) => (
+  //         <EntryCard
+  //           key={index}
+  //           pic_source={entry.pic}
+  //           restaurant={entry.name}
+  //           rating1={entry.ratings[0]}
+  //           rating2={entry.ratings[1]}
+  //           rating3={entry.ratings[2]}
+  //         />
+  //       ))}
+  //     </div>
+  //   );
+  // }
 
   // const getRestaurants = async () => {
   //   try {
