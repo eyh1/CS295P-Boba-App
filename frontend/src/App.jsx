@@ -102,16 +102,16 @@ function App() {
   //   );
   // }
 
-  const getRestaurants = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/restaurants");
-      const data = await response.json();
-      setRestaurants(data.restaurants);
-    } catch (error) {
-      console.log(error);
-      alert(error);
-    }
-  };
+  // const getRestaurants = async () => {
+  //   try {
+  //     const response = await fetch("http://127.0.0.1:8000/api/restaurants");
+  //     const data = await response.json();
+  //     setRestaurants(data.restaurants);
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert(error);
+  //   }
+  // };
 
   return (
     <BrowserRouter>
