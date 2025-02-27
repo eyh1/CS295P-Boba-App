@@ -6,6 +6,7 @@ import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
+import api from "../api";
 // import RestaurantList from "./RestaurantList";
 // import Login from "./pages/Login";
 // import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
@@ -13,7 +14,19 @@ import { Button } from "@mui/material";
 function Home() {
   // const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // Use this state to help keep track of the searchbar and update the list of entries
+  const [restaurants, setRestaurants] = useState([]);
 
+  useEffect(() => {
+    getRestaurants();
+  }, [])
+
+  const getRestaurants = () => {
+    api
+      .get("/api/restaurants/")
+      .then((res) => res.data)
+      .then((data) => { setRestaurants(data); console.log(data) })
+      .catch((error) => alert(error));
+  };
   // useEffect(() => {
   //   getRestaurants();
   // }, []);
@@ -22,7 +35,7 @@ function Home() {
     return (
       <div
         style={{
-          backgroundColor: "#B3A494",
+          backgroundColor: "#e5ceb5",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -33,7 +46,7 @@ function Home() {
         <div style={{ display: "flex", alignItems: "center" }}>
           <img src={Zooba} className="Zooba logo" alt="Zooba logo" />
         </div>
-        <h1 style={{color: "#5E4C5A", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
+        <h1 style={{color: "black", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
         <Button
           className="loginButton"
           variant="contained"
@@ -98,6 +111,7 @@ function Home() {
       </div>
     );
   }
+
 
   // const getRestaurants = async () => {
   //   try {
