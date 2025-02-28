@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
 function Restaurant() {
-  const [searchTerm, setSearchTerm] = useState(""); // Use this state to help keep track of the searchbar and update the list of entries
   const [showReviewForm, setShowReviewForm] = useState(false); // State to control the visibility of the review form
   const [newReview, setNewReview] = useState({
     reviewerName: "",
@@ -198,7 +197,8 @@ function Restaurant() {
       </div>
     );
   }
-
+  
+  // still using a grid, we can simplify this
   function CardGrid() {
     const location = useLocation();
     const { name_from_home, pic_from_home, ratings_from_home } = location.state || {};
