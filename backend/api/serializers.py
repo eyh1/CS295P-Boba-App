@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Restaurant, Review, ReviewCategoryRating
+from .models import Restaurant, Review, ReviewCategoryRating, Category
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,7 +12,13 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["category_name"]
+
 class ReviewCategoryRatingSerializer(serializers.ModelSerializer):
+    # category = serializers.SlugRelatedField(slug_field='category_name', queryset=Category.objects.all())
     class Meta:
         model = ReviewCategoryRating
         fields = ["category", "rating"]
