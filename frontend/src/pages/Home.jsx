@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Zooba from ".././assets/Zooba.png";
-import boba from "/public/chafortea.png";
-import omomo from "/public/omomo.png";
-import bako from "/public/bako.png";
+import boba from ".././assets/chafortea.png";
+import omomo from ".././assets/omomo.png";
+import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
