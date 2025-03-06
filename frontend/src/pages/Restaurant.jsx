@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Zooba from ".././assets/Zooba.png";
-import boba from "/public/chafortea.png";
-import omomo from "/public/omomo.png";
-import bako from "/public/bako.png";
+import boba from ".././assets/chafortea.png";
+import omomo from ".././assets/omomo.png";
+import bako from ".././assets/bako.png";
 import "../styles/Restaurant.css"
 import { Button, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
