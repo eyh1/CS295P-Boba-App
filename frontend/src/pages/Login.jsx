@@ -3,38 +3,39 @@ import petr from "../assets/petrdrink.png"
 import Form from "../components/Form"
 import Zooba from ".././assets/Zooba.png";
 import { Button } from "@mui/material";
+import TopBar from "../components/TopBar";
 
 function Login() {
-    function TopBar() {
-    return (
-      <div
-        style={{
-          backgroundColor: "#B3A494",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: 70,
-          padding: "0 20px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <img src={Zooba} className="Zooba logo" alt="Zooba logo" />
-        </div>
-        <h1 style={{color: "#5E4C5A", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
-        <Button
-          className="backButton"
-          variant="contained"
-          color="#6BAB90"
-          href="/"
-        >
-          Back
-        </Button>
-      </div>
-    );
-  }
+  //   function TopBar() {
+  //   return (
+  //     <div
+  //       style={{
+  //         backgroundColor: "#B3A494",
+  //         display: "flex",
+  //         alignItems: "center",
+  //         justifyContent: "space-between",
+  //         height: 70,
+  //         padding: "0 20px",
+  //       }}
+  //     >
+  //       <div style={{ display: "flex", alignItems: "center" }}>
+  //         <img src={Zooba} className="Zooba logo" alt="Zooba logo" />
+  //       </div>
+  //       <h1 style={{color: "#5E4C5A", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
+  //       <Button
+  //         className="backButton"
+  //         variant="contained"
+  //         color="#6BAB90"
+  //         href="/"
+  //       >
+  //         Back
+  //       </Button>
+  //     </div>
+  //   );
+  // }
 
     return (<>
-    <TopBar></TopBar>
+    <TopBar/>
     <Form route = "api/token/" method = "login"/>
     </>
     );

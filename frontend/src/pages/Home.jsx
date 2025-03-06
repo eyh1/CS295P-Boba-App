@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import Zooba from ".././assets/Zooba.png";
-import boba from "/public/chafortea.png";
-import omomo from "/public/omomo.png";
-import bako from "/public/bako.png";
+import boba from ".././assets/chafortea.png";
+import omomo from ".././assets/omomo.png";
+import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import { ACCESS_TOKEN } from "../constants";
 // import RestaurantList from "./RestaurantList";
 // import Login from "./pages/Login";
 // import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
@@ -16,9 +17,11 @@ function Home() {
   // const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // Use this state to help keep track of the searchbar and update the list of entries
   const [restaurants, setRestaurants] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     getRestaurants();
+    checkLoginStatus();
   }, [])
 
   const getRestaurants = () => {
@@ -27,6 +30,17 @@ function Home() {
       .then((res) => res.data)
       .then((data) => { setRestaurants(data); console.log(data) })
       .catch((error) => alert(error));
+  };
+
+  const checkLoginStatus = () => {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    setIsLoggedIn(!!token);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(ACCESS_TOKEN);
+    setIsLoggedIn(false);
+    navigate("/login");
   };
 
   function TopBar() {
@@ -45,14 +59,36 @@ function Home() {
           <img src={Zooba} className="zooba-logo" alt="Zooba logo" />
         </div>
         <h1 style={{color: "black", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
-        <Button
-          className="loginButton"
-          variant="contained"
-          color="#6BAB90"
-          href="/login"
-        >
-          Login
-        </Button>
+        {isLoggedIn ? (
+          <Button
+            className="logoutButton"
+            variant="contained"
+            color="#6BAB90"
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
+        ) : (
+          <div>
+            <Button
+            className="loginButton"
+            variant="contained"
+            color="#6BAB90"
+            href="/login"
+          >
+            Login
+          </Button>
+          <Button
+            className="registerButton"
+            variant="contained"
+            color="#6BAB90"
+            href="/register"
+          >
+            Sign Up
+          </Button>
+          </div>
+          
+        )}
       </div>
     );
   }
@@ -85,7 +121,7 @@ function Home() {
           <img src={pic_source} className="drink-cha" />
           <div className="card-inside-grid-container">
             <h1 className="titleCha">{restaurant} </h1>
-            <h2 className="address">{address} </h2>
+            {/* <h2 className="address">{address} </h2> */}
             <RatingCard entry_name="Creme Brule" rating={rating1}></RatingCard>
             <RatingCard entry_name="Matcha" rating={rating2}></RatingCard>
             <RatingCard entry_name="Fruit Tea" rating={rating3}></RatingCard>
@@ -129,7 +165,7 @@ function Home() {
             key={index}
             pic_source={entry.pic}
             restaurant={entry.restaurant_name}
-            address = {entry.address}
+            // address = {entry.address}
             rating1={entry.ratings[0]}
             rating2={entry.ratings[1]}
             rating3={entry.ratings[2]}
