@@ -45,3 +45,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
         model = Restaurant
         fields = ["id", "restaurant_name", "address", "reviews"]
 
+class RestaurantCategoryRatingSerializer(serializers.Serializer):
+    class Meta:
+        fields = ["restaurant_name", "category_name", "avg_rating"]
+

@@ -24,7 +24,7 @@ class Category(models.Model):
 
 class ReviewCategoryRating(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    review = models.ForeignKey('Review', on_delete=models.CASCADE, related_name='review_category_ratings')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_category_ratings')
     rating = models.DecimalField(max_digits = 3, decimal_places = 2)
 
     class Meta:

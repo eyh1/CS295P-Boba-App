@@ -41,12 +41,9 @@ ssh -i "boba_app_eric.pem" ubuntu@ec2-54-193-65-182.us-west-1.compute.amazonaws.
 # Frontend Setup
 cd frontend\
 npm install\
-<<<<<<< HEAD
-=======
 npm install @mui/material
 npm i @emotion/react @emotion/styled
 npm install @mui/icons-material
 npm install tailwindcss @tailwindcss/vite
 npm install axios react-router-dom jwt-decode
->>>>>>> 3e3ed57111349c2b3373ce1e47d63ba4c04fe30a
 npm run dev\
