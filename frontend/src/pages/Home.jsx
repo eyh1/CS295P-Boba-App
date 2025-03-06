@@ -9,15 +9,20 @@ import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
+import { Navbar, Nav, Container } from "react-bootstrap";
+import { Card } from "react-bootstrap";
+import TopBar from "../components/TopBar";
+
 // import RestaurantList from "./RestaurantList";
 // import Login from "./pages/Login";
 // import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
 
 function Home() {
-  // const [restaurants, setRestaurants] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // Use this state to help keep track of the searchbar and update the list of entries
+  const [searchTerm, setSearchTerm] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  
 
   useEffect(() => {
     getRestaurants();
@@ -31,7 +36,7 @@ function Home() {
       .then((data) => { setRestaurants(data); console.log(data) })
       .catch((error) => alert(error));
   };
-
+  
   const checkLoginStatus = () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
     setIsLoggedIn(!!token);
@@ -43,94 +48,77 @@ function Home() {
     navigate("/login");
   };
 
-  function TopBar() {
-    return (
-      <div
-        style={{
-          backgroundColor: "#e5ceb5",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: 70,
-          padding: "0 20px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <img src={Zooba} className="zooba-logo" alt="Zooba logo" />
-        </div>
-        <h1 style={{color: "black", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
-        {isLoggedIn ? (
-          <Button
-            className="logoutButton"
-            variant="contained"
-            color="#6BAB90"
-            onClick={handleLogout}
-          >
-            Logout
-          </Button>
-        ) : (
-          <div>
-            <Button
-            className="loginButton"
-            variant="contained"
-            color="#6BAB90"
-            href="/login"
-          >
-            Login
-          </Button>
-          <Button
-            className="registerButton"
-            variant="contained"
-            color="#6BAB90"
-            href="/register"
-          >
-            Sign Up
-          </Button>
-          </div>
-          
-        )}
-      </div>
-    );
-  }
-
-  function RatingCard({ entry_name, rating }) {
-    return (
-      <div className="rating-card">
-        {entry_name} {rating} ⭐
-      </div>
-    );
-  }
-  // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) { 
-
-    const navigate = useNavigate();
-    const handleClick = () => {
-        navigate("/restaurant", { 
-            state: { 
-                name_from_home: restaurant, 
-                pic_from_from: pic_source, 
-                ratings_from_home: [rating1, rating2, rating3] 
-            } 
-        });
-    };
+function TopBar() {
+    const returnHome = () => {
+      window.location.href = "/";
+    }
     
-    return (
-    // <a href={"/restaurant"}>
-      <div className="entry-card" onClick={handleClick}>
-        <div className="card-grid-container">
-          <img src={pic_source} className="drink-cha" />
-          <div className="card-inside-grid-container">
-            <h1 className="titleCha">{restaurant} </h1>
-            {/* <h2 className="address">{address} </h2> */}
-            <RatingCard entry_name="Creme Brule" rating={rating1}></RatingCard>
-            <RatingCard entry_name="Matcha" rating={rating2}></RatingCard>
-            <RatingCard entry_name="Fruit Tea" rating={rating3}></RatingCard>
-          </div>
-        </div>
-      </div>
-    // </a>
-    );
-  }
+  return (
+    <Navbar bg="light" expand="lg" className="px-3">
+      <Container>
+        <Navbar.Brand href="#">
+          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
+          Zoba
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+          { isLoggedIn ? (
+          <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
+                Logout
+              </Button>
+        ) : (
+            <>
+              <Button variant="outline-primary" className="me-2" href="/login">
+                Login
+              </Button>
+              <Button variant="primary" href="/register">
+                Sign Up
+              </Button>
+            </>
+          )}
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
+}
+  
+function RatingCard({ entry_name, rating }) {
+  return (
+    <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2">
+      <Card.Body className="p-1">
+        <strong>{entry_name}</strong> {rating} ⭐
+      </Card.Body>
+    </Card>
+  );
+}
+  // The card that contains the pics and cafe info
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    navigate("/restaurant", {
+      state: {
+        name_from_home: restaurant,
+        pic_from_home: pic_source,
+        ratings_from_home: [rating1, rating2, rating3],
+      },
+    });
+  };
+
+  return (
+    <Card className="m-3 shadow-sm" style={{ cursor: "pointer" }} onClick={handleClick}>
+      <Card.Img variant="top" src={pic_source} />
+      <Card.Body>
+        <Card.Title>{restaurant}</Card.Title>
+        <Card.Text>
+          <RatingCard entry_name="Creme Brule" rating={rating1} />
+          <RatingCard entry_name="Matcha" rating={rating2} />
+          <RatingCard entry_name="Fruit Tea" rating={rating3} />
+        </Card.Text>
+      </Card.Body>
+    </Card>
+  );
+}
 
   function CardGrid() {
     // List of restaurant entries, add as many as we need
@@ -177,26 +165,22 @@ function Home() {
 
   return (
     <>
-      <div>
-        <TopBar />
-        {/* <div className = "login_button">
-            <form route="/login"/>
-        </div> */}
-        <div className="card">
-          <div className="search"> 
+      <TopBar />
+      <Container className="mt-4">
             <TextField
-              style={{ width: 500 }}
-              id="outlined-basic"
-              variant="outlined"
-              label="Search for a drink or cafe"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm on change
+                className="border-0 shadow-none w-100" 
+                id="search-input"
+                variant="standard" 
+                placeholder="Search for a drink or cafe"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                    disableUnderline: true,     
+                }}
             />
             <CardGrid />
-            {/* <RestaurantList restaurants={restaurants} /> */}
-          </div>
-        </div>
-      </div>
+        
+      </Container>
     </>
   );
 }

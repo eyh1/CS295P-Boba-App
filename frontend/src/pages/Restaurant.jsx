@@ -3,123 +3,151 @@ import Zooba from ".././assets/Zooba.png";
 import boba from ".././assets/chafortea.png";
 import omomo from ".././assets/omomo.png";
 import bako from ".././assets/bako.png";
-import "../styles/Restaurant.css"
-import { Button, TextField } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import "../styles/Restaurant.css";
+import { Button } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
+import TopBar from "../components/TopBar";
+import { ACCESS_TOKEN } from "../constants";
+import { Card } from "react-bootstrap";
+import { Navbar, Nav, Container } from "react-bootstrap";
 
+const ReviewComponent = ({ reviews, setReviews }) => {
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [reviewInputs, setReviewInputs] = useState(["", "", ""]);
+
+  const handleReviewChange = (index, value) => {
+    const newReviews = [...reviewInputs];
+    newReviews[index] = value;
+    setReviewInputs(newReviews);
+  };
+
+  const handleSubmitReview = () => {
+    
+    setReviews([...reviews, { reviewerName: reviewInputs[0], drink: reviewInputs[1], review: reviewInputs[2] }]);
+    
+    setReviewInputs(["", "", ""]);
+    setIsReviewing(false);
+  };
+
+  return (
+    <div className="text-center mt-3">
+      {isReviewing ? (
+        <div className="d-flex flex-column align-items-center">
+          <input
+            type="text"
+            className="form-control mb-2 w-50"
+            placeholder="Name" 
+            value={reviewInputs[0]}
+            onChange={(e) => handleReviewChange(0, e.target.value)}
+          />
+          <input
+            type="text"
+            className="form-control mb-2 w-50"
+            placeholder="Drink" 
+            value={reviewInputs[1]}
+            onChange={(e) => handleReviewChange(1, e.target.value)}
+          />
+          <input
+            type="text"
+            className="form-control mb-2 w-50"
+            placeholder="Review" 
+            value={reviewInputs[2]}
+            onChange={(e) => handleReviewChange(2, e.target.value)}
+          />
+          <button className="btn btn-secondary" onClick={handleSubmitReview}>
+            Submit Review
+          </button>
+        </div>
+      ) : (
+        <button className="btn btn-secondary" onClick={() => setIsReviewing(true)}>
+          Write a Review
+        </button>
+      )}
+    </div>
+  );
+};
+
+
+
+// Main Restaurant Component
 function Restaurant() {
-  const [showReviewForm, setShowReviewForm] = useState(false); // State to control the visibility of the review form
-  const [newReview, setNewReview] = useState({
-    reviewerName: "",
-    drink: "",
-    review: ""
-  }); // State to store the data from the form
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [reviews, setReviews] = useState([
     { reviewerName: "Eric", drink: "Black Tea Boba", review: "is gud" },
     { reviewerName: "Michael", drink: "Green Tea Boba", review: "is gud" },
     { reviewerName: "Destin", drink: "Matcha Latte Boba", review: "is gud" },
   ]);
-    function ReviewForm() {
-  const [newReview, setNewReview] = useState({
-    reviewerName: '',
-    drink: '',
-    review: ''
-  });
 
-  const handleChange = (field) => (e) => {
-    setNewReview({ ...newReview, [field]: e.target.value });
+  const checkLoginStatus = () => {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    setIsLoggedIn(!!token);
   };
 
-  const handleSubmit = () => {
-    console.log(newReview);  // Submit logic
-  };
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+  function TopBar() {
+    const returnHome = () => {
+      window.location.href = "/";
+    }
 
+  const handleLogout = () => {
+    localStorage.removeItem(ACCESS_TOKEN);
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+    
   return (
-    <div>
-      <TextField
-        label="Name"
-        variant="outlined"
-        value={newReview.reviewerName}
-        onChange={handleChange('reviewerName')}
-        fullWidth
-      />
-      <TextField
-        label="Drink"
-        variant="outlined"
-        value={newReview.drink}
-        onChange={handleChange('drink')}
-        fullWidth
-      />
-      <TextField
-        label="Review"
-        variant="outlined"
-        value={newReview.review}
-        onChange={handleChange('review')}
-        fullWidth
-      />
-      <Button onClick={handleSubmit} variant="contained" color="primary">Submit Review</Button>
-    </div>
+    <Navbar bg="light" expand="lg" className="px-3">
+      <Container>
+        <Navbar.Brand href="#">
+          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
+          Zoba
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+          { isLoggedIn ? (
+          <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
+                Logout
+              </Button>
+        ) : (
+            <>
+              <Button variant="outline-primary" className="me-2" href="/login">
+                Login
+              </Button>
+              <Button variant="primary" href="/register">
+                Sign Up
+              </Button>
+            </>
+          )}
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
 }
-  function TopBar() {
-    const navigate = useNavigate();
-    const handleClick = () => {
-      navigate("/");
-    };
-    return (
-      <div
-        onClick={handleClick}
-        style={{
-          backgroundColor: "#B3A494",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: 70,
-          padding: "0 20px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <img src={Zooba} className="Zooba logo" alt="Zooba logo" />
-        </div>
-        <h1 style={{ color: "#5E4C5A", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
-        <Button
-          className="loginButton"
-          variant="contained"
-          color="#6BAB90"
-          href="/login"
-        >
-          Login
-        </Button>
-      </div>
-    );
-  }
-
   function RatingCard({ entry_name, rating }) {
     return (
-      <div className="rating-card">
-        {entry_name} {rating} ⭐
-      </div>
+      <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2">
+        <Card.Body className="p-1">
+          <strong>{entry_name}</strong> {rating} ⭐
+        </Card.Body>
+      </Card>
     );
   }
 
   function ReviewCard({ reviewerName, drink, review }) {
     return (
-      <div className="review-card">
-        {reviewerName} reviewing {drink}: {review}
-      </div>
+      <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2">
+        <Card.Body className="p-1">
+          <strong>{reviewerName}</strong> reviewing <strong>{drink}</strong>: {review} 
+        </Card.Body>
+      </Card>
     );
   }
 
-  // The card that contains the pics and cafe info
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) {
-    const handleWriteReviewClick = () => {
-      setShowReviewForm(true); // Show the review form when the button is clicked
-    };
-
     return (
-      <div className="entry-card-restaurant">
+      <Card className="m-3 shadow-sm">
         <div className="card-grid-container-restaurant">
           <img src={pic_source} className="drink-cha" />
           <div className="card-inside-grid-container-restaurant">
@@ -132,14 +160,14 @@ function Restaurant() {
           </div>
         </div>
         <h1 className="titleChaRestaurant">Reviews:</h1>
-        <Button
-          className="reviewButton"
-          variant="contained"
-          color="#FFFFFF"
-          onClick={handleWriteReviewClick} // Trigger review form
-        >
-          <h1 className="buttonText">Write a review</h1>
-        </Button>
+        
+        {isLoggedIn ? (
+          <ReviewComponent reviews={reviews} setReviews={setReviews} />
+        ) : (
+          <Button variant="outline-primary" className="me-2" href="/login">
+            Login to review
+          </Button>
+        )}
 
         <div className="grid-container-restaurant-review">
           {reviews.map((entry, index) => (
@@ -151,54 +179,10 @@ function Restaurant() {
             />
           ))}
         </div>
-
-        {showReviewForm && (
-          <div className="review-form-popup">
-            <TextField
-              label="Name"
-              variant="standard"
-              value={newReview.reviewerName}
-              onChange={(e) => setNewReview({ ...newReview, reviewerName: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Drink"
-              variant="standard"
-              value={newReview.drink}
-              onChange={(e) => setNewReview({ ...newReview, drink: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Review"
-              variant="standard"
-              value={newReview.review}
-              onChange={(e) => setNewReview({ ...newReview, review: e.target.value })}
-              fullWidth
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                setReviews([...reviews, newReview]); 
-                setNewReview({ reviewerName: "", drink: "", review: "" }); 
-                setShowReviewForm(false); 
-              }}
-            >
-              Submit
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => setShowReviewForm(false)} // Close the form without saving
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
-      </div>
+      </Card>
     );
   }
-  
-  // still using a grid, we can simplify this
+
   function CardGrid() {
     const location = useLocation();
     const { name_from_home, pic_from_home, ratings_from_home } = location.state || {};
