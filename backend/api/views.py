@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer
+from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Restaurant, Review
+from .models import Restaurant, Review, Category, ReviewCategoryRating
+from django.db.models import Avg
+from rest_framework.response import Response
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -48,3 +50,23 @@ class DeleteReviewView(generics.DestroyAPIView):
     def get_object(self):
         user = self.request.user
         return Review.objects.get(pk=self.kwargs['pk'])
+
+class GetRestaurantCategoryRatingView(generics.RetrieveAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantCategoryRatingSerializer
+    permission_classes = [AllowAny]
+
+    def retrieve(self, request, **kwargs):
+        restaurant = self.kwargs.get('restaurantPk')
+        category = self.kwargs.get('categoryPk')
+        restaurant_instance = Restaurant.objects.get(pk=restaurant)
+        category_instance = Category.objects.get(pk = category)
+        review_category_ratings = ReviewCategoryRating.objects.filter(review__restaurant = restaurant_instance)
+        average_rating = review_category_ratings.filter(category=self.kwargs["categoryPk"]).aggregate(Avg('rating'))['rating__avg']
+        custom_data = {
+            'restaurant_name' : restaurant_instance.restaurant_name,
+            'category_name' : category_instance.category_name,
+            'avg_rating': average_rating
+        }
+
+        return Response(custom_data)
