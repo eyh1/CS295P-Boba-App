@@ -23,14 +23,11 @@ class CreateReviewView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        restaurant = self.kwargs.get('restaurantPk')
-        user = self.kwargs.get('userPk')
+        restaurant = self.kwargs['restaurantPk']
+        user = self.kwargs['userPk']
         restaurant_instance = Restaurant.objects.get(pk=restaurant)
-        serializer.save(restaurant=restaurant_instance)
-        if user:
-            print(user)
-            user_instance = User.objects.get(pk=user)
-            serializer.save(user=user_instance)
+        user_instance = User.objects.get(pk=user) if user else None
+        serializer.save(restaurant=restaurant_instance, user=user_instance)
     
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
@@ -57,8 +54,8 @@ class GetRestaurantCategoryRatingView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
 
     def retrieve(self, request, **kwargs):
-        restaurant = self.kwargs.get('restaurantPk')
-        category = self.kwargs.get('categoryPk')
+        restaurant = self.kwargs['restaurantPk']
+        category = self.kwargs['categoryPk']
         restaurant_instance = Restaurant.objects.get(pk=restaurant)
         category_instance = Category.objects.get(pk = category)
         review_category_ratings = ReviewCategoryRating.objects.filter(review__restaurant = restaurant_instance)
