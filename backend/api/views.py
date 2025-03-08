@@ -67,3 +67,11 @@ class GetRestaurantCategoryRatingView(generics.RetrieveAPIView):
         }
 
         return Response(custom_data)
+
+class ListUserReviewsView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        user_id = self.kwargs['userPk']
+        return Review.objects.filter(user=user_id)

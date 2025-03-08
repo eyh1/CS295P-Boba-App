@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import CreateUserView, ListRestaurantView, CreateReviewView, ListReviewsForRestauarantView, DeleteReviewView, GetRestaurantCategoryRatingView
+from api.views import CreateUserView, ListRestaurantView, CreateReviewView, ListReviewsForRestauarantView, DeleteReviewView, GetRestaurantCategoryRatingView, ListUserReviewsView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
@@ -30,4 +30,5 @@ urlpatterns = [
     path('api/restaurant/<int:restaurantPk>/<str:categoryPk>/retrieve', GetRestaurantCategoryRatingView.as_view(), name = 'get_restaurant_category_rating'),
     path("api/token/", TokenObtainPairView.as_view(), name="get_token"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
+    path('api/users/<int:userPk>/reviews/', ListUserReviewsView.as_view(), name='list-user-reviews'),
     path("api-auth/", include("rest_framework.urls"))]
