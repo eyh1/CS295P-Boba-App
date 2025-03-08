@@ -15,7 +15,7 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews",null = True, blank = True)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name="reviews")
-    anonymous = models.BooleanField(default = True)
+    public = models.BooleanField(default = False)
     pricing = models.FloatField()
     sweetness = models.FloatField()
 

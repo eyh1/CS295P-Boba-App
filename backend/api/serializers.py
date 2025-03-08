@@ -32,7 +32,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ['id', 'content', 'created_at', 'user', 'username', 'restaurant', 'restaurant_name', 'anonymous', 'pricing', 'sweetness', 'review_category_ratings']
+        fields = ['id', 'content', 'created_at', 'user', 'username', 'restaurant', 'restaurant_name', 'public', 'pricing', 'sweetness', 'review_category_ratings']
     
     def create(self, validated_data):
         category_ratings_data = validated_data.pop('review_category_ratings')
@@ -48,12 +48,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         return obj.restaurant.restaurant_name
     
 class RestaurantSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(many=True, read_only=True)
-
+    reviews = serializers.SerializerMethodField()
+    
     class Meta:
         model = Restaurant
         fields = ["id", "restaurant_name", "address", "reviews"]
-        
+      
+    def get_reviews(self, obj):
+        reviews = obj.reviews.filter(public = True)  
+        return ReviewSerializer(reviews, many=True, read_only=True).data
+    
 class RestaurantCategoryRatingSerializer(serializers.Serializer):
     class Meta:
         fields = ["restaurant_name", "category_name", "avg_rating"]
