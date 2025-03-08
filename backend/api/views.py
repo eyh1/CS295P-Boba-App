@@ -16,6 +16,15 @@ class ListRestaurantView(generics.ListAPIView):
     serializer_class = RestaurantSerializer
     permission_classes = [AllowAny]
     queryset = Restaurant.objects.all()
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = response.data  
+        
+        for restaurant in data:
+            restaurant.pop('reviews', None)  
+                
+        return Response(data)
 
 class CreateReviewView(generics.CreateAPIView):
     queryset = Review.objects.all()

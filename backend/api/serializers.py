@@ -27,10 +27,12 @@ class ReviewSerializer(serializers.ModelSerializer):
     restaurant = serializers.PrimaryKeyRelatedField(read_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
     review_category_ratings = ReviewCategoryRatingSerializer(many=True)
+    username = serializers.SerializerMethodField()
+    restaurant_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = ['id', 'content', 'created_at', 'user', 'restaurant', 'anonymous', 'pricing', 'sweetness', 'review_category_ratings']
+        fields = ['id', 'content', 'created_at', 'user', 'username', 'restaurant', 'restaurant_name', 'public', 'pricing', 'sweetness', 'review_category_ratings']
     
     def create(self, validated_data):
         category_ratings_data = validated_data.pop('review_category_ratings')
@@ -38,13 +40,24 @@ class ReviewSerializer(serializers.ModelSerializer):
         for category_rating_data in category_ratings_data:
             ReviewCategoryRating.objects.create(review=review, **category_rating_data)
         return review    
+    
+    def get_username(self, obj):
+        return obj.user.username if obj.user else None
 
+    def get_restaurant_name(self, obj):
+        return obj.restaurant.restaurant_name
+    
 class RestaurantSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(many=True, read_only=True)
+    reviews = serializers.SerializerMethodField()
+    
     class Meta:
         model = Restaurant
         fields = ["id", "restaurant_name", "address", "reviews"]
-
+      
+    def get_reviews(self, obj):
+        reviews = obj.reviews.filter(public = True)  
+        return ReviewSerializer(reviews, many=True, read_only=True).data
+    
 class RestaurantCategoryRatingSerializer(serializers.Serializer):
     class Meta:
         fields = ["restaurant_name", "category_name", "avg_rating"]
