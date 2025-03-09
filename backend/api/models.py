@@ -34,3 +34,27 @@ class ReviewCategoryRating(models.Model):
                 name='rating_between_0_and_5'
             )        ]
     
+class RestaurantCategoryRating(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name="restaurant_category_ratings")
+    rating = models.DecimalField(max_digits = 3, decimal_places = 2)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(rating__gte=0, rating__lte=5),
+                name='restaurant_rating_between_0_and_5'
+            )  ]
+        
+class UserCategoryRating(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_category_ratings')
+    rating = models.DecimalField(max_digits = 3, decimal_places = 2)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(rating__gte=0, rating__lte=5),
+                name='user_rating_between_0_and_5'
+            )  ]
