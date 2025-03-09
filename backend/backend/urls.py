@@ -30,5 +30,5 @@ urlpatterns = [
     path('api/restaurant/<int:restaurantPk>/<str:categoryPk>/retrieve', GetRestaurantCategoryRatingView.as_view(), name = 'get_restaurant_category_rating'),
     path("api/token/", TokenObtainPairView.as_view(), name="get_token"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
-    path('api/users/<int:userPk>/reviews/', ListUserReviewsView.as_view(), name='list-user-reviews'),
+    path('api/users/reviews/', ListUserReviewsView.as_view(), name='list-user-reviews'),
     path("api-auth/", include("rest_framework.urls"))]
