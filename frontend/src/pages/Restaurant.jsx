@@ -253,7 +253,7 @@ function Restaurant() {
         )}
 
         <div className="grid-container-restaurant-review">
-          {reviews.map((entry, index) => (
+          {reviews.slice().reverse().map((entry, index) => (
             <ReviewCard
               key={index}
               reviewer_Name={entry.reviewer_Name}
