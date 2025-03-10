@@ -15,13 +15,16 @@ class UserSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["category_name"]
+        fields = ["id", "category_name"]
 
 class ReviewCategoryRatingSerializer(serializers.ModelSerializer):
-    # category = serializers.SlugRelatedField(slug_field='category_name', queryset=Category.objects.all())
+    category_name = serializers.SerializerMethodField()
     class Meta:
         model = ReviewCategoryRating
-        fields = ["category", "rating"]
+        fields = ["category", "category_name", "rating"]
+
+    def get_category_name(self, obj):
+        return obj.category.category_name
 
 class ReviewSerializer(serializers.ModelSerializer):
     restaurant = serializers.PrimaryKeyRelatedField(read_only=True)
