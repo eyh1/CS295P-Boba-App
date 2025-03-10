@@ -60,6 +60,15 @@ function Home() {
         </div>
         <h1 style={{color: "black", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
         {isLoggedIn ? (
+          <div style = {{display: "flex", gap: "10px"}}>
+          <Button
+            className="profileButton"
+            variant="contained"
+            color="#6BAB90"
+            href="/profile"
+            >
+            My Profile
+          </Button>
           <Button
             className="logoutButton"
             variant="contained"
@@ -68,8 +77,9 @@ function Home() {
           >
             Logout
           </Button>
+          </div>
         ) : (
-          <div>
+          <div style = {{display: "flex", gap: "10px"}}>
             <Button
             className="loginButton"
             variant="contained"

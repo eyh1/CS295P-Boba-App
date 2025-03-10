@@ -82,3 +82,11 @@ class ListCategoryView(generics.ListAPIView):
     permission_classes = [AllowAny]
     queryset = Category.objects.all()
     
+
+class ListUserReviewsView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Review.objects.filter(user=user)
