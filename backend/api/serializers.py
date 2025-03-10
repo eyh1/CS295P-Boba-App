@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["category_name"]
+        fields = ["id", "category_name"]
 
 class ReviewCategoryRatingSerializer(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField()
