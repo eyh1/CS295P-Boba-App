@@ -3,124 +3,234 @@ import Zooba from ".././assets/Zooba.png";
 import boba from ".././assets/chafortea.png";
 import omomo from ".././assets/omomo.png";
 import bako from ".././assets/bako.png";
-import "../styles/Restaurant.css"
-import { Button, TextField } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import "../styles/Restaurant.css";
+import { Button } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
+import TopBar from "../components/TopBar";
+import { ACCESS_TOKEN } from "../constants";
+import { Card } from "react-bootstrap";
+import { Navbar, Nav, Container } from "react-bootstrap";
+import api from "../api";
 
-function Restaurant() {
-  const [searchTerm, setSearchTerm] = useState(""); // Use this state to help keep track of the searchbar and update the list of entries
-  const [showReviewForm, setShowReviewForm] = useState(false); // State to control the visibility of the review form
-  const [newReview, setNewReview] = useState({
-    reviewerName: "",
-    drink: "",
-    review: ""
-  }); // State to store the data from the form
-
-  const [reviews, setReviews] = useState([
-    { reviewerName: "Eric", drink: "Black Tea Boba", review: "is gud" },
-    { reviewerName: "Michael", drink: "Green Tea Boba", review: "is gud" },
-    { reviewerName: "Destin", drink: "Matcha Latte Boba", review: "is gud" },
-  ]);
-    function ReviewForm() {
-  const [newReview, setNewReview] = useState({
-    reviewerName: '',
-    drink: '',
-    review: ''
+const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [reviewInputs, setReviewInputs] = useState({
+    reviewer_Name: "",
+    review_pricing: "",
+    review_sweetness: "",
+    is_public: true,
+    review_content: "",
   });
 
-  const handleChange = (field) => (e) => {
-    setNewReview({ ...newReview, [field]: e.target.value });
+  const handleReviewChange = (field, value) => {
+    setReviewInputs((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  const handleSubmit = () => {
-    console.log(newReview);  // Submit logic
+  const handleSubmitReview = async () => {
+  const reviewPayload = {
+    content: reviewInputs.review_content,
+    public: reviewInputs.is_public,
+    pricing: parseFloat(reviewInputs.review_pricing),
+    sweetness: parseFloat(reviewInputs.review_sweetness),
+    review_category_ratings: [{ category: 1, rating: 5 }],
   };
+
+  try {
+    await api.post(`/api/review/1/${rest_id}/create/`, reviewPayload);
+    
+    setReviewInputs({
+      reviewer_Name: "",
+      review_pricing: "",
+      review_sweetness: "",
+      is_public: true,
+      review_content: "",
+    });
+    setIsReviewing(false);
+
+    refreshReviews(); // Fetch updated reviews after submission
+  } catch (error) {
+    console.error("Error submitting review:", error);
+    alert("We failed to receive your review.");
+  }
+};
 
   return (
-    <div>
-      <TextField
-        label="Name"
-        variant="outlined"
-        value={newReview.reviewerName}
-        onChange={handleChange('reviewerName')}
-        fullWidth
-      />
-      <TextField
-        label="Drink"
-        variant="outlined"
-        value={newReview.drink}
-        onChange={handleChange('drink')}
-        fullWidth
-      />
-      <TextField
-        label="Review"
-        variant="outlined"
-        value={newReview.review}
-        onChange={handleChange('review')}
-        fullWidth
-      />
-      <Button onClick={handleSubmit} variant="contained" color="primary">Submit Review</Button>
+    <div className="text-center mt-3">
+      {isReviewing ? (
+        <div className="d-flex flex-column align-items-center">
+          <input
+            type="text"
+            className="form-control mb-2 w-50"
+            placeholder="Your Name"
+            value={reviewInputs.reviewer_Name}
+            onChange={(e) => handleReviewChange("reviewer_Name", e.target.value)}
+          />
+          <input
+            type="number"
+            className="form-control mb-2 w-50"
+            placeholder="Pricing ($)"
+            value={reviewInputs.review_pricing}
+            onChange={(e) => handleReviewChange("review_pricing", e.target.value)}
+          />
+          <input
+            type="number"
+            className="form-control mb-2 w-50"
+            placeholder="Sweetness (1-5)"
+            value={reviewInputs.review_sweetness}
+            onChange={(e) => handleReviewChange("review_sweetness", e.target.value)}
+          />
+          <textarea
+            className="form-control mb-2 w-50"
+            placeholder="Your Review"
+            value={reviewInputs.review_content}
+            onChange={(e) => handleReviewChange("review_content", e.target.value)}
+          />
+          <div className="form-check mb-2">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              checked={reviewInputs.is_public}
+              onChange={(e) => handleReviewChange("is_public", e.target.checked)}
+            />
+            <label className="form-check-label">Make this review public</label>
+          </div>
+          <button className="btn btn-secondary" onClick={handleSubmitReview}>
+            Submit Review
+          </button>
+        </div>
+      ) : (
+        <button className="btn btn-secondary" onClick={() => setIsReviewing(true)}>
+          Write a Review
+        </button>
+      )}
     </div>
   );
-}
-  function TopBar() {
-    const navigate = useNavigate();
-    const handleClick = () => {
-      navigate("/");
-    };
-    return (
-      <div
-        onClick={handleClick}
-        style={{
-          backgroundColor: "#B3A494",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: 70,
-          padding: "0 20px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <img src={Zooba} className="Zooba logo" alt="Zooba logo" />
-        </div>
-        <h1 style={{ color: "#5E4C5A", position: "absolute", left: "50%", transform: "translateX(-50%)", margin: 0 }}>Zoba</h1>
-        <Button
-          className="loginButton"
-          variant="contained"
-          color="#6BAB90"
-          href="/login"
-        >
-          Login
-        </Button>
-      </div>
-    );
-  }
+};
 
+
+// reviewer_Name, review_pricing, review_sweetness, is_public, review_content
+// Main Restaurant Component
+function Restaurant() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // reviewer_Name, review_pricing, review_sweetness, is_public, review_content
+  // some dummy reviews for testing
+//   const [reviews, setReviews] = useState([
+//     { reviewer_Name: "Eric", review_pricing: 5, review_sweetness: 4, is_public: true, review_content: "is gud" },
+//     { reviewer_Name: "Eric", review_pricing: 21, review_sweetness: 3, is_public: false, review_content: "is very expensive" },
+//   ]); 
+  const location = useLocation();
+  const { name_from_home, pic_from_home, ratings_from_home, rest_id } = location.state || {};
+  const [reviews, setReviews] = useState([]);
+  const [reviewJson, setReviewJson] = useState([]);
+  
+
+  const checkLoginStatus = () => {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    setIsLoggedIn(!!token);
+  };
+
+  useEffect(() => {
+    checkLoginStatus();
+    if (rest_id) {
+    getRestaurantReviews(rest_id);
+  }
+  }, [rest_id]);
+
+  const getRestaurantReviews = (id) => {
+    api
+      .get(`api/restaurant/${id}/reviews/`)
+      .then((res) => res.data)
+      .then((data) => {
+        setReviewJson(data);
+        console.log("Fetched reviews:", data);
+
+        if (data.length > 0 && data[0].reviews) {
+          const fetchedReviews = data[0].reviews.map((review) => ({
+            reviewer_Name: review.username,  
+            review_pricing: review.pricing, 
+            review_sweetness: review.sweetness,  
+            is_public: review.public,
+            review_content: review.content, 
+          }));
+
+          // Append fetched reviews to existing ones
+          setReviews((fetchedReviews));
+        }
+      })
+      .catch((error) => alert(error));
+  };
+
+  function TopBar() {
+    const returnHome = () => {
+      window.location.href = "/";
+    }
+
+  const handleLogout = () => {
+    localStorage.removeItem(ACCESS_TOKEN);
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+
+  
+    
+  return (
+    <Navbar bg="light" expand="lg" className="px-3">
+      <Container>
+        <Navbar.Brand href="#">
+          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
+          Zoba
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+          { isLoggedIn ? (
+          <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
+                Logout
+              </Button>
+        ) : (
+            <>
+              <Button variant="outline-primary" className="me-2" href="/login">
+                Login
+              </Button>
+              <Button variant="primary" href="/register">
+                Sign Up
+              </Button>
+            </>
+          )}
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
+}
   function RatingCard({ entry_name, rating }) {
     return (
-      <div className="rating-card">
-        {entry_name} {rating} ⭐
-      </div>
+      <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2">
+        <Card.Body className="p-1">
+          <strong>{entry_name}</strong> {rating} ⭐
+        </Card.Body>
+      </Card>
     );
   }
 
-  function ReviewCard({ reviewerName, drink, review }) {
+
+
+  function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content}) {
     return (
-      <div className="review-card">
-        {reviewerName} reviewing {drink}: {review}
-      </div>
+      <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2">
+        <Card.Body className="p-1">
+          <p><strong>{is_public ? (reviewer_Name) : ("Anonymous")}'s Review:</strong> </p>
+          <p> <strong>Price:</strong> ${review_pricing} <strong> Sweetness:</strong> {review_sweetness}</p>
+          <p> {review_content}</p>
+        </Card.Body>
+      </Card>
     );
   }
 
-  // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) {
-    const handleWriteReviewClick = () => {
-      setShowReviewForm(true); // Show the review form when the button is clicked
-    };
-
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id }) {
     return (
-      <div className="entry-card-restaurant">
+      <Card className="m-3 shadow-sm">
         <div className="card-grid-container-restaurant">
           <img src={pic_source} className="drink-cha" />
           <div className="card-inside-grid-container-restaurant">
@@ -133,94 +243,58 @@ function Restaurant() {
           </div>
         </div>
         <h1 className="titleChaRestaurant">Reviews:</h1>
-        <Button
-          className="reviewButton"
-          variant="contained"
-          color="#FFFFFF"
-          onClick={handleWriteReviewClick} // Trigger review form
-        >
-          <h1 className="buttonText">Write a review</h1>
-        </Button>
+        
+        {isLoggedIn ? (
+          <ReviewComponent reviews={reviews} setReviews={setReviews} rest_id={rest_id} refreshReviews={() => getRestaurantReviews(rest_id)}/>
+        ) : (
+          <Button variant="outline-primary" className="me-2" href="/login">
+            Login to review
+          </Button>
+        )}
 
         <div className="grid-container-restaurant-review">
-          {reviews.map((entry, index) => (
+          {reviews.slice().reverse().map((entry, index) => (
             <ReviewCard
               key={index}
-              reviewerName={entry.reviewerName}
-              drink={entry.drink}
-              review={entry.review}
+              reviewer_Name={entry.reviewer_Name}
+              review_pricing={entry.review_pricing}
+              review_sweetness={entry.review_sweetness}
+              is_public={entry.is_public}
+              review_content={entry.review_content}
             />
           ))}
         </div>
-
-        {showReviewForm && (
-          <div className="review-form-popup">
-            <TextField
-              label="Name"
-              variant="standard"
-              value={newReview.reviewerName}
-              onChange={(e) => setNewReview({ ...newReview, reviewerName: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Drink"
-              variant="standard"
-              value={newReview.drink}
-              onChange={(e) => setNewReview({ ...newReview, drink: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Review"
-              variant="standard"
-              value={newReview.review}
-              onChange={(e) => setNewReview({ ...newReview, review: e.target.value })}
-              fullWidth
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                setReviews([...reviews, newReview]); 
-                setNewReview({ reviewerName: "", drink: "", review: "" }); 
-                setShowReviewForm(false); 
-              }}
-            >
-              Submit
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => setShowReviewForm(false)} // Close the form without saving
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
-      </div>
+      </Card>
     );
   }
 
   function CardGrid() {
-    const location = useLocation();
-    const { name_from_home, pic_from_home, ratings_from_home } = location.state || {};
-    const entries = [
-      { pic: pic_from_home, name: name_from_home, ratings: [ratings_from_home[0], ratings_from_home[1], ratings_from_home[2]] },
-    ];
 
-    return (
-      <div className="grid-container-restaurant">
-        {entries.map((entry, index) => (
-          <EntryCard
-            key={index}
-            pic_source={entry.pic || boba}
-            restaurant={entry.name}
-            rating1={entry.ratings[0]}
-            rating2={entry.ratings[1]}
-            rating3={entry.ratings[2]}
-          />
-        ))}
-      </div>
-    );
-  }
+  const entries = [
+    { pic: pic_from_home, name: name_from_home, ratings: [ratings_from_home[0], ratings_from_home[1], ratings_from_home[2]] },
+  ];
+
+
+
+  return (
+    <div className="grid-container-restaurant">
+      {entries.map((entry, index) => (
+        <EntryCard
+          key={index}
+          pic_source={entry.pic || boba}
+          restaurant={entry.name}
+          rating1={entry.ratings[0]}
+          rating2={entry.ratings[1]}
+          rating3={entry.ratings[2]}
+          rest_id={rest_id}
+        />
+      ))}
+      
+
+    </div>
+  );
+}
+
 
   return (
     <>
