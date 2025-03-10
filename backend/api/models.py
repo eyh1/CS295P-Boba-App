@@ -40,6 +40,7 @@ class RestaurantCategoryRating(models.Model):
     rating = models.DecimalField(max_digits = 3, decimal_places = 2)
 
     class Meta:
+        unique_together = ["restaurant", "category"]
         constraints = [
             models.CheckConstraint(
                 check=models.Q(rating__gte=0, rating__lte=5),
