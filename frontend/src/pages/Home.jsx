@@ -92,7 +92,7 @@ function RatingCard({ entry_name, rating }) {
   );
 }
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3 }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id }) {
   const navigate = useNavigate();
   
   const handleClick = () => {
@@ -101,6 +101,7 @@ function RatingCard({ entry_name, rating }) {
         name_from_home: restaurant,
         pic_from_home: pic_source,
         ratings_from_home: [rating1, rating2, rating3],
+        rest_id: rest_id,
       },
     });
   };
@@ -157,6 +158,7 @@ function RatingCard({ entry_name, rating }) {
             rating1={entry.ratings[0]}
             rating2={entry.ratings[1]}
             rating3={entry.ratings[2]}
+            rest_id={entry.id}
           />
         ))}
       </div>
