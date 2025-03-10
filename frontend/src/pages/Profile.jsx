@@ -50,10 +50,10 @@ function Profile() {
     };
     
     return <div>
-    {/* <TopBar/> */}
-    <Button href = "/">Home</Button>
+    <TopBar/>
     <h1>Your Profile</h1>
     <h2>Your Reviews</h2>
+    <p>Total Reviews Written: {reviews.length}</p>
     {reviews.length > 0 ? (
         <ul style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 0 }}>
             {reviews.map((review) => (
