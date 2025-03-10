@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer
+from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Restaurant, Review, Category, ReviewCategoryRating
 from django.db.models import Avg
@@ -16,6 +16,15 @@ class ListRestaurantView(generics.ListAPIView):
     serializer_class = RestaurantSerializer
     permission_classes = [AllowAny]
     queryset = Restaurant.objects.all()
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = response.data  
+        
+        for restaurant in data:
+            restaurant.pop('reviews', None)  
+                
+        return Response(data)
 
 class CreateReviewView(generics.CreateAPIView):
     queryset = Review.objects.all()
@@ -67,6 +76,12 @@ class GetRestaurantCategoryRatingView(generics.RetrieveAPIView):
         }
 
         return Response(custom_data)
+
+class ListCategoryView(generics.ListAPIView):
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
+    queryset = Category.objects.all()
+    
 
 class ListUserReviewsView(generics.ListAPIView):
     serializer_class = ReviewSerializer
