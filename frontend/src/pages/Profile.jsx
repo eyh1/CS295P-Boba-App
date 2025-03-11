@@ -3,14 +3,14 @@ import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import TopBar from "../components/TopBar";
 import { Button, IconButton } from "@mui/material";
-import Card from '@mui/material/Card';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import DeleteIcon from '@mui/icons-material/Delete';
-
+import { Navbar, Nav, Container } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 
 function Profile() {
     const [reviews, setReviews] = useState([]);
@@ -65,6 +65,16 @@ function Profile() {
         const category = categories.find(cat => cat.id === categoryId);
         return category ? category.category_name : "Unknown Category";
     };
+
+    function CategoryRatingCard({ category, rating }) {
+        return (
+          <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
+            <Card.Body className="p-1 text-center">
+              <strong>{category}:</strong> {rating} ⭐
+            </Card.Body>
+          </Card>
+        );
+      }
     
     return <div>
     <TopBar/>
@@ -79,29 +89,33 @@ function Profile() {
                   <Stack
                     direction="row"
                     sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-                  >
+                  > </Stack>
                     <Typography gutterBottom variant="h5" component="div">
-                    Restaurant Name: {review.restaurant_name}
+                    {review.restaurant_name}
                     </Typography>
                     <Typography gutterBottom variant="h6" component="div">
                     ${review.pricing}
                     </Typography>
-                  </Stack>
+                  
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                   {review.content}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   Posted on: {formatDate(review.created_at)}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Rating: {review.review_category_ratings[0].rating}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Category: {getCategoryName(review.review_category_ratings[0].category)}
-                    </Typography>
+                  <div className="d-flex flex-wrap justify-content-center mt-2">
+                    {review.review_category_ratings.map((category_rating, index) => (
+                        <CategoryRatingCard
+                        key={index}
+                        category={category_rating.category_name}
+                        rating={category_rating.rating}
+                        />
+                    ))}
+                    </div>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     Sweetness: {review.sweetness}
                     </Typography>
+
                 </Box>
                 <Divider />
                 <Box sx={{ p: 2 }}>
