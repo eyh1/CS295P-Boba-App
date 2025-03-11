@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('review', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='review_category_score', to='api.review')),
             ],
             options={
-                'constraints': [models.CheckConstraint(condition=models.Q(('rating__gte', 0), ('rating__lte', 5)), name='rating_between_0_and_5')],
+                'constraints': [models.CheckConstraint(check=models.Q(rating__gte=0, rating__lte=5), name='rating_between_0_and_5')],
             },
         ),
     ]
