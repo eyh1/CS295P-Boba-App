@@ -141,11 +141,22 @@ function RatingCard({ entry_name, rating }) {
       return obj; // Return the updated map
     });
 
+    
     updatedRestaurants = updatedRestaurants.map(obj => {
-      obj[bobaKey] = bobaValue;
+      if(obj["restaurant_name"] == "Cha For Tea"){
+          
+          obj[bobaKey] = boba;
+      }else{
+          if(obj["restaurant_name"] == "Omomo"){
+              obj[bobaKey] = omomo;
+          }else{
+              obj[bobaKey] = bako;
+          }
+          
+      }
+      
       return obj; // Return the updated map
     });
-
     const entries = updatedRestaurants;
 
     // Filter based on whats in the search bar
