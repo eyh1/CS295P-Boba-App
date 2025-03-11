@@ -21,6 +21,18 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     is_public: true,
     review_content: "",
   });
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [categoryRatings, setCategoryRatings] = useState([]);
+
+  useEffect(() => {
+    api.get("api/category/")
+      .then((res) => res.data)
+      .then((data) => {
+        setCategories(data);
+      })
+      .catch((error) => alert(error));
+  }, []);
 
   const handleReviewChange = (field, value) => {
     setReviewInputs((prev) => ({
@@ -29,45 +41,84 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     }));
   };
 
-  const handleSubmitReview = async () => {
-  const reviewPayload = {
-    content: reviewInputs.review_content,
-    public: reviewInputs.is_public,
-    pricing: parseFloat(reviewInputs.review_pricing),
-    sweetness: parseFloat(reviewInputs.review_sweetness),
-    review_category_ratings: [{ category: 1, rating: 5 }],
+  const handleCategorySelect = (event) => {
+    const categoryId = parseInt(event.target.value);
+    const category = categories.find((cat) => cat.id === categoryId);
+    if (category && !selectedCategories.includes(category)) {
+      setSelectedCategories([...selectedCategories, category]);
+      setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
+    }
   };
 
-  try {
-    await api.post(`/api/review/${rest_id}/create/`, reviewPayload);
-    
-    setReviewInputs({
-      reviewer_Name: "",
-      review_pricing: "",
-      review_sweetness: "",
-      is_public: true,
-      review_content: "",
-    });
-    setIsReviewing(false);
+  const handleCategoryRatingChange = (categoryId, value) => {
+    setCategoryRatings((prevRatings) =>
+      prevRatings.map((rating) =>
+        rating.category === categoryId ? { ...rating, rating: parseInt(value) } : rating
+      )
+    );
+  };
 
-    refreshReviews(); // Fetch updated reviews after submission
-  } catch (error) {
-    console.error("Error submitting review:", error);
-    alert("We failed to receive your review.");
-  }
-};
+  const handleSubmitReview = async () => {
+    const reviewPayload = {
+      content: reviewInputs.review_content,
+      public: reviewInputs.is_public,
+      pricing: parseFloat(reviewInputs.review_pricing),
+      sweetness: parseFloat(reviewInputs.review_sweetness),
+      review_category_ratings: categoryRatings,
+    };
+
+    try {
+      await api.post(`/api/review/${rest_id}/create/`, reviewPayload);
+      setReviewInputs({
+        reviewer_Name: "",
+        review_pricing: "",
+        review_sweetness: "",
+        is_public: true,
+        review_content: "",
+      });
+      setIsReviewing(false);
+      setSelectedCategories([]);
+      setCategoryRatings([]);
+      refreshReviews();
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("We failed to receive your review.");
+    }
+  };
 
   return (
     <div className="text-center mt-3">
       {isReviewing ? (
         <div className="d-flex flex-column align-items-center">
-          <input
-            type="text"
-            className="form-control mb-2 w-50"
-            placeholder="Your Name"
-            value={reviewInputs.reviewer_Name}
-            onChange={(e) => handleReviewChange("reviewer_Name", e.target.value)}
-          />
+            <select className="form-control mb-2 w-50" onChange={handleCategorySelect} defaultValue="">
+            <option value="" disabled>Select a category to rate</option>
+            {categories
+              .filter((cat) => !selectedCategories.includes(cat))
+              .map((category) => (
+                <option key={category.id} value={category.id}>{category.category_name}</option>
+              ))}
+          </select>
+
+         
+          {selectedCategories.map((category) => (
+            <div key={category.id} className="mb-2 w-50">
+                <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2 d-flex align-items-center justify-content-center">
+                <div className="d-flex align-items-center w-100 justify-content-between">
+                    <strong className="flex-grow-1 text-center">{category.category_name} Rating:</strong>
+                    <select
+                    className="form-select w-auto ms-2"
+                    onChange={(e) => handleCategoryRatingChange(category.id, e.target.value)}
+                    >
+                    {[5, 4, 3, 2, 1].map((num) => (
+                        <option key={num} value={num}>{num}</option>
+                    ))}
+                    </select>
+                </div>
+                </Card>
+            </div>
+            ))}
+
+         
           <input
             type="number"
             className="form-control mb-2 w-50"
@@ -97,6 +148,9 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             />
             <label className="form-check-label">Make this review public</label>
           </div>
+
+          
+
           <button className="btn btn-secondary" onClick={handleSubmitReview}>
             Submit Review
           </button>
@@ -154,9 +208,9 @@ function Restaurant() {
             review_sweetness: review.sweetness,  
             is_public: review.public,
             review_content: review.content, 
+            review_category_ratings: review.review_category_ratings,
           }));
 
-          // Append fetched reviews to existing ones
           setReviews((fetchedReviews));
         }
       })
@@ -214,19 +268,38 @@ function Restaurant() {
     );
   }
 
+  function CategoryRatingCard({ category, rating }) {
+  return (
+    <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
+      <Card.Body className="p-1 text-center">
+        <strong>{category}:</strong> {rating} ⭐
+      </Card.Body>
+    </Card>
+  );
+}
 
 
-  function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content}) {
-    return (
-      <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2">
-        <Card.Body className="p-1">
-          <p><strong>{is_public ? (reviewer_Name) : ("Anonymous")}'s Review:</strong> </p>
-          <p> <strong>Price:</strong> ${review_pricing} <strong> Sweetness:</strong> {review_sweetness}</p>
-          <p> {review_content}</p>
-        </Card.Body>
-      </Card>
-    );
-  }
+  function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings }) {
+  return (
+    <Card className="text-center shadow-sm border-0 bg-light px-3 py-2 mb-2">
+      <Card.Body className="p-2">
+        <p><strong>{is_public ? reviewer_Name : "Anonymous"}'s Review:</strong></p>
+        <p><strong>Price:</strong> ${review_pricing} <strong> Sweetness:</strong> {review_sweetness}</p>
+        <p>{review_content}</p>
+
+        <div className="d-flex flex-wrap justify-content-center mt-2">
+          {review_category_ratings.map((category_rating, index) => (
+            <CategoryRatingCard
+              key={index}
+              category={category_rating.category_name}
+              rating={category_rating.rating}
+            />
+          ))}
+        </div>
+      </Card.Body>
+    </Card>
+  );
+}
 
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id }) {
     return (
@@ -261,6 +334,7 @@ function Restaurant() {
               review_sweetness={entry.review_sweetness}
               is_public={entry.is_public}
               review_content={entry.review_content}
+              review_category_ratings={entry.review_category_ratings}
             />
           ))}
         </div>
