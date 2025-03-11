@@ -46,7 +46,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     const category = categories.find((cat) => cat.id === categoryId);
     if (category && !selectedCategories.includes(category)) {
       setSelectedCategories([...selectedCategories, category]);
-      setCategoryRatings([...categoryRatings, { category: category.id, rating: 1 }]);
+      setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
     }
   };
 
