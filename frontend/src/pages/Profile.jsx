@@ -38,7 +38,7 @@ function Profile() {
 
     const fetchCategories = async () => {
         try {
-            const response = await api.get(`/api/categories/`);
+            const response = await api.get(`/api/category/`);
             setCategories(response.data);
         } catch (error) {
             console.error("Failed to fetch categories:", error);
@@ -63,7 +63,7 @@ function Profile() {
 
     const getCategoryName = (categoryId) => {
         const category = categories.find(cat => cat.id === categoryId);
-        return category ? category.name : "Unknown Category";
+        return category ? category.category_name : "Unknown Category";
     };
     
     return <div>

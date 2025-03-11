@@ -63,10 +63,14 @@ function TopBar() {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (
-          <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
+          { isLoggedIn ? (<div>
+            <Button variant="outline-primary" className="me-2" href="/profile">
+              Profile
+            </Button>
+            <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
                 Logout
               </Button>
+          </div>
         ) : (
             <>
               <Button variant="outline-primary" className="me-2" href="/login">
