@@ -98,7 +98,7 @@ function RatingCard({ entry_name, rating }) {
 }
 
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, cat_name, rating }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings }) {
   const navigate = useNavigate();
   
   const handleClick = () => {
@@ -112,6 +112,16 @@ function RatingCard({ entry_name, rating }) {
     });
   };
 
+  function CategoryRatingCard({ category, rating }) {
+    return (
+      <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
+        <Card.Body className="p-1 text-center">
+          <strong>{category}:</strong> {rating} ⭐
+        </Card.Body>
+      </Card>
+    );
+  }
+
   return (
     <Card className="m-3 shadow-sm" style={{ cursor: "pointer" }} onClick={handleClick}>
       <Card.Img variant="top" src={pic_source} />
@@ -120,9 +130,15 @@ function RatingCard({ entry_name, rating }) {
         <Card.Text>
         {address}
         </Card.Text>
-        <Card.Text>
-          {cat_name} {rating}
-        </Card.Text>
+        <div className="d-flex flex-wrap justify-content-center mt-2">
+          {restaurant_category_ratings.map((category_rating, index) => (
+            <CategoryRatingCard
+              key={index}
+              category={category_rating.category_name}
+              rating={category_rating.rating}
+            />
+          ))}
+        </div>
       </Card.Body>
     </Card>
   );
@@ -177,8 +193,7 @@ function RatingCard({ entry_name, rating }) {
             rating2={entry.ratings[1]}
             rating3={entry.ratings[2]}
             rest_id={entry.id}
-            cat_name={entry.restaurant_category_ratings.length > 0 ? entry.restaurant_category_ratings[0].category_name+":" : "No category"}
-            rating={entry.restaurant_category_ratings.length > 0 ? entry.restaurant_category_ratings[0].rating : "No rating"}
+            restaurant_category_ratings={entry.restaurant_category_ratings}
           />
         ))}
       </div>
