@@ -29,13 +29,13 @@ class ListRestaurantView(generics.ListAPIView):
 class CreateReviewView(generics.CreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         restaurant = self.kwargs['restaurantPk']
-        user = self.kwargs['userPk']
+        user = self.request.user
         restaurant_instance = Restaurant.objects.get(pk=restaurant)
-        user_instance = User.objects.get(pk=user) if user else None
+        user_instance = User.objects.get(pk=user)
         serializer.save(restaurant=restaurant_instance, user=user_instance)
     
     def create(self, request, *args, **kwargs):
