@@ -48,6 +48,7 @@ function Home() {
     navigate("/login");
   };
 
+
 function TopBar() {
     const returnHome = () => {
       window.location.href = "/";
@@ -91,6 +92,7 @@ function RatingCard({ entry_name, rating }) {
     </Card>
   );
 }
+
   // The card that contains the pics and cafe info
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id }) {
   const navigate = useNavigate();

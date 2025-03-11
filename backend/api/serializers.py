@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Restaurant, Review, ReviewCategoryRating, Category
+from .models import Restaurant, Review, ReviewCategoryRating, Category, RestaurantCategoryRating
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,17 +51,35 @@ class ReviewSerializer(serializers.ModelSerializer):
         return obj.restaurant.restaurant_name
     
 class RestaurantSerializer(serializers.ModelSerializer):
+    restaurant_category_ratings = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
     
     class Meta:
         model = Restaurant
-        fields = ["id", "restaurant_name", "address", "reviews"]
+        fields = ["id", "restaurant_name", "address", "reviews", "restaurant_category_ratings"]
       
     def get_reviews(self, obj):
         reviews = obj.reviews.filter(public = True)  
         return ReviewSerializer(reviews, many=True, read_only=True).data
     
-class RestaurantCategoryRatingSerializer(serializers.Serializer):
+    def get_restaurant_category_ratings(self, obj):
+        restaurant_category_ratings = obj.restaurant_category_ratings.all()
+        for i in restaurant_category_ratings:
+            print(i.rating)
+        return RestaurantCategoryRatingSerializer(restaurant_category_ratings, many=True, read_only=True).data
+    
+class RestaurantCategoryRatingSerializer(serializers.ModelSerializer):
+    restaurant = serializers.PrimaryKeyRelatedField(read_only=True)
+    category = serializers.PrimaryKeyRelatedField(read_only=True)
+    restaurant_name = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
+    
     class Meta:
-        fields = ["restaurant_name", "category_name", "avg_rating"]
+        model = RestaurantCategoryRating
+        fields = ["id", "restaurant", "restaurant_name", "category", "category_name", "rating"]
 
+    def get_restaurant_name(self, obj):
+        return obj.restaurant.restaurant_name
+
+    def get_category_name(self, obj):
+        return obj.category.category_name
