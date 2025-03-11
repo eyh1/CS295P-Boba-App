@@ -35,7 +35,7 @@ class CreateReviewView(generics.CreateAPIView):
         restaurant = self.kwargs['restaurantPk']
         user = self.request.user
         restaurant_instance = Restaurant.objects.get(pk=restaurant)
-        user_instance = User.objects.get(pk=user)
+        user_instance = User.objects.get(pk=user.id)
         serializer.save(restaurant=restaurant_instance, user=user_instance)
     
     def create(self, request, *args, **kwargs):

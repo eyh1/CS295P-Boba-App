@@ -39,7 +39,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   };
 
   try {
-    await api.post(`/api/review/1/${rest_id}/create/`, reviewPayload);
+    await api.post(`/api/review/${rest_id}/create/`, reviewPayload);
     
     setReviewInputs({
       reviewer_Name: "",
