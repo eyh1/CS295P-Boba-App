@@ -39,7 +39,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   };
 
   try {
-    await api.post(`/api/review/1/${rest_id}/create/`, reviewPayload);
+    await api.post(`/api/review/${rest_id}/create/`, reviewPayload);
     
     setReviewInputs({
       reviewer_Name: "",
@@ -61,13 +61,13 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     <div className="text-center mt-3">
       {isReviewing ? (
         <div className="d-flex flex-column align-items-center">
-          <input
+          {/* <input
             type="text"
             className="form-control mb-2 w-50"
             placeholder="Your Name"
             value={reviewInputs.reviewer_Name}
             onChange={(e) => handleReviewChange("reviewer_Name", e.target.value)}
-          />
+          /> */}
           <input
             type="number"
             className="form-control mb-2 w-50"
