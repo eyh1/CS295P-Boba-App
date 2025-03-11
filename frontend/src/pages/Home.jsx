@@ -94,7 +94,7 @@ function RatingCard({ entry_name, rating }) {
 }
 
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, cat_name, rating }) {
   const navigate = useNavigate();
   
   const handleClick = () => {
@@ -114,9 +114,10 @@ function RatingCard({ entry_name, rating }) {
       <Card.Body>
         <Card.Title>{restaurant}</Card.Title>
         <Card.Text>
-          <RatingCard entry_name="Creme Brule" rating={rating1} />
-          <RatingCard entry_name="Matcha" rating={rating2} />
-          <RatingCard entry_name="Fruit Tea" rating={rating3} />
+        {address}
+        </Card.Text>
+        <Card.Text>
+          {cat_name} {rating}
         </Card.Text>
       </Card.Body>
     </Card>
@@ -156,11 +157,13 @@ function RatingCard({ entry_name, rating }) {
             key={index}
             pic_source={entry.pic}
             restaurant={entry.restaurant_name}
-            // address = {entry.address}
+            address = {entry.address}
             rating1={entry.ratings[0]}
             rating2={entry.ratings[1]}
             rating3={entry.ratings[2]}
             rest_id={entry.id}
+            cat_name={entry.restaurant_category_ratings.length > 0 ? entry.restaurant_category_ratings[0].category_name+":" : "No category"}
+            rating={entry.restaurant_category_ratings.length > 0 ? entry.restaurant_category_ratings[0].rating : "No rating"}
           />
         ))}
       </div>

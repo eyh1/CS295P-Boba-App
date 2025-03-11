@@ -14,9 +14,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 function Profile() {
     const [reviews, setReviews] = useState([]);
+    const [categories, setCategories] = useState([]);
+
 
     useEffect(() => {
         fetchUserReviews();
+        fetchCategories();
     }, []);
 
     const fetchUserReviews = async () => {
@@ -30,6 +33,15 @@ function Profile() {
             setReviews(response.data);
         } catch (error) {
             console.error("Failed to fetch user reviews:", error);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const response = await api.get(`/api/categories/`);
+            setCategories(response.data);
+        } catch (error) {
+            console.error("Failed to fetch categories:", error);
         }
     };
 
@@ -47,6 +59,11 @@ function Profile() {
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    const getCategoryName = (categoryId) => {
+        const category = categories.find(cat => cat.id === categoryId);
+        return category ? category.name : "Unknown Category";
     };
     
     return <div>
@@ -80,7 +97,7 @@ function Profile() {
                     Rating: {review.review_category_ratings[0].rating}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Category: {review.review_category_ratings[0].category}
+                        Category: {getCategoryName(review.review_category_ratings[0].category)}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     Sweetness: {review.sweetness}
