@@ -20,7 +20,12 @@ class Review(models.Model):
     sweetness = models.FloatField()
 
 class Category(models.Model):
+    ALLOWED_CATEGORY_TYPES = [
+        {'base','Base'},
+        {'topping', 'Topping'}
+    ]
     category_name = models.CharField(max_length = 100, unique = True)
+    category_type = models.CharField(max_length = 100, choices = ALLOWED_CATEGORY_TYPES, default = "base")
 
 class ReviewCategoryRating(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
