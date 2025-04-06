@@ -13,6 +13,11 @@ import { Navbar, Nav, Container } from "react-bootstrap";
 import api from "../api";
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
+  const [toppingDropdowns, setToppingDropdowns] = useState([0]); // State to track dropdown instances
+  const [showToppingDropdown, setShowToppingDropdown] = useState(false); // State to toggle visibility
+  const addToppingDropdown = () => {
+    setToppingDropdowns((prev) => [...prev, prev.length]); // Add a new dropdown instance
+  };
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewInputs, setReviewInputs] = useState({
     reviewer_Name: "",
@@ -90,24 +95,44 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     <div className="text-center mt-3">
       {isReviewing ? (
         <div className="d-flex flex-column align-items-center">
-
-            <select className="form-control mb-2 w-50" onChange={handleCategorySelect} defaultValue="">
-              <option value="" disabled>Select a base</option>
-                {categories
-                .filter((cat) => cat.category_type === "Base" && !selectedCategories.includes(cat))
-                .map((category) => (
-                  <option key={category.id} value={category.id}>{category.category_name}</option>
-                ))}
-            </select>
-            <select className="form-control mb-2 w-50" onChange={handleCategorySelect} defaultValue="">
-              <option value="" disabled>Select any toppings</option>
-                {categories
-                .filter((cat) => cat.category_type === "Topping" && !selectedCategories.includes(cat))
-                .map((category) => (
-                  <option key={category.id} value={category.id}>{category.category_name}</option>
-                ))}
-            </select>
-
+          {/* Base Dropdown */}
+          <select className="form-control mb-2 w-50" onChange={handleCategorySelect} defaultValue="">
+            <option value="" disabled>Select a base</option>
+              {categories
+              .filter((cat) => cat.category_type === "Base" && !selectedCategories.includes(cat))
+              .map((category) => (
+                 <option key={category.id} value={category.id}>{category.category_name}</option>
+              ))}
+          </select>
+          {/* Topping Dropdown */}
+          {toppingDropdowns.map((dropdownIndex) => (
+          <select
+            key={dropdownIndex}
+            className="form-control mb-2 w-50"
+            onChange={(e) => handleCategorySelect(e, dropdownIndex)}
+            defaultValue=""
+          >
+            <option value="" disabled>
+              Select any toppings
+            </option>
+            {categories
+              .filter(
+                (cat) =>
+                  cat.category_type === "Topping" &&
+                  !selectedCategories.includes(cat)
+              )
+              .map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.category_name}
+                </option>
+              ))}
+          </select>
+          
+        ))}
+            {/* Button to add a new dropdown */}
+            <button onClick={addToppingDropdown} className="btn btn-primary mt-3">
+              Add a topping
+            </button>
          
           {selectedCategories.map((category) => (
             <div key={category.id} className="mb-2 w-50">
@@ -127,7 +152,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             </div>
             ))}
 
-          <button>Add another topping</button>
+          
           <input
             type="number"
             className="form-control mb-2 w-50"
