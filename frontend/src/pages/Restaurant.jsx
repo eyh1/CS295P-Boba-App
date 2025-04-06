@@ -240,48 +240,6 @@ function Restaurant() {
       .catch((error) => alert(error));
   };
 
-  function TopBar() {
-    const returnHome = () => {
-      window.location.href = "/";
-    }
-
-  const handleLogout = () => {
-    localStorage.removeItem(ACCESS_TOKEN);
-    setIsLoggedIn(false);
-    navigate("/login");
-  };
-
-  
-    
-  return (
-    <Navbar bg="light" expand="lg" className="px-3">
-      <Container>
-        <Navbar.Brand href="#">
-          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
-          Zoba
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (
-          <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
-                Logout
-              </Button>
-        ) : (
-            <>
-              <Button variant="outline-primary" className="me-2" href="/login">
-                Login
-              </Button>
-              <Button variant="primary" href="/register">
-                Sign Up
-              </Button>
-            </>
-          )}
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  );
-}
-
   function CategoryRatingCard({ category, rating }) {
   return (
     <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
