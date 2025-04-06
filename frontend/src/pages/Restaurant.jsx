@@ -106,34 +106,32 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
           </select>
           {/* Topping Dropdown */}
           {toppingDropdowns.map((dropdownIndex) => (
-          <select
-            key={dropdownIndex}
-            className="form-control mb-2 w-50"
-            onChange={(e) => handleCategorySelect(e, dropdownIndex)}
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Select any toppings
-            </option>
-            {categories
-              .filter(
-                (cat) =>
-                  cat.category_type === "Topping" &&
-                  !selectedCategories.includes(cat)
-              )
-              .map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.category_name}
-                </option>
-              ))}
-          </select>
-          
-        ))}
+            <select
+              key={dropdownIndex}
+              className="form-control mb-2 w-50"
+              onChange={(e) => handleCategorySelect(e, dropdownIndex)}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select any toppings
+              </option>
+              {categories
+                .filter(
+                  (cat) =>
+                    cat.category_type === "Topping" &&
+                    !selectedCategories.includes(cat)
+                )
+                .map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.category_name}
+                  </option>
+                ))}
+            </select>
+          ))}
             {/* Button to add a new dropdown */}
             <button onClick={addToppingDropdown} className="btn btn-primary mt-3">
               Add a topping
             </button>
-         
           {selectedCategories.map((category) => (
             <div key={category.id} className="mb-2 w-50">
                 <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2 d-flex align-items-center justify-content-center">
