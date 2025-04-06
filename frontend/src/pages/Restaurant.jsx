@@ -85,7 +85,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       alert("We failed to receive your review.");
     }
   };
-
+  console.log(categories)
   return (
     <div className="text-center mt-3">
       {isReviewing ? (
