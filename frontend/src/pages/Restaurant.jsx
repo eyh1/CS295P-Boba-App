@@ -20,8 +20,19 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     setToppingDropdowns((prev) => [...prev, prev.length]); // Add a new dropdown instance
   };
 
-  const removeToppingDropdown = (indexToRemove) => {
-    setToppingDropdowns((prev) => prev.filter((_, index) => index !== indexToRemove));
+  const removeToppingDropdown = (dropdownIndex) => {
+    const toppingIdToRemove = toppingSelections[dropdownIndex];
+  
+    // Remove the selection at this index
+    const updatedSelections = toppingSelections.filter((_, index) => index !== dropdownIndex);
+    setToppingSelections(updatedSelections);
+  
+    // Remove the category and its rating
+    setSelectedCategories((prev) => prev.filter((cat) => cat.id !== toppingIdToRemove));
+    setCategoryRatings((prev) => prev.filter((rating) => rating.category !== toppingIdToRemove));
+  
+    // Reset dropdown indices to match new selections length
+    setToppingDropdowns(updatedSelections.map((_, index) => index));
   };
 
   const [isReviewing, setIsReviewing] = useState(false);
@@ -81,8 +92,17 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             return cat && cat.category_type !== "Base";
           })
         );
+          
+      // Add the new category to selectedCategories and categoryRatings
+      if (!selectedCategories.includes(category)) {
+        setSelectedCategories((prev) => [...prev, category]);
+        setCategoryRatings((prev) => [
+          ...prev,
+          { category: category.id, rating: 3 },
+        ]);
       }
-      else {
+      }
+      else { // selected category is topping
         // Remove the previously selected topping for this dropdown
         setSelectedCategories((prev) => {
           const updatedCategories = prev.filter((cat) => {
@@ -107,15 +127,6 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
           return updatedSelections;
         });
         return;
-      }
-  
-      // Add the new category to selectedCategories and categoryRatings
-      if (!selectedCategories.includes(category)) {
-        setSelectedCategories((prev) => [...prev, category]);
-        setCategoryRatings((prev) => [
-          ...prev,
-          { category: category.id, rating: 5 },
-        ]);
       }
     }
   };
@@ -187,13 +198,14 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 <select
                   className="form-control me-2"
                   onChange={(e) => handleCategorySelect(e, dropdownIndex)}
-                  defaultValue=""
+                  value={toppingSelections[dropdownIndex] || ""}
                 >
                   <option value="" disabled>Select any toppings</option>
                   {categories
                     .filter(
                       (cat) =>
-                        cat.category_type === "Topping"
+                        cat.category_type === "Topping" &&
+                      (!toppingSelections.includes(cat.id) || toppingSelections[dropdownIndex] === cat.id)
                   )
                   .map((category) => (
                     <option key={category.id} value={category.id}>
@@ -205,17 +217,15 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 <select
                     className="form-select w-auto"
                     onChange={(e) => handleCategoryRatingChange(category.id, e.target.value)}
-                    >
+                >
                     {[5, 4, 3, 2, 1].map((num) => (
                         <option key={num} value={num}>{num}</option>
                     ))}
-                    </select>
+                </select>
                     {/* Remove Button */}
                     <button
                       onClick={() => {
                         removeToppingDropdown(dropdownIndex);
-                        const selectedToppingId = toppingSelections[dropdownIndex];
-                        handleCategoryRemove(selectedToppingId);
                       }}
                       className="btn btn-danger"
                     >
@@ -227,7 +237,9 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             <button onClick={addToppingDropdown} className="btn btn-primary mt-1 mb-1">
               Add a topping
             </button>
-          {selectedCategories.map((category) => (
+
+            {/* Previous rating dropdown */}
+          {/* {selectedCategories.map((category) => (
             <div key={category.id} className="mb-2 w-50">
                 <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2 d-flex align-items-center justify-content-center">
                 <div className="d-flex align-items-center w-100 justify-content-between">
@@ -243,7 +255,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 </div>
                 </Card>
             </div>
-            ))}
+            ))} */}
 
           
           <input
