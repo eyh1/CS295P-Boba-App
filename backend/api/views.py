@@ -31,7 +31,7 @@ class ListRestaurantView(generics.ListAPIView):
         if rating:
             restaurant_category_rating_filter = restaurant_category_rating_filter.filter(rating__gte = rating)
 
-        return queryset.filter(restaurant_category_ratings__in = restaurant_category_rating_filter)
+        return queryset.filter(restaurant_category_ratings__in = restaurant_category_rating_filter).distinct()
 
     
     def list(self, request, *args, **kwargs):
