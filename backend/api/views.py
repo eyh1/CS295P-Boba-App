@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating
 from django.db.models import Avg
 from rest_framework.response import Response
+from django.db.models import Q
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -18,20 +19,18 @@ class ListRestaurantView(generics.ListAPIView):
     
     def get_queryset(self):
         categories = self.request.query_params.get('categories', None)
-        rating = self.request.query_params.get('rating', None)
+        rating = self.request.query_params.get('rating', 0)
         
         queryset = Restaurant.objects.all()
-        
-        restaurant_category_rating_filter = RestaurantCategoryRating.objects.all()
-        
+                
         if categories:
             category_list = categories.split(',')
-            restaurant_category_rating_filter = restaurant_category_rating_filter.filter(category__in = category_list)
+            
+            for category in category_list:
+                filter = Q(restaurant_category_ratings__category=category, restaurant_category_ratings__rating__gte=rating)
+                queryset = queryset.filter(filter).distinct()
 
-        if rating:
-            restaurant_category_rating_filter = restaurant_category_rating_filter.filter(rating__gte = rating)
-
-        return queryset.filter(restaurant_category_ratings__in = restaurant_category_rating_filter).distinct()
+        return queryset
 
     
     def list(self, request, *args, **kwargs):
