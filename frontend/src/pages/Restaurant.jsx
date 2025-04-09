@@ -11,6 +11,7 @@ import { ACCESS_TOKEN } from "../constants";
 import { Card } from "react-bootstrap";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import api from "../api";
+import Rating from '@mui/material/Rating';
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   const [toppingDropdowns, setToppingDropdowns] = useState([]); // State to track dropdown instances
@@ -185,7 +186,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                   <option key={category.id} value={category.id}>{category.category_name}</option>
                 ))}
             </select>
-            <select
+            {/* <select
               className="form-select w-auto ms-2"
               value={
                 categoryRatings.find((r) => r.category === selectedCategories.find((cat) => cat.category_type === "Base")?.id)?.rating || ""
@@ -202,7 +203,17 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                   {num}
                 </option>
               ))}
-            </select>
+            </select> */}
+            <Rating
+        name="simple-controlled"
+        value={categoryRatings.find((r) => r.category === selectedCategories.find((cat) => cat.category_type === "Base")?.id)?.rating || ""}
+        onChange={(e) =>
+          handleCategoryRatingChange(
+            selectedCategories.find((cat) => cat.category_type === "Base")?.id,
+            e.target.value
+          )
+        }
+      />
           </div>
             {/* Topping Dropdowns */}
             <labe>Toppings</labe>
@@ -227,7 +238,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                   ))}
                 </select>
                 {/* Rating for topping */}
-                <select
+                {/* <select
                   className="form-select w-auto"
                   value={
                     categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""
@@ -239,7 +250,14 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                   {[5, 4, 3, 2, 1].map((num) => (
                     <option key={num} value={num}>{num}</option>
                   ))}
-                </select>
+                </select> */}
+                <Rating
+                  name="simple-controlled"
+                  value={categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""}
+                  onChange={(e) =>
+                    handleCategoryRatingChange(toppingSelections[dropdownIndex], e.target.value)
+                  }
+                />
                     {/* Remove Button */}
                     <button
                       onClick={() => {
