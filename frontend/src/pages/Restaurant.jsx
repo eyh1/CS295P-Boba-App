@@ -94,13 +94,8 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
         );
           
       // Add the new category to selectedCategories and categoryRatings
-      if (!selectedCategories.includes(category)) {
-        setSelectedCategories((prev) => [...prev, category]);
-        setCategoryRatings((prev) => [
-          ...prev,
-          { category: category.id, rating: 3 },
-        ]);
-      }
+      setSelectedCategories([...selectedCategories, category]);
+      setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
       }
       else { // selected category is topping
         // Remove the previously selected topping for this dropdown
@@ -132,9 +127,17 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   };
 
   const handleCategoryRatingChange = (categoryId, value) => {
+    const parsedValue = parseInt(value);
+
     setCategoryRatings((prevRatings) =>
       prevRatings.map((rating) =>
-        rating.category === categoryId ? { ...rating, rating: parseInt(value) } : rating
+        rating.category === categoryId ? { ...rating, rating: parsedValue } : rating
+      )
+    );
+
+    setSelectedCategories((prevCategories) =>
+      prevCategories.map((cat) =>
+        cat.id === categoryId ? { ...cat, rating: parsedValue } : cat
       )
     );
   };
@@ -173,7 +176,6 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
         <div className="d-flex flex-column align-items-center">
           {/* Base Dropdown */}
           <label>Base</label> {/* Add label above the dropdown */}
-
           <div className="d-flex align-items-center w-50">
             <select className="form-control" onChange={handleCategorySelect} defaultValue="">
               <option value="" disabled>Select a base</option>
@@ -184,15 +186,26 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 ))}
             </select>
             <select
-                    className="form-select w-auto ms-2"
-                    onChange={(e) => handleCategoryRatingChange(category.id, e.target.value)}
-                    >
-                    {[5, 4, 3, 2, 1].map((num) => (
-                        <option key={num} value={num}>{num}</option>
-                    ))}
-              </select>
+              className="form-select w-auto ms-2"
+              value={
+                categoryRatings.find((r) => r.category === selectedCategories.find((cat) => cat.category_type === "Base")?.id)?.rating || ""
+              }
+              onChange={(e) =>
+                handleCategoryRatingChange(
+                  selectedCategories.find((cat) => cat.category_type === "Base")?.id,
+                  e.target.value
+                )
+              }
+            >
+              {[5, 4, 3, 2, 1].map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
           </div>
             {/* Topping Dropdowns */}
+            <labe>Toppings</labe>
             {toppingDropdowns.map((dropdownIndex) => (
               <div key={dropdownIndex} className="d-flex align-items-center w-50 mt-1">
                 <select
@@ -215,12 +228,17 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 </select>
                 {/* Rating for topping */}
                 <select
-                    className="form-select w-auto"
-                    onChange={(e) => handleCategoryRatingChange(category.id, e.target.value)}
+                  className="form-select w-auto"
+                  value={
+                    categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""
+                  }
+                  onChange={(e) =>
+                    handleCategoryRatingChange(toppingSelections[dropdownIndex], e.target.value)
+                  }
                 >
-                    {[5, 4, 3, 2, 1].map((num) => (
-                        <option key={num} value={num}>{num}</option>
-                    ))}
+                  {[5, 4, 3, 2, 1].map((num) => (
+                    <option key={num} value={num}>{num}</option>
+                  ))}
                 </select>
                     {/* Remove Button */}
                     <button
