@@ -12,6 +12,7 @@ import { Card } from "react-bootstrap";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import api from "../api";
 import Rating from '@mui/material/Rating';
+import TextField from "@mui/material/TextField";
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   const [toppingDropdowns, setToppingDropdowns] = useState([]); // State to track dropdown instances
@@ -293,14 +294,6 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             </div>
             ))} */}
 
-          
-          <input
-            type="number"
-            className="form-control mb-2 w-50"
-            placeholder="Pricing ($)"
-            value={reviewInputs.review_pricing}
-            onChange={(e) => handleReviewChange("review_pricing", e.target.value)}
-          />
           <select
             className="form-control mb-2 w-50"
             value={reviewInputs.review_sweetness || ""}
@@ -311,9 +304,20 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
               <option key={level} value={level}>{level}%</option>
             ))}
           </select>
-          <textarea
-            className="form-control mb-2 w-50"
-            placeholder="Your Review"
+          <TextField
+            type="search"
+            label="Pricing ($)"
+            variant="outlined"
+            className="mb-2 w-50"
+            value={reviewInputs.review_pricing}
+            onChange={(e) => handleReviewChange("review_pricing", e.target.value)}
+          />
+          <TextField
+            label="Your Review"
+            variant="outlined"
+            multiline
+            rows={4}
+            className="mb-2 w-50"
             value={reviewInputs.review_content}
             onChange={(e) => handleReviewChange("review_content", e.target.value)}
           />
@@ -434,7 +438,7 @@ function Restaurant() {
     <Card className="text-center shadow-sm border-0 bg-light px-3 py-2 mb-2">
       <Card.Body className="p-2">
         <p><strong>{is_public ? reviewer_Name : "Anonymous"}'s Review:</strong></p>
-        <p><strong>Price:</strong> ${review_pricing} <strong> Sweetness:</strong> {review_sweetness}</p>
+        <p><strong>Price:</strong> ${review_pricing}<br></br> <strong> Sweetness:</strong> {review_sweetness}%</p>
         <p>{review_content}</p>
 
         <div className="d-flex flex-wrap justify-content-center mt-2">
