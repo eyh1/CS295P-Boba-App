@@ -301,13 +301,16 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             value={reviewInputs.review_pricing}
             onChange={(e) => handleReviewChange("review_pricing", e.target.value)}
           />
-          <input
-            type="number"
+          <select
             className="form-control mb-2 w-50"
-            placeholder="Sweetness (1-5)"
-            value={reviewInputs.review_sweetness}
+            value={reviewInputs.review_sweetness || ""}
             onChange={(e) => handleReviewChange("review_sweetness", e.target.value)}
-          />
+          >
+            <option value="" disabled>Sweetness</option>
+            {["0", "25", "50", "75", "100", "125"].map((level) => (
+              <option key={level} value={level}>{level}%</option>
+            ))}
+          </select>
           <textarea
             className="form-control mb-2 w-50"
             placeholder="Your Review"
