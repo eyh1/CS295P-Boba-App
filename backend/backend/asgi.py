@@ -11,10 +11,9 @@ import sys
 import os
 from django.core.asgi import get_asgi_application
 
-# Add the top-level project dir to the path (the one with manage.py)
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-settings_module = 'backend.backend.deployment_settings' if 'RENDER_EXTERNAL_HOSTNAME' in os.environ else 'backend.backend.settings'
+settings_module = 'backend.deployment_settings' if 'RENDER_EXTERNAL_HOSTNAME' in os.environ else 'backend.settings'
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
 
