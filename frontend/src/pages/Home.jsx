@@ -294,9 +294,9 @@ function RatingCard({ entry_name, rating }) {
           </label>
         </div>
 
-        <button type="submit" style={{ marginTop: '15px' }}>
+        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}>
           Filter
-        </button>
+        </Button>
       </form>
       )}
       {loading ? (
