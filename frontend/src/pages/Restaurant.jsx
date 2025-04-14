@@ -177,7 +177,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       {isReviewing ? (
         <div className="d-flex flex-column align-items-center">
           {/* Base Dropdown */}
-          <label>Base</label> {/* Add label above the dropdown */}
+          <label style={{ fontSize: "1.5rem" }}>Base</label> {/* Add label above the dropdown */}
           <div className="d-flex align-items-center w-50">
             <select className="form-control" onChange={handleCategorySelect} defaultValue="">
               <option value="" disabled>Select a base</option>
@@ -217,7 +217,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       />
           </div>
             {/* Topping Dropdowns */}
-            <labe>Toppings</labe>
+            <label style={{ fontSize: "1.5rem" }}>Toppings</label>
             {toppingDropdowns.map((dropdownIndex) => (
               <div key={dropdownIndex} className="d-flex align-items-center w-50 mt-1">
                 <select
