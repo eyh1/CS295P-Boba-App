@@ -21,6 +21,22 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [rating, setRating] = useState(0);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [categoryRatings, setCategoryRatings] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  
+  useEffect(() => {
+    api.get("api/category/")
+      .then((res) => res.data)
+      .then((data) => {
+        setCategories(data);
+      })
+      .catch((error) => alert(error));
+  }, []);
 
   
 
@@ -33,7 +49,7 @@ function Home() {
     api
       .get("/api/restaurants/")
       .then((res) => res.data)
-      .then((data) => { setRestaurants(data); console.log(data) })
+      .then((data) => { setRestaurants(data)})
       .catch((error) => alert(error));
   };
   
@@ -46,6 +62,32 @@ function Home() {
     localStorage.removeItem(ACCESS_TOKEN);
     setIsLoggedIn(false);
     navigate("/login");
+  };
+
+  const handleCategoryChange = (event) => {
+    const value = event.target.value;
+    setSelectedCategories(prev =>
+      prev.includes(value) ? prev.filter(cat => cat !== value) : [...prev, value]
+    );
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+
+    const queryParams = new URLSearchParams();
+    if (categories.length > 0) {
+      queryParams.append('categories', selectedCategories.join(','));
+    }
+    if (rating) {
+      queryParams.append('rating', rating);
+    }
+    api
+    .get(`/api/restaurants/?${queryParams.toString()}`)
+    .then((res) => res.data)
+    .then((data) => { setRestaurants(data); })
+    .catch((error) => alert(error));
+    setLoading(false)
   };
 
 
@@ -215,8 +257,55 @@ function RatingCard({ entry_name, rating }) {
                     disableUnderline: true,     
                 }}
             />
+    <div>
+      <Button variant="outline-primary" className="me-2"  onClick={() => setShowFilters(prev => !prev)} style={{ marginBottom: '10px' }}>
+        {showFilters ? 'Hide Filters ✖️' : "Filter"}
+      </Button>
+
+      {showFilters && (
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+          <legend>Select Categories:</legend>
+          {categories.map((category) => (
+            <label key={category.category_name} style={{ marginRight: '10px' }}>
+              <input
+                type="checkbox"
+                value={category.id}
+                onChange={handleCategoryChange}
+              />
+              
+              {category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)}
+            </label>
+          ))}
+        </fieldset>
+
+        <div style={{ marginTop: '10px' }}>
+          <label>
+            Minimum Rating:
+            <input
+              type="number"
+              value={rating}
+              min="0"
+              max="5"
+              step="0.1"
+              onChange={(e) => setRating(e.target.value)}
+              style={{ marginLeft: '10px', width: '60px' }}
+            />
+          </label>
+        </div>
+
+        <button type="submit" style={{ marginTop: '15px' }}>
+          Filter
+        </button>
+      </form>
+      )}
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
             <CardGrid />
-        
+    )}
+          </div>
+
       </Container>
     </>
   );
