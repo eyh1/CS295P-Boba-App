@@ -28,18 +28,7 @@ function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      localStorage.removeItem(ACCESS_TOKEN);
-      setIsLoggedIn(false);
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-
+  
   useEffect(() => {
     api.get("api/category/")
       .then((res) => res.data)
@@ -48,6 +37,8 @@ function Home() {
       })
       .catch((error) => alert(error));
   }, []);
+
+  
 
   useEffect(() => {
     getRestaurants();
