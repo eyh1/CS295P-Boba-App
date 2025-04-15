@@ -285,6 +285,7 @@ function RatingCard({ entry_name, rating }) {
 
         <div style={{ marginTop: '10px' }}>
           <label>
+            Minimum Rating:
             <Rating
               name="simple-controlled"
               value={rating}
