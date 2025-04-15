@@ -41,6 +41,7 @@ ssh -i "boba_app_eric.pem" ubuntu@ec2-54-193-65-182.us-west-1.compute.amazonaws.
 # Frontend Setup
 cd frontend\
 npm install\
+npm install react-select
 npm install @mui/material
 npm i @emotion/react @emotion/styled
 npm install @mui/icons-material
