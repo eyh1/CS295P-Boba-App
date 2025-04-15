@@ -13,6 +13,8 @@ import { Navbar, Nav, Container } from "react-bootstrap";
 import { Card } from "react-bootstrap";
 import TopBar from "../components/TopBar";
 import Select from 'react-select';
+import Rating from '@mui/material/Rating';
+
 
 // import RestaurantList from "./RestaurantList";
 // import Login from "./pages/Login";
@@ -283,15 +285,13 @@ function RatingCard({ entry_name, rating }) {
 
         <div style={{ marginTop: '10px' }}>
           <label>
-            Minimum Rating:
-            <input
-              type="number"
+            <Rating
+              name="simple-controlled"
               value={rating}
-              min="0"
-              max="5"
-              step="0.1"
-              onChange={(e) => setRating(e.target.value)}
-              style={{ marginLeft: '10px', width: '60px' }}
+              precision={0.5}
+              onChange={(e) =>
+                setRating(e.target.value)
+              }
             />
           </label>
         </div>
