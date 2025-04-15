@@ -103,8 +103,7 @@ function TopBar() {
     }
     
   return (
-    <Navbar bg="light" expand="lg" className="px-3">
-      <Container>
+    <Navbar style={{ backgroundColor: "#ccae88" }} expand="lg" className="px-3">
         <Navbar.Brand href="#">
           <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
           Zoba
@@ -130,7 +129,6 @@ function TopBar() {
             </>
           )}
         </Navbar.Collapse>
-      </Container>
     </Navbar>
   );
 }

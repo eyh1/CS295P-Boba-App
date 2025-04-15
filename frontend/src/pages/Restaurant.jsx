@@ -11,8 +11,32 @@ import { ACCESS_TOKEN } from "../constants";
 import { Card } from "react-bootstrap";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import api from "../api";
+import Rating from '@mui/material/Rating';
+import TextField from "@mui/material/TextField";
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
+  const [toppingDropdowns, setToppingDropdowns] = useState([]); // State to track dropdown instances
+  const [showToppingDropdown, setShowToppingDropdown] = useState(false); // State to toggle visibility
+  const [toppingSelections, setToppingSelections] = useState([]); // State to track selected values for each topping dropdown
+  const addToppingDropdown = () => {
+    setToppingDropdowns((prev) => [...prev, prev.length]); // Add a new dropdown instance
+  };
+
+  const removeToppingDropdown = (dropdownIndex) => {
+    const toppingIdToRemove = toppingSelections[dropdownIndex];
+  
+    // Remove the selection at this index
+    const updatedSelections = toppingSelections.filter((_, index) => index !== dropdownIndex);
+    setToppingSelections(updatedSelections);
+  
+    // Remove the category and its rating
+    setSelectedCategories((prev) => prev.filter((cat) => cat.id !== toppingIdToRemove));
+    setCategoryRatings((prev) => prev.filter((rating) => rating.category !== toppingIdToRemove));
+  
+    // Reset dropdown indices to match new selections length
+    setToppingDropdowns(updatedSelections.map((_, index) => index));
+  };
+
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewInputs, setReviewInputs] = useState({
     reviewer_Name: "",
@@ -41,19 +65,81 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     }));
   };
 
-  const handleCategorySelect = (event) => {
+  // Function to remove previously selected categories from the selected categories (when remove topping button is clicked)
+  const handleCategoryRemove = (categoryId) => {
+    // Filter out the category from selectedCategories
+    setSelectedCategories(selectedCategories.filter((cat) => cat.id !== categoryId));
+  
+    // Filter out the corresponding rating from categoryRatings
+    setCategoryRatings(categoryRatings.filter((rating) => rating.category !== categoryId));
+  };
+
+  const handleCategorySelect = (event, dropdownIndex) => {
     const categoryId = parseInt(event.target.value);
     const category = categories.find((cat) => cat.id === categoryId);
-    if (category && !selectedCategories.includes(category)) {
+    // if (category && !selectedCategories.includes(category)) {
+    //   setSelectedCategories([...selectedCategories, category]);
+    //   setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
+    // }
+    // if the selected category is "Base", remove any previously selected categories with category_type = "Base"
+    if (category) {
+      if (category.category_type === "Base") {
+        // Remove any previously selected categories with category_type = "Base"
+        setSelectedCategories((prev) =>
+          prev.filter((cat) => cat.category_type !== "Base")
+        );
+        setCategoryRatings((prev) =>
+          prev.filter((rating) => {
+            const cat = categories.find((c) => c.id === rating.category);
+            return cat && cat.category_type !== "Base";
+          })
+        );
+          
+      // Add the new category to selectedCategories and categoryRatings
       setSelectedCategories([...selectedCategories, category]);
       setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
+      }
+      else { // selected category is topping
+        // Remove the previously selected topping for this dropdown
+        setSelectedCategories((prev) => {
+          const updatedCategories = prev.filter((cat) => {
+            // Remove the previous topping for this dropdown
+            return !(cat.category_type === "Topping" && toppingSelections[dropdownIndex] === cat.id);
+          });
+          return [...updatedCategories, category]; // Add the new topping
+        });
+
+        setCategoryRatings((prev) => {
+          const updatedRatings = prev.filter((rating) => {
+            // Remove the previous topping rating for this dropdown
+            return !(rating.category === toppingSelections[dropdownIndex]);
+          });
+          return [...updatedRatings, { category: category.id, rating: 5 }]; // Add the new topping rating
+        });
+
+        // Update the selected topping for this dropdown
+        setToppingSelections((prev) => {
+          const updatedSelections = [...prev];
+          updatedSelections[dropdownIndex] = categoryId;
+          return updatedSelections;
+        });
+        return;
+      }
     }
   };
 
   const handleCategoryRatingChange = (categoryId, value) => {
+    const parsedValue = parseInt(value);
+
     setCategoryRatings((prevRatings) =>
       prevRatings.map((rating) =>
-        rating.category === categoryId ? { ...rating, rating: parseInt(value) } : rating
+        rating.category === categoryId ? { ...rating, rating: parsedValue } : rating
+      )
+    );
+
+    setSelectedCategories((prevCategories) =>
+      prevCategories.map((cat) =>
+        cat.id === categoryId ? { ...cat, rating: parsedValue } : cat
       )
     );
   };
@@ -85,22 +171,112 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       alert("We failed to receive your review.");
     }
   };
-
+  console.log(categories)
   return (
     <div className="text-center mt-3">
       {isReviewing ? (
         <div className="d-flex flex-column align-items-center">
-            <select className="form-control mb-2 w-50" onChange={handleCategorySelect} defaultValue="">
-            <option value="" disabled>Select a category to rate</option>
-            {categories
-              .filter((cat) => !selectedCategories.includes(cat))
-              .map((category) => (
-                <option key={category.id} value={category.id}>{category.category_name}</option>
+          {/* Base Dropdown */}
+          <label style={{ fontSize: "1.5rem" }}>Base</label> {/* Add label above the dropdown */}
+          <div className="d-flex align-items-center w-50">
+            <select className="form-control" onChange={handleCategorySelect} defaultValue="">
+              <option value="" disabled>Select a base</option>
+                {categories
+                .filter((cat) => cat.category_type === "Base")
+                .map((category) => (
+                  <option key={category.id} value={category.id}>{category.category_name}</option>
+                ))}
+            </select>
+            {/* <select
+              className="form-select w-auto ms-2"
+              value={
+                categoryRatings.find((r) => r.category === selectedCategories.find((cat) => cat.category_type === "Base")?.id)?.rating || ""
+              }
+              onChange={(e) =>
+                handleCategoryRatingChange(
+                  selectedCategories.find((cat) => cat.category_type === "Base")?.id,
+                  e.target.value
+                )
+              }
+            >
+              {[5, 4, 3, 2, 1].map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
               ))}
-          </select>
+            </select> */}
+            <Rating
+        name="simple-controlled"
+        value={categoryRatings.find((r) => r.category === selectedCategories.find((cat) => cat.category_type === "Base")?.id)?.rating || ""}
+        onChange={(e) =>
+          handleCategoryRatingChange(
+            selectedCategories.find((cat) => cat.category_type === "Base")?.id,
+            e.target.value
+          )
+        }
+      />
+          </div>
+            {/* Topping Dropdowns */}
+            <label style={{ fontSize: "1.5rem" }}>Toppings</label>
+            {toppingDropdowns.map((dropdownIndex) => (
+              <div key={dropdownIndex} className="d-flex align-items-center w-50 mt-1">
+                <select
+                  className="form-control me-2"
+                  onChange={(e) => handleCategorySelect(e, dropdownIndex)}
+                  value={toppingSelections[dropdownIndex] || ""}
+                >
+                  <option value="" disabled>Select any toppings</option>
+                  {categories
+                    .filter(
+                      (cat) =>
+                        cat.category_type === "Topping" &&
+                      (!toppingSelections.includes(cat.id) || toppingSelections[dropdownIndex] === cat.id)
+                  )
+                  .map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.category_name}
+                    </option>
+                  ))}
+                </select>
+                {/* Rating for topping */}
+                {/* <select
+                  className="form-select w-auto"
+                  value={
+                    categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""
+                  }
+                  onChange={(e) =>
+                    handleCategoryRatingChange(toppingSelections[dropdownIndex], e.target.value)
+                  }
+                >
+                  {[5, 4, 3, 2, 1].map((num) => (
+                    <option key={num} value={num}>{num}</option>
+                  ))}
+                </select> */}
+                <Rating
+                  name="simple-controlled"
+                  value={categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""}
+                  onChange={(e) =>
+                    handleCategoryRatingChange(toppingSelections[dropdownIndex], e.target.value)
+                  }
+                />
+                    {/* Remove Button */}
+                    <button
+                      onClick={() => {
+                        removeToppingDropdown(dropdownIndex);
+                      }}
+                      className="btn btn-danger"
+                    >
+                      Remove
+                    </button>
+                </div>
+  ))}
+            {/* Button to add a new dropdown */}
+            <button onClick={addToppingDropdown} className="btn btn-primary mt-1 mb-1">
+              Add a topping
+            </button>
 
-         
-          {selectedCategories.map((category) => (
+            {/* Previous rating dropdown */}
+          {/* {selectedCategories.map((category) => (
             <div key={category.id} className="mb-2 w-50">
                 <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2 d-flex align-items-center justify-content-center">
                 <div className="d-flex align-items-center w-100 justify-content-between">
@@ -116,26 +292,32 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 </div>
                 </Card>
             </div>
-            ))}
+            ))} */}
 
-         
-          <input
-            type="number"
+          <select
             className="form-control mb-2 w-50"
-            placeholder="Pricing ($)"
+            value={reviewInputs.review_sweetness || ""}
+            onChange={(e) => handleReviewChange("review_sweetness", e.target.value)}
+          >
+            <option value="" disabled>Sweetness</option>
+            {["0", "25", "50", "75", "100", "125"].map((level) => (
+              <option key={level} value={level}>{level}%</option>
+            ))}
+          </select>
+          <TextField
+            type="search"
+            label="Pricing ($)"
+            variant="outlined"
+            className="mb-2 w-50"
             value={reviewInputs.review_pricing}
             onChange={(e) => handleReviewChange("review_pricing", e.target.value)}
           />
-          <input
-            type="number"
-            className="form-control mb-2 w-50"
-            placeholder="Sweetness (1-5)"
-            value={reviewInputs.review_sweetness}
-            onChange={(e) => handleReviewChange("review_sweetness", e.target.value)}
-          />
-          <textarea
-            className="form-control mb-2 w-50"
-            placeholder="Your Review"
+          <TextField
+            label="Your Review"
+            variant="outlined"
+            multiline
+            rows={4}
+            className="mb-2 w-50"
             value={reviewInputs.review_content}
             onChange={(e) => handleReviewChange("review_content", e.target.value)}
           />
@@ -240,48 +422,6 @@ function Restaurant() {
       .catch((error) => alert(error));
   };
 
-  function TopBar() {
-    const returnHome = () => {
-      window.location.href = "/";
-    }
-
-  const handleLogout = () => {
-    localStorage.removeItem(ACCESS_TOKEN);
-    setIsLoggedIn(false);
-    navigate("/login");
-  };
-
-  
-    
-  return (
-    <Navbar bg="light" expand="lg" className="px-3">
-      <Container>
-        <Navbar.Brand href="#">
-          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
-          Zoba
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (
-          <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
-                Logout
-              </Button>
-        ) : (
-            <>
-              <Button variant="outline-primary" className="me-2" href="/login">
-                Login
-              </Button>
-              <Button variant="primary" href="/register">
-                Sign Up
-              </Button>
-            </>
-          )}
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  );
-}
-
   function CategoryRatingCard({ category, rating }) {
   return (
     <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
@@ -298,7 +438,7 @@ function Restaurant() {
     <Card className="text-center shadow-sm border-0 bg-light px-3 py-2 mb-2">
       <Card.Body className="p-2">
         <p><strong>{is_public ? reviewer_Name : "Anonymous"}'s Review:</strong></p>
-        <p><strong>Price:</strong> ${review_pricing} <strong> Sweetness:</strong> {review_sweetness}</p>
+        <p><strong>Price:</strong> ${review_pricing}<br></br> <strong> Sweetness:</strong> {review_sweetness}%</p>
         <p>{review_content}</p>
 
         <div className="d-flex flex-wrap justify-content-center mt-2">
