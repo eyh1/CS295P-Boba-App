@@ -28,7 +28,18 @@ function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.removeItem(ACCESS_TOKEN);
+      setIsLoggedIn(false);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   useEffect(() => {
     api.get("api/category/")
       .then((res) => res.data)
@@ -37,8 +48,6 @@ function Home() {
       })
       .catch((error) => alert(error));
   }, []);
-
-  
 
   useEffect(() => {
     getRestaurants();
@@ -305,6 +314,15 @@ function RatingCard({ entry_name, rating }) {
           </div>
 
       </Container>
+      <div className="text-center mt-4 mb-5">
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSey_JXU-zUdcqNyEoszZtaoNbuZa_A6Ko7z6bzToO3c3tfImQ/viewform?usp=dialog"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Don&apos;t see your restaurant or drink option? Send a request to add it here!
+        </a>
+      </div>
     </>
   );
 }
