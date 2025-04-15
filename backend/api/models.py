@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 class Restaurant(models.Model):
     restaurant_name = models.CharField(max_length=120)
     address = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='retaurants/')
     
     def __str__(self):
         return self.restaurant_name + ", " + self.address
