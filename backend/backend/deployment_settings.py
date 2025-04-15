@@ -23,6 +23,9 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+CORS_ALLOWED_ORIGINS = [
+    'https://cs295p-boba-app.onrender.com']
+
 STORAGES = {
     "default":{
         "BACKEND" : "django.core.files.storage.FileSystemStorage",
