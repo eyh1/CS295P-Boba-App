@@ -1,8 +1,11 @@
 import axios from "axios"
 import { ACCESS_TOKEN } from "./constants"
 
+const isDev = import.meta.env.MODE === 'development'
+const myBaseUrl = isDev ? import.meta.env.VITE_API_URL : import.meta.env.VITE_API_URL_DEPLOY
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL
+    baseURL: myBaseUrl
 })
 
 api.interceptors.request.use(
