@@ -12,6 +12,7 @@ import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { Card } from "react-bootstrap";
 import TopBar from "../components/TopBar";
+import Select from 'react-select';
 
 // import RestaurantList from "./RestaurantList";
 // import Login from "./pages/Login";
@@ -89,6 +90,11 @@ function Home() {
     .catch((error) => alert(error));
     setLoading(false)
   };
+
+  const categoryOptions = categories.map((category) => ({
+    value: category.id,
+    label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
+  }));
 
 
 function TopBar() {
@@ -266,17 +272,15 @@ function RatingCard({ entry_name, rating }) {
       <form onSubmit={handleSubmit}>
         <fieldset>
           <legend>Select Categories:</legend>
-          {categories.map((category) => (
-            <label key={category.category_name} style={{ marginRight: '10px' }}>
-              <input
-                type="checkbox"
-                value={category.id}
-                onChange={handleCategoryChange}
-              />
-              
-              {category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)}
-            </label>
-          ))}
+            <Select
+              options={categoryOptions}
+              isMulti
+              onChange={(selectedOptions) => {
+                const selectedIds = selectedOptions.map((opt) => opt.value);
+                setSelectedCategories(selectedIds);
+              }}
+              placeholder="Search and select categories..."
+            />
         </fieldset>
 
         <div style={{ marginTop: '10px' }}>
