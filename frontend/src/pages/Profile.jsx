@@ -33,7 +33,8 @@ function Profile() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            setReviews(response.data);
+            const sortedReviews = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            setReviews(sortedReviews);
         } catch (error) {
             console.error("Failed to fetch user reviews:", error);
         }
@@ -82,13 +83,16 @@ function Profile() {
     return <div>
     <TopBar/>
     {/* <h1>Your Profile</h1> */}
+    {/* Left side of page */}
     <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
         <Grid2 size={3} display="flex" flexDirection="column" alignItems="center" sx={{ border: '1px solid #ccc', borderRadius: '8px', padding: 2 }}>
             <img src={profilePic} alt="Profile" style={{ borderRadius: '50%', width: '150px', height: '150px' }} />
             <p>Testname</p>
             <p>Total Reviews Written: {reviews.length}</p>
+            <p>Bookmarked Restaurants:</p>
         </Grid2>
     
+    {/* Right side of page */}
     <Grid2 size={7} display="flex" flexDirection="column" alignItems="center">
         <h2>Your Reviews</h2>
         
