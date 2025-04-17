@@ -9,10 +9,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import { ACCESS_TOKEN } from "../constants";
 import { Card } from "react-bootstrap";
-import { Navbar, Nav, Container } from "react-bootstrap";
+// import { Navbar, Nav, Container } from "react-bootstrap";
 import api from "../api";
 import Rating from '@mui/material/Rating';
 import TextField from "@mui/material/TextField";
+import Container from '@mui/material/Container';
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   const [toppingDropdowns, setToppingDropdowns] = useState([]); // State to track dropdown instances
@@ -178,7 +179,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
         <div className="d-flex flex-column align-items-center">
           {/* Base Dropdown */}
           <label style={{ fontSize: "1.5rem" }}>Base</label> {/* Add label above the dropdown */}
-          <div className="d-flex align-items-center w-50">
+          <div className="d-flex flex-column flex-md-row gap-2 w-50 w-md-100">
             <select className="form-control" onChange={handleCategorySelect} defaultValue="">
               <option value="" disabled>Select a base</option>
                 {categories
@@ -205,21 +206,21 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 </option>
               ))}
             </select> */}
-            <Rating
-        name="simple-controlled"
-        value={categoryRatings.find((r) => r.category === selectedCategories.find((cat) => cat.category_type === "Base")?.id)?.rating || ""}
-        onChange={(e) =>
-          handleCategoryRatingChange(
-            selectedCategories.find((cat) => cat.category_type === "Base")?.id,
-            e.target.value
-          )
-        }
-      />
+                  <Rating
+              name="simple-controlled"
+              value={categoryRatings.find((r) => r.category === selectedCategories.find((cat) => cat.category_type === "Base")?.id)?.rating || ""}
+              onChange={(e) =>
+                handleCategoryRatingChange(
+                  selectedCategories.find((cat) => cat.category_type === "Base")?.id,
+                  e.target.value
+                )
+              }
+            />
           </div>
             {/* Topping Dropdowns */}
             <label style={{ fontSize: "1.5rem" }}>Toppings</label>
             {toppingDropdowns.map((dropdownIndex) => (
-              <div key={dropdownIndex} className="d-flex align-items-center w-50 mt-1">
+              <div key={dropdownIndex} className="d-flex flex-column flex-md-row gap-2 w-50 w-md-100">
                 <select
                   className="form-control me-2"
                   onChange={(e) => handleCategorySelect(e, dropdownIndex)}
@@ -271,7 +272,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 </div>
   ))}
             {/* Button to add a new dropdown */}
-            <button onClick={addToppingDropdown} className="btn btn-primary mt-1 mb-1">
+            <button onClick={addToppingDropdown} className="w-50 w-md-100 btn btn-primary mt-1 mb-1">
               Add a topping
             </button>
 
@@ -460,10 +461,9 @@ function Restaurant() {
     // console.log("categs is ", restaurant_category_ratings);
     
     return (
-      <Card className="m-3 shadow-sm">
-        <div className="card-grid-container-restaurant">
+      <Container style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>
           <img src={pic_source} className="drink-cha" />
-          <div className="card-inside-grid-container-restaurant">
+          <div>
             <h1 className="titleChaRestaurant">{restaurant}</h1>
             <div className="d-flex flex-wrap justify-content-center mt-2">
           {restaurant_category_ratings.map((category_rating, index) => (
@@ -473,7 +473,6 @@ function Restaurant() {
               rating={category_rating.rating}
             />
           ))}
-        </div>
           </div>
         </div>
         <h1 className="titleChaRestaurant">Reviews:</h1>
@@ -499,7 +498,7 @@ function Restaurant() {
             />
           ))}
         </div>
-      </Card>
+      </Container>
     );
   }
 
@@ -510,7 +509,7 @@ function Restaurant() {
   ];
 
   return (
-    <div className="grid-container-restaurant">
+    <div>
       {entries.map((entry, index) => (
         <EntryCard
           key={index}
