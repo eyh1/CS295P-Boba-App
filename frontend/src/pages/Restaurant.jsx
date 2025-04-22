@@ -392,7 +392,7 @@ function Restaurant() {
             setCurrentRest((fetchedRests));
             if (fetchedRests.length > 0 && fetchedRests[0].address) {
               const fetchCoordinates = async () => {
-                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fetchedRests[0].address)}&key=AIzaSyDYWBnodUWliw5eCQ2T1yeFCZa0oKp7sDc`);
+                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fetchedRests[0].address)}&key=`);//key removed for security
                 const data = await response.json();
                 const location = data.results[0]?.geometry.location;
                 if (location) {
