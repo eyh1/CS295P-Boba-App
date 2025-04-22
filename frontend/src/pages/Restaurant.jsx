@@ -392,7 +392,7 @@ function Restaurant() {
             setCurrentRest((fetchedRests));
             if (fetchedRests.length > 0 && fetchedRests[0].address) {
               const fetchCoordinates = async () => {
-                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fetchedRests[0].address)}&key=`);//key removed for security
+                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fetchedRests[0].address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);             
                 const data = await response.json();
                 const location = data.results[0]?.geometry.location;
                 if (location) {
@@ -489,10 +489,10 @@ function Restaurant() {
           </Grid2>
           <Grid2 size={12}>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <APIProvider apiKey={'AIzaSyDYWBnodUWliw5eCQ2T1yeFCZa0oKp7sDc'} onLoad={() => console.log('Maps API has loaded.')}>
+              <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
                 <Map
                   style={{width: '30vw', height: '30vh', minWidth: '300px'}}
-                  defaultCenter={restaurantLatLng}
+                  defaultCenter={restaurantLatLng || { lat: 33.669445, lng: -117.823059 }} // UCI default
                   defaultZoom={12}
                   gestureHandling={'greedy'}
                   disableDefaultUI={true}
