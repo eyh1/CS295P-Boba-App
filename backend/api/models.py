@@ -1,12 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
+from backend.storages_backend import RestaurantStorage, ReviewStorage, HomeStorage
 
 # Create your models here.
 
 class Restaurant(models.Model):
     restaurant_name = models.CharField(max_length=120)
     address = models.CharField(max_length=200)
-    image = models.ImageField(upload_to='retaurants/')
+    image = models.ImageField(storage=RestaurantStorage(), upload_to='')
+    
+    class Meta:
+        unique_together = ["restaurant_name", "address"]
     
     def __str__(self):
         return self.restaurant_name + ", " + self.address

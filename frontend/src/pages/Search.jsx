@@ -6,7 +6,7 @@ import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
@@ -20,20 +20,26 @@ import Rating from '@mui/material/Rating';
 // import Login from "./pages/Login";
 // import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
 
-function Home() {
-  const [searchTerm, setSearchTerm] = useState("");
+function Search() {
+    const { state } = useLocation();
+    const {
+        searchTerm: initialSearchTerm = '',
+        selectedCategories: initialCategories = [],
+        rating: initialRating = ''
+        } = state || {};
+      
+  const [searchTerm,setSearchTerm] = useState(initialSearchTerm);
   const [restaurants, setRestaurants] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [rating, setRating] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [rating, setRating] = useState(initialRating);
+  const [selectedCategories, setSelectedCategories] = useState(initialCategories);
   const [categoryRatings, setCategoryRatings] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [shouldNavigate, setShouldNavigate] = useState(false);
 
-  const navigate = useNavigate();
-
+  
+  
   
   useEffect(() => {
     api.get("api/category/")
@@ -52,11 +58,21 @@ function Home() {
   }, [])
 
   const getRestaurants = () => {
+    setLoading(true);
+
+    const queryParams = new URLSearchParams();
+    if (selectedCategories.length > 0) {
+      queryParams.append('categories', selectedCategories.join(','));
+    }
+    if (rating) {
+      queryParams.append('rating', rating);
+    }
     api
-      .get("/api/restaurants/")
-      .then((res) => res.data)
-      .then((data) => { setRestaurants(data)})
-      .catch((error) => alert(error));
+    .get(`/api/restaurants/?${queryParams.toString()}`)
+    .then((res) => res.data)
+    .then((data) => { setRestaurants(data); })
+    .catch((error) => alert(error));
+    setLoading(false)
   };
   
   const checkLoginStatus = () => {
@@ -82,7 +98,7 @@ function Home() {
     setLoading(true);
 
     const queryParams = new URLSearchParams();
-    if (categories.length > 0) {
+    if (selectedCategories.length > 0) {
       queryParams.append('categories', selectedCategories.join(','));
     }
     if (rating) {
@@ -94,21 +110,7 @@ function Home() {
     .then((data) => { setRestaurants(data); })
     .catch((error) => alert(error));
     setLoading(false)
-    setShouldNavigate(true);
   };
-
-  useEffect(() => {
-    if (!loading && shouldNavigate) {
-      navigate('/search', {
-        state: {
-          searchTerm,
-          selectedCategories,
-          rating,
-        },
-      });
-    }
-  }, [loading, shouldNavigate, navigate]);
-  
 
   const categoryOptions = categories.map((category) => ({
     value: category.id,
@@ -209,9 +211,58 @@ function RatingCard({ entry_name, rating }) {
   );
 }
 
+  function CardGrid() {
+    // List of restaurant entries, add as many as we need
+    const ratingsKey = 'ratings';
+    const ratingsValue = ["5", "3", "4"];
+
+    const bobaKey = 'pic';
+    const bobaValue = boba;
+    // Add the new field to each map in the list
+    var updatedRestaurants = restaurants.map(obj => {
+      obj[ratingsKey] = ratingsValue;
+      return obj; // Return the updated map
+    });
+
+    const entries = updatedRestaurants;
+
+    // Filter based on whats in the search bar
+    const filteredEntries = entries.filter((entry) =>
+      entry.restaurant_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+
+    return (
+      <div className="grid-container">
+        {filteredEntries.map((entry, index) => (
+          <EntryCard
+            key={index}
+            pic_source={entry.image}
+            restaurant={entry.restaurant_name}
+            address = {entry.address}
+            rating1={entry.ratings[0]}
+            rating2={entry.ratings[1]}
+            rating3={entry.ratings[2]}
+            rest_id={entry.id}
+            restaurant_category_ratings={entry.restaurant_category_ratings}
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <>
       <TopBar />
+      <div className="text-center mt-1 mb-1">
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSey_JXU-zUdcqNyEoszZtaoNbuZa_A6Ko7z6bzToO3c3tfImQ/viewform?usp=dialog"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Don&apos;t see your restaurant or drink option? Send a request to add it here!
+        </a>
+      </div>
       <Container className="mt-4">
             <TextField
                 className="border-0 shadow-none w-100" 
@@ -243,11 +294,12 @@ function RatingCard({ entry_name, rating }) {
               placeholder="Search and select categories..."
               openMenuOnFocus={false}
               openMenuOnClick={false} 
+              isSearchable
               filterOption={(option, inputValue) => {
                 if (!inputValue) return false;
                 return option.label.toLowerCase().includes(inputValue.toLowerCase());
               }
-              }
+            }
             />
         </fieldset>
 
@@ -270,7 +322,11 @@ function RatingCard({ entry_name, rating }) {
         </Button>
       </form>
       )}
-      
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+            <CardGrid />
+    )}
           </div>
 
       </Container>
@@ -279,4 +335,4 @@ function RatingCard({ entry_name, rating }) {
   );
 }
 
-export default Home;
+export default Search;

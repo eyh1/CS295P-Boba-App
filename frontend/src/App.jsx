@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
+import Search from "./pages/Search";
 import RestaurantPlaceholder from "./pages/Restaurant";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -43,6 +44,7 @@ function App() {
         <Route path="/logout" element={<Logout />} />
         <Route path="/register" element={<RegisterAndLogout />} />
         <Route path="/restaurant" element={<RestaurantPlaceholder/>} />
+        <Route path="/search" element={<Search/>} />
         <Route path="/profile" element={
           <ProtectedRoute>
             <Profile />
