@@ -5,46 +5,44 @@ import omomo from ".././assets/omomo.png";
 import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
-import { Button, Box, Card, CardMedia, CardContent, Typography } from '@mui/material';
-import { useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
+import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
-// import { Card } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import TopBar from "../components/TopBar";
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
+import "../styles/Search.css"
+
 
 
 // import RestaurantList from "./RestaurantList";
 // import Login from "./pages/Login";
 // import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
 
-function Home() {
-  const [searchTerm, setSearchTerm] = useState("");
+function Search() {
+    const { state } = useLocation();
+    const {
+        searchTerm: initialSearchTerm = '',
+        selectedCategories: initialCategories = [],
+        rating: initialRating = ''
+        } = state || {};
+      
+  const [searchTerm,setSearchTerm] = useState(initialSearchTerm);
   const [restaurants, setRestaurants] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [rating, setRating] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [rating, setRating] = useState(initialRating);
+  const [selectedCategories, setSelectedCategories] = useState(initialCategories);
   const [categoryRatings, setCategoryRatings] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [shouldNavigate, setShouldNavigate] = useState(false);
-  const [cards, setCards] = useState([]);
 
   
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    api.get("api/homeCards/")
-      .then((res) => res.data)
-      .then((data) => {
-        setCards(data);
-      })
-      .catch((error) => alert(error));
-  }, []);
-
+  
+  
   useEffect(() => {
     api.get("api/category/")
       .then((res) => res.data)
@@ -62,11 +60,21 @@ function Home() {
   }, [])
 
   const getRestaurants = () => {
+    setLoading(true);
+
+    const queryParams = new URLSearchParams();
+    if (selectedCategories.length > 0) {
+      queryParams.append('categories', selectedCategories.join(','));
+    }
+    if (rating) {
+      queryParams.append('rating', rating);
+    }
     api
-      .get("/api/restaurants/")
-      .then((res) => res.data)
-      .then((data) => { setRestaurants(data)})
-      .catch((error) => alert(error));
+    .get(`/api/restaurants/?${queryParams.toString()}`)
+    .then((res) => res.data)
+    .then((data) => { setRestaurants(data); })
+    .catch((error) => alert(error));
+    setLoading(false)
   };
   
   const checkLoginStatus = () => {
@@ -92,7 +100,7 @@ function Home() {
     setLoading(true);
 
     const queryParams = new URLSearchParams();
-    if (categories.length > 0) {
+    if (selectedCategories.length > 0) {
       queryParams.append('categories', selectedCategories.join(','));
     }
     if (rating) {
@@ -104,21 +112,7 @@ function Home() {
     .then((data) => { setRestaurants(data); })
     .catch((error) => alert(error));
     setLoading(false)
-    setShouldNavigate(true);
   };
-
-  useEffect(() => {
-    if (!loading && shouldNavigate) {
-      navigate('/search', {
-        state: {
-          searchTerm,
-          selectedCategories,
-          rating,
-        },
-      });
-    }
-  }, [loading, shouldNavigate, navigate]);
-  
 
   const categoryOptions = categories.map((category) => ({
     value: category.id,
@@ -218,76 +212,60 @@ function RatingCard({ entry_name, rating }) {
     </Card>
   );
 }
-const AlternatingCards = () => {
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  function CardGrid() {
+    // List of restaurant entries, add as many as we need
+    const ratingsKey = 'ratings';
+    const ratingsValue = ["5", "3", "4"];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prevIndex) => (prevIndex + 1) % cards.length);
-    }, 5000); // every 5 seconds
-  return () => clearInterval(interval); // cleanup
-  }, [cards.length]);
+    const bobaKey = 'pic';
+    const bobaValue = boba;
+    // Add the new field to each map in the list
+    var updatedRestaurants = restaurants.map(obj => {
+      obj[ratingsKey] = ratingsValue;
+      return obj; // Return the updated map
+    });
 
-  const handleClick = () => {
-    navigate('/search', {
-      state: {searchTerm: "",  selectedCategories: cards[activeIndex].categories, rating: cards[activeIndex].rating }
-   });
-  }; 
+    const entries = updatedRestaurants;
 
-  if (cards.length != 0) {
+    // Filter based on whats in the search bar
+    const filteredEntries = entries.filter((entry) =>
+      entry.restaurant_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+
     return (
-      <Box
-      sx={{
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        p: 2,
-        boxSizing: 'border-box',
-        backgroundColor: '#f0f0f0',
-      }}
-    >
-      <Card
-        sx={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <CardMedia
-          component="img"
-          image={cards[activeIndex].image}
-          alt="Card Image"
-          sx={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-          }}
-        />
-        <CardContent
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            color: '#fff',
-            padding: 2,
-            borderRadius: 2,
-            textAlign: 'center',
-            cursor: 'pointer',
-          }}        >
-          <Typography variant="h4"           onClick={handleClick}          >
-            
-            {cards[activeIndex].message + ' 🔍'}
-          </Typography>
-          <Container className="mt-4">
+      <div className="grid-container">
+        {filteredEntries.map((entry, index) => (
+          <EntryCard
+            key={index}
+            pic_source={entry.image}
+            restaurant={entry.restaurant_name}
+            address = {entry.address}
+            rating1={entry.ratings[0]}
+            rating2={entry.ratings[1]}
+            rating3={entry.ratings[2]}
+            rest_id={entry.id}
+            restaurant_category_ratings={entry.restaurant_category_ratings}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <TopBar />
+      <div className="text-center mt-1 mb-1">
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSey_JXU-zUdcqNyEoszZtaoNbuZa_A6Ko7z6bzToO3c3tfImQ/viewform?usp=dialog"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Don&apos;t see your restaurant or drink option? Send a request to add it here!
+        </a>
+      </div>
+      <Container className="mt-4">
             <TextField
                 className="border-0 shadow-none w-100" 
                 id="search-input"
@@ -318,17 +296,12 @@ const AlternatingCards = () => {
               placeholder="Search and select categories..."
               openMenuOnFocus={false}
               openMenuOnClick={false} 
+              isSearchable
               filterOption={(option, inputValue) => {
                 if (!inputValue) return false;
                 return option.label.toLowerCase().includes(inputValue.toLowerCase());
-              }}
-              styles={{
-                placeholder: (base) => ({
-                  ...base,
-                  color: '#888888', // 👈 Change this to your desired color
-                  fontStyle: 'italic', // optional
-                }),
-              }}
+              }
+            }
             />
         </fieldset>
 
@@ -351,26 +324,17 @@ const AlternatingCards = () => {
         </Button>
       </form>
       )}
-      
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+            <CardGrid />
+    )}
           </div>
-          
 
       </Container>
-        </CardContent>
-      </Card>
-    </Box>
-    );
-  }
-  }
-
-  return (
-    <>
-      <TopBar />
       
-      <AlternatingCards />
-
     </>
   );
 }
 
-export default Home;
+export default Search;

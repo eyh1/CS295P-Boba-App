@@ -58,7 +58,24 @@ INSTALLED_APPS = [
     "api",
     "rest_framework",
     "corsheaders",
+    "storages"
 ]
+
+# AWS credentials
+AWS_ACCESS_KEY_ID = 'AKIA44Y6CQN5VA657TVW'
+AWS_SECRET_ACCESS_KEY =  os.getenv('AWS_S3_SECRET_KEY')
+AWS_STORAGE_BUCKET_NAME = 'boba-app'
+AWS_S3_SIGNATURE_NAME = 's3v4',
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL =  None
+AWS_S3_VERIFY = True
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+  
+
+AWS_QUERYSTRING_AUTH = False
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

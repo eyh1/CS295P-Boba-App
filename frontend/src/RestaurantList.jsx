@@ -16,6 +16,7 @@ const RestaurantList = ({restaurants}) => {
                     <tr key={restaurants.id}>
                         <td>{restaurants.restaurantName}</td>
                         <td>{restaurants.address}</td>
+                        <td>{restaurants.image}</td>
                     </tr>
                 ))}
             </tbody>

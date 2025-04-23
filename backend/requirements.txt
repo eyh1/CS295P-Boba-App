@@ -23,3 +23,5 @@ tomlkit==0.13.2
 typing_extensions==4.13.1
 uvicorn==0.34.0
 whitenoise==6.9.0
+boto3==1.28.0
+django-storages==1.13.2

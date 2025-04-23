@@ -30,7 +30,7 @@ cd backend
 
 python manage.py makemigrations
 
-python manage.py migrate
+    python manage.py migrate
 # connect to 54.193.65.182:5000
 
 How to connect to the AWS intance:
