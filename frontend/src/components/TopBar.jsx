@@ -29,7 +29,7 @@ function TopBar() {
     
   return (
     <Navbar style={{ backgroundColor: "#ccae88" }} expand="lg" className="px-3">
-        <Navbar.Brand href="#">
+        <Navbar.Brand>
           <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
           Zoba
         </Navbar.Brand>
