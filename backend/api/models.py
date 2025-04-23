@@ -4,6 +4,19 @@ from backend.storages_backend import RestaurantStorage, ReviewStorage, HomeStora
 
 # Create your models here.
 
+class HomeCard(models.Model):
+    message = models.CharField(max_length=200)
+    image = models.ImageField(storage=HomeStorage(), upload_to='')
+    categories = models.ManyToManyField('Category', related_name='home_cards', blank=True)
+    rating = models.DecimalField(max_digits = 3, decimal_places = 2)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(rating__gte=0, rating__lte=5),
+                name='home_card_rating_between_0_and_5'
+            )        ]
+        
 class Restaurant(models.Model):
     restaurant_name = models.CharField(max_length=120)
     address = models.CharField(max_length=200)

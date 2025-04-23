@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Restaurant, Review, ReviewCategoryRating, Category, RestaurantCategoryRating
+from .models import Restaurant, Review, ReviewCategoryRating, Category, RestaurantCategoryRating, HomeCard
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -83,3 +83,13 @@ class RestaurantCategoryRatingSerializer(serializers.ModelSerializer):
 
     def get_category_name(self, obj):
         return obj.category.category_name
+
+class HomeCardSerializer(serializers.ModelSerializer):
+    categories = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = HomeCard
+        fields = ["id", "message", "image", "categories", "rating"]
+
+    def get_categories(self, obj):
+        return [category.id for category in obj.categories.all()]

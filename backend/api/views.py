@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer
+from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating
+from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard
 from django.db.models import Avg
 from rest_framework.response import Response
 from django.db.models import Q
@@ -106,3 +106,9 @@ class ListUserReviewsView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return Review.objects.filter(user=user)
+    
+class ListHomeCardView(generics.ListAPIView):
+    serializer_class = HomeCardSerializer
+    permission_classes = [AllowAny]
+    queryset = HomeCard.objects.all()
+    

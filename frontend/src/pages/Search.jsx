@@ -14,6 +14,8 @@ import { Card } from "react-bootstrap";
 import TopBar from "../components/TopBar";
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
+import "../styles/Search.css"
+
 
 
 // import RestaurantList from "./RestaurantList";

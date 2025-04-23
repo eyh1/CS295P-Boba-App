@@ -5,12 +5,12 @@ import omomo from ".././assets/omomo.png";
 import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
-import { Button } from "@mui/material";
+import { Button, Box, Card, CardMedia, CardContent, Typography } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import { Card } from "react-bootstrap";
+// import { Card } from "react-bootstrap";
 import TopBar from "../components/TopBar";
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
@@ -31,10 +31,20 @@ function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shouldNavigate, setShouldNavigate] = useState(false);
-
-  const navigate = useNavigate();
+  const [cards, setCards] = useState([]);
 
   
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get("api/homeCards/")
+      .then((res) => res.data)
+      .then((data) => {
+        setCards(data);
+      })
+      .catch((error) => alert(error));
+  }, []);
+
   useEffect(() => {
     api.get("api/category/")
       .then((res) => res.data)
@@ -208,11 +218,76 @@ function RatingCard({ entry_name, rating }) {
     </Card>
   );
 }
+const AlternatingCards = () => {
 
-  return (
-    <>
-      <TopBar />
-      <Container className="mt-4">
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prevIndex) => (prevIndex + 1) % cards.length);
+    }, 5000); // every 5 seconds
+  return () => clearInterval(interval); // cleanup
+  }, [cards.length]);
+
+  const handleClick = () => {
+    navigate('/search', {
+      state: {searchTerm: "",  selectedCategories: cards[activeIndex].categories, rating: cards[activeIndex].rating }
+   });
+  }; 
+
+  if (cards.length != 0) {
+    return (
+      <Box
+      sx={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        p: 2,
+        boxSizing: 'border-box',
+        backgroundColor: '#f0f0f0',
+      }}
+    >
+      <Card
+        sx={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <CardMedia
+          component="img"
+          image={cards[activeIndex].image}
+          alt="Card Image"
+          sx={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+          }}
+        />
+        <CardContent
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            color: '#fff',
+            padding: 2,
+            borderRadius: 2,
+            textAlign: 'center',
+            cursor: 'pointer',
+          }}        >
+          <Typography variant="h4"           onClick={handleClick}          >
+            
+            {cards[activeIndex].message + ' 🔍'}
+          </Typography>
+          <Container className="mt-4">
             <TextField
                 className="border-0 shadow-none w-100" 
                 id="search-input"
@@ -246,8 +321,14 @@ function RatingCard({ entry_name, rating }) {
               filterOption={(option, inputValue) => {
                 if (!inputValue) return false;
                 return option.label.toLowerCase().includes(inputValue.toLowerCase());
-              }
-              }
+              }}
+              styles={{
+                placeholder: (base) => ({
+                  ...base,
+                  color: '#888888', // 👈 Change this to your desired color
+                  fontStyle: 'italic', // optional
+                }),
+              }}
             />
         </fieldset>
 
@@ -272,9 +353,22 @@ function RatingCard({ entry_name, rating }) {
       )}
       
           </div>
+          
 
       </Container>
+        </CardContent>
+      </Card>
+    </Box>
+    );
+  }
+  }
+
+  return (
+    <>
+      <TopBar />
       
+      <AlternatingCards />
+
     </>
   );
 }
