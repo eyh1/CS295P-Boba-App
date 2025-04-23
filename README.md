@@ -48,3 +48,6 @@ npm install @mui/icons-material
 npm install tailwindcss @tailwindcss/vite
 npm install axios react-router-dom jwt-decode
 npm run dev\
+
+4/21/2025
+npm install @vis.gl/react-google-maps
