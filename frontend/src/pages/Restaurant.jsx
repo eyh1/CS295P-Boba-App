@@ -436,14 +436,15 @@ function Restaurant() {
   };
 
   function CategoryRatingCard({ category, rating }) {
-  return (
-    <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
-      <Card.Body className="p-1 text-center">
-        <strong>{category}:</strong> {rating} ⭐
-      </Card.Body>
-    </Card>
-  );
-}
+    return (
+      <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
+        <Card.Body className="p-1 text-center">
+          <strong>{category}:</strong>
+          <Rating name="read-only" value={rating} readOnly precision={0.5} size="small" sx={{ verticalAlign: 'middle' }}/>
+        </Card.Body>
+      </Card>
+    );
+  }
 
 
   function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings }) {
@@ -476,22 +477,25 @@ function Restaurant() {
       <Container style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>
         
         <Grid2 container spacing={1} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
-          <Grid2 size={12}>
-            <h1 className="titleChaRestaurant">{restaurant}</h1>
-          <Grid2 size={12}>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <p>Address: {address}</p>
-            </div>
+          <Grid2 size={{xs:12, md: 12}} justifyContent={"center"}>
+            {/* title of restaurant is centered */}
+            <h1 className="titleChaRestaurant">{restaurant}</h1> 
+            <p>Address: {address}</p>
+
           </Grid2>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <img src={pic_source} className="drink-cha" />
-          </div>
-          </Grid2>
-          <Grid2 size={12}>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              
+
+            <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
+              <img src={pic_source} className="drink-cha" />
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
-                <Map
-                  style={{width: '30vw', height: '30vh', minWidth: '300px'}}
+              <Map
+                  style={{
+                    width: '100%',
+                    height: '250px',
+                    minWidth: 0
+                  }}
                   defaultCenter={restaurantLatLng || { lat: 33.669445, lng: -117.823059 }} // UCI default
                   defaultZoom={12}
                   gestureHandling={'greedy'}
@@ -499,9 +503,9 @@ function Restaurant() {
                 >
                   {restaurantLatLng && <Marker position={restaurantLatLng} title="Restaurant" />}
                 </Map>
-            </APIProvider>
-        </div>
-          </Grid2>
+              </APIProvider>
+            </Grid2>
+
           
           </Grid2>
           <div>
