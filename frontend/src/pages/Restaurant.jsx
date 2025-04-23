@@ -4,7 +4,7 @@ import boba from ".././assets/chafortea.png";
 import omomo from ".././assets/omomo.png";
 import bako from ".././assets/bako.png";
 import "../styles/Restaurant.css";
-import { Button } from "@mui/material";
+import { Button, Grid, Grid2 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import { ACCESS_TOKEN } from "../constants";
@@ -14,6 +14,7 @@ import api from "../api";
 import Rating from '@mui/material/Rating';
 import TextField from "@mui/material/TextField";
 import Container from '@mui/material/Container';
+import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   const [toppingDropdowns, setToppingDropdowns] = useState([]); // State to track dropdown instances
@@ -172,7 +173,6 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       alert("We failed to receive your review.");
     }
   };
-  console.log(categories)
   return (
     <div className="text-center mt-3">
       {isReviewing ? (
@@ -220,7 +220,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             {/* Topping Dropdowns */}
             <label style={{ fontSize: "1.5rem" }}>Toppings</label>
             {toppingDropdowns.map((dropdownIndex) => (
-              <div key={dropdownIndex} className="d-flex flex-column flex-md-row gap-2 w-50 w-md-100">
+              <div key={dropdownIndex} className="d-flex flex-column flex-md-row gap-2 w-50 w-md-100 mb-2">
                 <select
                   className="form-control me-2"
                   onChange={(e) => handleCategorySelect(e, dropdownIndex)}
@@ -272,7 +272,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 </div>
   ))}
             {/* Button to add a new dropdown */}
-            <button onClick={addToppingDropdown} className="w-50 w-md-100 btn btn-primary mt-1 mb-1">
+            <button onClick={addToppingDropdown} className="w-50 w-md-100 btn btn-primary mb-2">
               Add a topping
             </button>
 
@@ -364,6 +364,7 @@ function Restaurant() {
   const [restaurants, setRestaurants] = useState([]);
   const [reviewJson, setReviewJson] = useState([]);
   const [currentRest, setCurrentRest] = useState();
+  const [restaurantLatLng, setRestaurantLatLng] = useState(null);
   
 
   const checkLoginStatus = () => {
@@ -389,7 +390,18 @@ function Restaurant() {
           if (data.length > 0 && data[0].restaurant_category_ratings) {
             const fetchedRests = data.filter(item => item.id === id);
             setCurrentRest((fetchedRests));
-            console.log("rest data is", fetchedRests); 
+            if (fetchedRests.length > 0 && fetchedRests[0].address) {
+              const fetchCoordinates = async () => {
+                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fetchedRests[0].address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);             
+                const data = await response.json();
+                const location = data.results[0]?.geometry.location;
+                if (location) {
+                  setRestaurantLatLng(location);
+                }
+              };
+              fetchCoordinates();
+            }
+            // console.log("rest data is", fetchedRests); 
 
         }})
       .catch((error) => alert(error));
@@ -405,7 +417,7 @@ function Restaurant() {
       .then((res) => res.data)
       .then((data) => {
         setReviewJson(data);
-        console.log("Fetched reviews:", data);
+        // console.log("Fetched reviews:", data);
 
         if (data.length > 0 && data[0].reviews) {
           const fetchedReviews = data[0].reviews.map((review) => ({
@@ -424,14 +436,15 @@ function Restaurant() {
   };
 
   function CategoryRatingCard({ category, rating }) {
-  return (
-    <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
-      <Card.Body className="p-1 text-center">
-        <strong>{category}:</strong> {rating} ⭐
-      </Card.Body>
-    </Card>
-  );
-}
+    return (
+      <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
+        <Card.Body className="p-1 text-center">
+          <strong>{category}:</strong>
+          <Rating name="read-only" value={rating} readOnly precision={0.5} size="small" sx={{ verticalAlign: 'middle' }}/>
+        </Card.Body>
+      </Card>
+    );
+  }
 
 
   function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings }) {
@@ -456,15 +469,47 @@ function Restaurant() {
   );
 }
 
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings}) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng }) {
 
-    // console.log("categs is ", restaurant_category_ratings);
+    console.log("latlng is ", restaurantLatLng);
     
     return (
       <Container style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>
-          <img src={pic_source} className="drink-cha" />
+        
+        <Grid2 container spacing={1} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
+          <Grid2 size={{xs:12, md: 12}} justifyContent={"center"}>
+            {/* title of restaurant is centered */}
+            <h1 className="titleChaRestaurant">{restaurant}</h1> 
+            <p>Address: {address}</p>
+
+          </Grid2>
+              
+
+            <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
+              <img src={pic_source} className="drink-cha" />
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
+              <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
+              <Map
+                  style={{
+                    width: '100%',
+                    height: '250px',
+                    minWidth: 0
+                  }}
+                  defaultCenter={restaurantLatLng || { lat: 33.669445, lng: -117.823059 }} // UCI default
+                  defaultZoom={12}
+                  gestureHandling={'greedy'}
+                  disableDefaultUI={true}
+                >
+                  {restaurantLatLng && <Marker position={restaurantLatLng} title="Restaurant" />}
+                </Map>
+              </APIProvider>
+            </Grid2>
+
+          
+          </Grid2>
           <div>
-            <h1 className="titleChaRestaurant">{restaurant}</h1>
+            
             <div className="d-flex flex-wrap justify-content-center mt-2">
           {restaurant_category_ratings.map((category_rating, index) => (
             <CategoryRatingCard
@@ -512,15 +557,17 @@ function Restaurant() {
     <div>
       {entries.map((entry, index) => (
         <EntryCard
-          key={index}
-          pic_source={entry.pic || boba}
-          restaurant={entry.name}
-          rating1={entry.ratings[0]}
-          rating2={entry.ratings[1]}
-          rating3={entry.ratings[2]}
-          rest_id={rest_id}
-          restaurant_category_ratings={currentRest ? (currentRest[0].restaurant_category_ratings) : ([{category_name: "Pilk Tea", rating: 3}])}
-        />
+        key={index}
+        pic_source={entry.pic || boba}
+        restaurant={entry.name}
+        rating1={entry.ratings[0]}
+        rating2={entry.ratings[1]}
+        rating3={entry.ratings[2]}
+        rest_id={rest_id}
+        restaurant_category_ratings={currentRest ? (currentRest[0].restaurant_category_ratings) : ([{category_name: "Pilk Tea", rating: 3}])}
+        address={currentRest ? currentRest[0].address : "No address available"}
+        restaurantLatLng={restaurantLatLng}
+      />
       ))}
       
 
