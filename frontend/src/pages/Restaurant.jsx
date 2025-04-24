@@ -8,7 +8,8 @@ import { Button, Grid, Grid2 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import { ACCESS_TOKEN } from "../constants";
-import { Card } from "react-bootstrap";
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 // import { Navbar, Nav, Container } from "react-bootstrap";
 import api from "../api";
 import Rating from '@mui/material/Rating';
@@ -438,10 +439,10 @@ function Restaurant() {
   function CategoryRatingCard({ category, rating }) {
     return (
       <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
-        <Card.Body className="p-1 text-center">
+        <CardContent className="p-1 text-center">
           <strong>{category}:</strong>
           <Rating name="read-only" value={rating} readOnly precision={0.5} size="small" sx={{ verticalAlign: 'middle' }}/>
-        </Card.Body>
+        </CardContent>
       </Card>
     );
   }
@@ -450,7 +451,7 @@ function Restaurant() {
   function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings }) {
   return (
     <Card className="text-center shadow-sm border-0 bg-light px-3 py-2 mb-2">
-      <Card.Body className="p-2">
+      <CardContent className="p-2">
         <p><strong>{is_public ? reviewer_Name : "Anonymous"}'s Review:</strong></p>
         <p><strong>Price:</strong> ${review_pricing}<br></br> <strong> Sweetness:</strong> {review_sweetness}%</p>
         <p>{review_content}</p>
@@ -464,7 +465,7 @@ function Restaurant() {
             />
           ))}
         </div>
-      </Card.Body>
+      </CardContent>
     </Card>
   );
 }
@@ -530,19 +531,21 @@ function Restaurant() {
           </Button>
         )}
 
-        <div className="grid-container-restaurant-review">
-          {reviews.slice().reverse().map((entry, index) => (
-            <ReviewCard
-              key={index}
-              reviewer_Name={entry.reviewer_Name}
-              review_pricing={entry.review_pricing}
-              review_sweetness={entry.review_sweetness}
-              is_public={entry.is_public}
-              review_content={entry.review_content}
-              review_category_ratings={entry.review_category_ratings}
-            />
-          ))}
-        </div>
+        {/* <Card className="mb-4"> */}
+          <CardContent>
+            {reviews.slice().reverse().map((entry, index) => (
+              <ReviewCard
+                key={index}
+                reviewer_Name={entry.reviewer_Name}
+                review_pricing={entry.review_pricing}
+                review_sweetness={entry.review_sweetness}
+                is_public={entry.is_public}
+                review_content={entry.review_content}
+                review_category_ratings={entry.review_category_ratings}
+              />
+            ))}
+          </CardContent>
+        {/* </Card> */}
       </Container>
     );
   }
