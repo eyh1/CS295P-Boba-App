@@ -244,7 +244,6 @@ const AlternatingCards = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        p: 2,
         boxSizing: 'border-box',
         backgroundColor: '#f0f0f0',
       }}
