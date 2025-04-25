@@ -14,6 +14,10 @@ import { Navbar, Nav, Container } from "react-bootstrap";
 import TopBar from "../components/TopBar";
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
+import Chip from '@mui/material/Chip';
+import Autocomplete from '@mui/material/Autocomplete';
+import Stack from '@mui/material/Stack';
+
 
 
 // import RestaurantList from "./RestaurantList";
@@ -93,7 +97,7 @@ function Home() {
 
     const queryParams = new URLSearchParams();
     if (categories.length > 0) {
-      queryParams.append('categories', selectedCategories.join(','));
+      queryParams.append('categories', selectedCategories.map(cat => cat.value).join(','));
     }
     if (rating) {
       queryParams.append('rating', rating);
@@ -112,7 +116,7 @@ function Home() {
       navigate('/search', {
         state: {
           searchTerm,
-          selectedCategories,
+          selectedCategories: selectedCategories.map(cat => cat.value),
           rating,
         },
       });
@@ -305,9 +309,8 @@ const AlternatingCards = () => {
 
       {showFilters && (
       <form onSubmit={handleSubmit}>
-        <fieldset>
           <legend>Select Categories:</legend>
-            <Select
+            {/* <Select
               options={categoryOptions}
               isMulti
               onChange={(selectedOptions) => {
@@ -328,9 +331,34 @@ const AlternatingCards = () => {
                   fontStyle: 'italic', // optional
                 }),
               }}
+            /> */}
+            <Autocomplete 
+            sx={{ width: '100%' }}
+              multiple
+              id="tags-outlined"
+              options={categoryOptions}
+              value={selectedCategories}  // This must match shape of options
+              isOptionEqualToValue={(option, value) => option.value === value.value}
+              getOptionLabel={(option) => option.label}
+              filterSelectedOptions
+              onChange={(event, value) => {
+                setSelectedCategories(value);  // Save full objects instead of just IDs
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="standard"
+                  placeholder="Search and select categories..."
+                  label="Multiple values"
+                  sx={{
+                    backgroundColor: 'white',
+                    borderRadius: 1,
+                    input: { color: 'black' },
+                  }}
+                />
+              )}
+              
             />
-        </fieldset>
-
         <div style={{ marginTop: '10px' }}>
           <label>
             Minimum Rating:
