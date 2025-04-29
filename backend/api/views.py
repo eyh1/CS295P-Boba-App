@@ -144,3 +144,11 @@ class ListHomeCardView(generics.ListAPIView):
     permission_classes = [AllowAny]
     queryset = HomeCard.objects.all()
     
+
+class DeleteBookmarkView(generics.DestroyAPIView):
+    serializer_class = BookmarkSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        user = self.request.user
+        return Bookmark.objects.get(pk=self.kwargs['pk'])
