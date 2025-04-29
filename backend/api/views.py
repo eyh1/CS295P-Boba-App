@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework import generics
 from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer, BookmarkSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard, Bookmark
-from django.db.models import Avg
+from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard, Bookmark, UserCategoryRating
+from django.db.models import Avg, Count
 from rest_framework.response import Response
 from django.db.models import Q
 
@@ -152,3 +152,35 @@ class DeleteBookmarkView(generics.DestroyAPIView):
     def get_object(self):
         user = self.request.user
         return Bookmark.objects.get(pk=self.kwargs['pk'])
+
+class GetRecommendationsView(generics.ListAPIView):
+    serializer_class = RestaurantSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        user_category_ratings = UserCategoryRating.objects.get(user = user)
+        top_user_categories = user_category_ratings.values('category').annotate(total = Count('category')).order_by('-total')
+        
+        if top_user_categories.length > 3:
+            top_user_categories = top_user_categories[:3]
+            
+        user_visited_restaurants = user_category_ratings.values('restaurant')
+        user_unvisited_retaurants = Restaurant.objects.exclude(id__in=user_visited_restaurants).values('id')
+        rating = 4.0
+        
+        filter = Q(restaurant_category_ratings__category__in = top_user_categories, restaurant_category_ratings__rating__gte=rating)
+        recommended_restaurants = user_unvisited_retaurants.filter(filter).distinct()
+        
+        recommended_restaurants["top_user_categories"] = top_user_categories
+        
+        return recommended_restaurants
+        
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = response.data  
+        
+        for restaurant in data:
+            restaurant.pop('reviews', None)  
+                
+        return Response(data)
