@@ -159,21 +159,25 @@ class GetRecommendationsView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        user_category_ratings = UserCategoryRating.objects.get(user = user)
+        user_category_ratings = UserCategoryRating.objects.filter(user = user)
         top_user_categories = user_category_ratings.values('category').annotate(total = Count('category')).order_by('-total')
-        
-        if top_user_categories.length > 3:
+
+        if top_user_categories.count() > 3:
             top_user_categories = top_user_categories[:3]
-            
-        user_visited_restaurants = user_category_ratings.values('restaurant')
-        user_unvisited_retaurants = Restaurant.objects.exclude(id__in=user_visited_restaurants).values('id')
+        
+        top_category_ids = [entry['category'] for entry in top_user_categories]
+        user_visited_restaurants_ids = user_category_ratings.values_list('restaurant',flat = True)
+        user_unvisited_restaurants = Restaurant.objects.exclude(id__in=user_visited_restaurants_ids)
         rating = 4.0
+        print("top")
+        print(top_category_ids)
         
-        filter = Q(restaurant_category_ratings__category__in = top_user_categories, restaurant_category_ratings__rating__gte=rating)
-        recommended_restaurants = user_unvisited_retaurants.filter(filter).distinct()
+        filter = Q(restaurant_category_ratings__category__in = top_category_ids, restaurant_category_ratings__rating__gte=rating)
+        recommended_restaurants = user_unvisited_restaurants.filter(filter).distinct()
         
-        recommended_restaurants["top_user_categories"] = top_user_categories
-        
+        self.top_category_ids = top_category_ids
+        print("here")
+        print(recommended_restaurants)
         return recommended_restaurants
         
     def list(self, request, *args, **kwargs):
@@ -182,5 +186,9 @@ class GetRecommendationsView(generics.ListAPIView):
         
         for restaurant in data:
             restaurant.pop('reviews', None)  
+        
                 
-        return Response(data)
+        return Response({
+            'recommended_restaurants': data,
+            'top_user_categories': self.top_category_ids
+        })
