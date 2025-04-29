@@ -192,3 +192,22 @@ class GetRecommendationsView(generics.ListAPIView):
             'recommended_restaurants': data,
             'top_user_categories': self.top_category_ids
         })
+        
+class GetLatestPositiveReviewsView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        rating = 3.5
+        latest_positive_reviews =  Review.objects.annotate(avg_rating = Avg('review_category_ratings__rating')).filter(avg_rating__gte=rating, public=True).order_by('-created_at')[:5]
+        return latest_positive_reviews
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = response.data  
+        
+        for restaurant in data:
+            restaurant.pop('reviews', None)  
+        
+                
+        return Response(data)

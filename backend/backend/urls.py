@@ -19,6 +19,7 @@ from django.urls import path, include
 from api.views import CreateUserView, ListRestaurantView, CreateReviewView, ListReviewsForRestauarantView
 from api.views import DeleteReviewView, GetRestaurantCategoryRatingView, ListCategoryView, ListUserReviewsView
 from api.views import ListHomeCardView, ListUserBookmarksView, CreateBookmarkView, DeleteBookmarkView, GetRecommendationsView
+from api.views import GetLatestPositiveReviewsView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
@@ -38,4 +39,5 @@ urlpatterns = [
     path("api/bookmark/<int:restaurantPk>/create/", CreateBookmarkView.as_view(), name="createBookmark"),
     path("api/bookmark/<int:pk>/delete/", DeleteBookmarkView.as_view(), name="delete_bookmark"),
     path("api/users/fyp/", GetRecommendationsView.as_view(), name="get_recommendations"),
+    path("api/review/get_latest/", GetLatestPositiveReviewsView.as_view(), name="get_latest_positive_reviews"),
     path("api-auth/", include("rest_framework.urls"))]
