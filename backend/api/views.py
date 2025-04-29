@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer
+from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer, BookmarkSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard
+from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard, Bookmark
 from django.db.models import Avg
 from rest_framework.response import Response
 from django.db.models import Q
@@ -106,6 +106,38 @@ class ListUserReviewsView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return Review.objects.filter(user=user)
+
+class ListUserBookmarksView(generics.ListAPIView):
+    serializer_class = BookmarkSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Bookmark.objects.filter(user=user)
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = response.data  
+        for bookmark in data:
+            bookmark["restaurant"].pop('reviews', None)  
+        return Response(data)
+    
+class CreateBookmarkView(generics.CreateAPIView):
+    queryset = Bookmark.objects.all()
+    serializer_class = BookmarkSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        restaurant = self.kwargs['restaurantPk']
+        user = self.request.user
+        restaurant_instance = Restaurant.objects.get(pk=restaurant)
+        user_instance = User.objects.get(pk=user.id)
+        serializer.save(restaurant=restaurant_instance, user=user_instance)
+    
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        return response 
     
 class ListHomeCardView(generics.ListAPIView):
     serializer_class = HomeCardSerializer

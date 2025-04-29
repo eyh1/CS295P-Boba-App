@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import CreateUserView, ListRestaurantView, CreateReviewView, ListReviewsForRestauarantView, DeleteReviewView, GetRestaurantCategoryRatingView, ListCategoryView, ListUserReviewsView, ListHomeCardView
+from api.views import CreateUserView, ListRestaurantView, CreateReviewView, ListReviewsForRestauarantView, DeleteReviewView, GetRestaurantCategoryRatingView, ListCategoryView, ListUserReviewsView, ListHomeCardView, ListUserBookmarksView, CreateBookmarkView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
@@ -31,5 +31,7 @@ urlpatterns = [
     path("api/category/", ListCategoryView.as_view(), name="get_categories"),
     path("api/token/", TokenObtainPairView.as_view(), name="get_token"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
-    path('api/users/reviews/', ListUserReviewsView.as_view(), name='list-user-reviews'),
+    path('api/users/reviews/', ListUserReviewsView.as_view(), name='list_user_reviews'),
+    path('api/users/bookmarks/', ListUserBookmarksView.as_view(), name='list_user_bookmarks'),
+    path("api/bookmark/<int:restaurantPk>/create/", CreateBookmarkView.as_view(), name="createBookmark"),
     path("api-auth/", include("rest_framework.urls"))]
