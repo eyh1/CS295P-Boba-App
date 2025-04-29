@@ -366,6 +366,22 @@ function Restaurant() {
   const [reviewJson, setReviewJson] = useState([]);
   const [currentRest, setCurrentRest] = useState();
   const [restaurantLatLng, setRestaurantLatLng] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Error getting user location:", error);
+        }
+      );
+    }
+  }, []);
   
 
   const checkLoginStatus = () => {
@@ -470,59 +486,72 @@ function Restaurant() {
   );
 }
 
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation }) {
+    const [directions, setDirections] = useState(null);
 
-    console.log("latlng is ", restaurantLatLng);
-    
+    useEffect(() => {
+      if (restaurantLatLng && userLocation && window.google && window.google.maps) {
+        const directionsService = new window.google.maps.DirectionsService();
+        directionsService.route(
+          {
+            origin: userLocation,
+            destination: restaurantLatLng,
+            travelMode: window.google.maps.TravelMode.DRIVING,
+          },
+          (result, status) => {
+            if (status === 'OK') {
+              setDirections(result);
+            } else {
+              console.error(`error fetching directions ${result}`);
+            }
+          }
+        );
+      }
+    }, [restaurantLatLng, userLocation]);
+
     return (
       <Container style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>
-        
         <Grid2 container spacing={1} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
           <Grid2 size={{xs:12, md: 12}} justifyContent={"center"}>
             {/* title of restaurant is centered */}
-            <h1 className="titleChaRestaurant">{restaurant}</h1> 
+            <h1 className="titleChaRestaurant">{restaurant}</h1>
             <p>Address: {address}</p>
-
           </Grid2>
-              
-
-            <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
-              <img src={pic_source} className="drink-cha" />
-            </Grid2>
-            <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
-              <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
+          <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
+            <img src={pic_source} className="drink-cha" />
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
+            <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
               <Map
-                  style={{
-                    width: '100%',
-                    height: '250px',
-                    minWidth: 0
-                  }}
-                  defaultCenter={restaurantLatLng || { lat: 33.669445, lng: -117.823059 }} // UCI default
-                  defaultZoom={12}
-                  gestureHandling={'greedy'}
-                  disableDefaultUI={true}
-                >
-                  {restaurantLatLng && <Marker position={restaurantLatLng} title="Restaurant" />}
-                </Map>
-              </APIProvider>
-            </Grid2>
-
-          
+                style={{
+                  width: '100%',
+                  height: '250px',
+                  minWidth: 0
+                }}
+                defaultCenter={restaurantLatLng || { lat: 33.669445, lng: -117.823059 }} // UCI default
+                defaultZoom={12}
+                gestureHandling={'greedy'}
+                disableDefaultUI={true}
+              >
+                {restaurantLatLng && <Marker position={restaurantLatLng} title="Restaurant" />}
+                {userLocation && <Marker position={userLocation} title="You" label="📍You" />}
+                {directions && <DirectionsRenderer directions={directions} />}
+              </Map>
+            </APIProvider>
           </Grid2>
-          <div>
-            
-            <div className="d-flex flex-wrap justify-content-center mt-2">
-          {restaurant_category_ratings.map((category_rating, index) => (
-            <CategoryRatingCard
-              key={index}
-              category={category_rating.category_name}
-              rating={category_rating.rating}
-            />
-          ))}
+        </Grid2>
+        <div>
+          <div className="d-flex flex-wrap justify-content-center mt-2">
+            {restaurant_category_ratings.map((category_rating, index) => (
+              <CategoryRatingCard
+                key={index}
+                category={category_rating.category_name}
+                rating={category_rating.rating}
+              />
+            ))}
           </div>
         </div>
         <h1 className="titleChaRestaurant">Reviews:</h1>
-        
         {isLoggedIn ? (
           <ReviewComponent reviews={reviews} setReviews={setReviews} rest_id={rest_id} refreshReviews={() => getRestaurantReviews(rest_id)}/>
         ) : (
@@ -530,22 +559,19 @@ function Restaurant() {
             Login to review
           </Button>
         )}
-
-        {/* <Card className="mb-4"> */}
-          <CardContent>
-            {reviews.slice().reverse().map((entry, index) => (
-              <ReviewCard
-                key={index}
-                reviewer_Name={entry.reviewer_Name}
-                review_pricing={entry.review_pricing}
-                review_sweetness={entry.review_sweetness}
-                is_public={entry.is_public}
-                review_content={entry.review_content}
-                review_category_ratings={entry.review_category_ratings}
-              />
-            ))}
-          </CardContent>
-        {/* </Card> */}
+        <CardContent>
+          {reviews.slice().reverse().map((entry, index) => (
+            <ReviewCard
+              key={index}
+              reviewer_Name={entry.reviewer_Name}
+              review_pricing={entry.review_pricing}
+              review_sweetness={entry.review_sweetness}
+              is_public={entry.is_public}
+              review_content={entry.review_content}
+              review_category_ratings={entry.review_category_ratings}
+            />
+          ))}
+        </CardContent>
       </Container>
     );
   }
@@ -570,10 +596,9 @@ function Restaurant() {
         restaurant_category_ratings={currentRest ? (currentRest[0].restaurant_category_ratings) : ([{category_name: "Pilk Tea", rating: 3}])}
         address={currentRest ? currentRest[0].address : "No address available"}
         restaurantLatLng={restaurantLatLng}
+        userLocation={userLocation}
       />
       ))}
-      
-
     </div>
   );
 }
