@@ -279,15 +279,18 @@ const AlternatingCards = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            color: '#fff',
+            backgroundColor: 'rgba(255, 255, 255, .85)',
+            color: 'black',
             padding: 2,
-            borderRadius: 2,
+            borderRadius: 4,
             textAlign: 'center',
             cursor: 'pointer',
-          }}        >
-          <Typography variant="h4"           onClick={handleClick}          >
-            
+            width: '400px',
+            minHeight: '300px',
+            boxSizing: 'border-box',
+          }}
+        >
+          <Typography variant="h4" onClick={handleClick} sx={{ color: 'black' }}>
             {cards[activeIndex].message + ' 🔍'}
           </Typography>
           <Container className="mt-4">
@@ -303,7 +306,13 @@ const AlternatingCards = () => {
                 }}
             />
     <div>
-      <Button variant="outline-primary" className="me-2"  onClick={() => setShowFilters(prev => !prev)} style={{ marginBottom: '10px' }}>
+      <Button
+        variant="outline-primary"
+        className="me-2"
+        onClick={() => setShowFilters(prev => !prev)}
+        style={{ marginBottom: '10px' }}
+        sx={{ color: 'black' }}
+      >
         {showFilters ? 'Hide Filters ✖️' : "Filter by Categories"}
       </Button>
 
@@ -355,18 +364,19 @@ const AlternatingCards = () => {
             />
             </fieldset>
         <div style={{ marginTop: '10px' }}>
-          <label>
+          <label style={{ color: 'black' }}>
             Minimum Rating:
             <Rating
               name="simple-controlled"
               value={rating}
               precision={0.5}
               onChange={(event, newValue) => setRating(newValue)}
+              sx={{ position: 'relative', top: '6px' }}
             />
           </label>
         </div>
 
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}>
+        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}sx={{ color: 'black' }}>
           Filter
         </Button>
       </form>
