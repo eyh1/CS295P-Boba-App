@@ -5,16 +5,20 @@ import omomo from ".././assets/omomo.png";
 import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
-import { Button } from "@mui/material";
+import { Button, Grid, Grid2 } from "@mui/material";
 import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import { Card } from "react-bootstrap";
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
 import TopBar from "../components/TopBar";
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
 import "../styles/Search.css"
+import GradeIcon from '@mui/icons-material/Grade';
 
 
 
@@ -192,24 +196,64 @@ function RatingCard({ entry_name, rating }) {
   }
 
   return (
-    <Card className="m-3 shadow-sm" style={{ cursor: "pointer" }} onClick={handleClick}>
-      <Card.Img variant="top" src={pic_source} className="card-img-custom"  />
-      <Card.Body>
-        <Card.Title>{restaurant}</Card.Title>
-        <Card.Text>
-        {address}
-        </Card.Text>
-        <div className="d-flex flex-wrap justify-content-center mt-2">
-          {restaurant_category_ratings.map((category_rating, index) => (
-            <CategoryRatingCard
-              key={index}
-              category={category_rating.category_name}
-              rating={category_rating.rating}
-            />
-          ))}
-        </div>
-      </Card.Body>
-    </Card>
+      <Card
+        onClick={handleClick}
+        sx={{
+          m: 2,
+          cursor: 'pointer',
+          boxShadow: 3,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <CardMedia
+          component="img"
+          image={pic_source}
+          alt={restaurant}
+          sx={{
+            height: 200,
+            objectFit: 'cover'
+          }}
+        />
+        <CardContent sx={{ flexGrow: 1 }}>
+          <Typography gutterBottom variant="h5" component="div">
+            {restaurant}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {address}
+          </Typography>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginTop: 8}}>
+            {restaurant_category_ratings.map((category_rating, index) => (
+              <Card
+                key={index}
+                sx={{
+                  border: '.5px solid gray',
+                  px: 1,
+                  mx: 0.5,
+                  my: 1,
+                  fontSize: '0.8rem',
+                  width: '150px',
+                  height: '40px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                <CardContent sx={{ p: 1, textAlign: 'center', maxWidth: '150px' }}>
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <strong>{category_rating.category_name}: {category_rating.rating}<GradeIcon sx={{ fontSize: 16, ml: 0.5, alignSelf: 'center', position: 'relative', top: '-2px' }} /></strong>
+                    
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
   );
 }
 
@@ -235,20 +279,24 @@ function RatingCard({ entry_name, rating }) {
 
 
     return (
-      <div className="grid-container">
+      <div>
+        <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
         {filteredEntries.map((entry, index) => (
-          <EntryCard
-            key={index}
-            pic_source={entry.image}
-            restaurant={entry.restaurant_name}
-            address = {entry.address}
-            rating1={entry.ratings[0]}
-            rating2={entry.ratings[1]}
-            rating3={entry.ratings[2]}
-            rest_id={entry.id}
-            restaurant_category_ratings={entry.restaurant_category_ratings}
-          />
-        ))}
+          <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
+            <EntryCard
+              key={index}
+              pic_source={entry.image}
+              restaurant={entry.restaurant_name}
+              address = {entry.address}
+              rating1={entry.ratings[0]}
+              rating2={entry.ratings[1]}
+              rating3={entry.ratings[2]}
+              rest_id={entry.id}
+              restaurant_category_ratings={entry.restaurant_category_ratings}
+            />
+            </Grid2>
+          ))}
+          </Grid2>
       </div>
     );
   }
@@ -285,7 +333,6 @@ function RatingCard({ entry_name, rating }) {
       {showFilters && (
       <form onSubmit={handleSubmit}>
         <fieldset>
-          <legend>Select Categories:</legend>
             <Select
               options={categoryOptions}
               isMulti
@@ -294,14 +341,13 @@ function RatingCard({ entry_name, rating }) {
                 setSelectedCategories(selectedIds);
               }}
               placeholder="Search and select categories..."
-              openMenuOnFocus={false}
-              openMenuOnClick={false} 
+              openMenuOnFocus={true}
+              openMenuOnClick={true}
               isSearchable
               filterOption={(option, inputValue) => {
-                if (!inputValue) return false;
+                if (!inputValue) return true;
                 return option.label.toLowerCase().includes(inputValue.toLowerCase());
-              }
-            }
+              }}
             />
         </fieldset>
 

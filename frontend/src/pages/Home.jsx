@@ -279,15 +279,18 @@ const AlternatingCards = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            color: '#fff',
+            backgroundColor: 'rgba(255, 255, 255, .85)',
+            color: 'black',
             padding: 2,
-            borderRadius: 2,
+            borderRadius: 4,
             textAlign: 'center',
             cursor: 'pointer',
-          }}        >
-          <Typography variant="h4"           onClick={handleClick}          >
-            
+            width: '400px',
+            minHeight: '300px',
+            boxSizing: 'border-box',
+          }}
+        >
+          <Typography variant="h4" onClick={handleClick} sx={{ color: 'black' }}>
             {cards[activeIndex].message + ' 🔍'}
           </Typography>
           <Container className="mt-4">
@@ -303,77 +306,77 @@ const AlternatingCards = () => {
                 }}
             />
     <div>
-      <Button variant="outline-primary" className="me-2"  onClick={() => setShowFilters(prev => !prev)} style={{ marginBottom: '10px' }}>
-        {showFilters ? 'Hide Filters ✖️' : "Filter"}
+      <Button
+        variant="outline-primary"
+        className="me-2"
+        onClick={() => setShowFilters(prev => !prev)}
+        style={{ marginBottom: '10px' }}
+        sx={{ color: 'black' }}
+      >
+        {showFilters ? 'Hide Filters ✖️' : "Filter by Categories"}
       </Button>
 
       {showFilters && (
       <form onSubmit={handleSubmit}>
-          <legend>Select Categories:</legend>
-            {/* <Select
+        <fieldset>
+            <Select
               options={categoryOptions}
               isMulti
+              value={selectedCategories}
               onChange={(selectedOptions) => {
-                const selectedIds = selectedOptions.map((opt) => opt.value);
-                setSelectedCategories(selectedIds);
+                setSelectedCategories(selectedOptions);
               }}
               placeholder="Search and select categories..."
-              openMenuOnFocus={false}
-              openMenuOnClick={false} 
+              openMenuOnFocus={true}
+              openMenuOnClick={true} 
               filterOption={(option, inputValue) => {
-                if (!inputValue) return false;
+                if (!inputValue) return true; // Show all if no input
                 return option.label.toLowerCase().includes(inputValue.toLowerCase());
               }}
               styles={{
                 placeholder: (base) => ({
                   ...base,
-                  color: '#888888', // 👈 Change this to your desired color
-                  fontStyle: 'italic', // optional
+                  color: 'black',
+                  fontStyle: 'italic',
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: 'black',
+                }),
+                input: (base) => ({
+                  ...base,
+                  color: 'black',
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  color: 'black',
+                  backgroundColor: state.isFocused ? '#e0e0e0' : 'white',
+                }),
+                multiValueRemove: (base) => ({
+                  ...base,
+                  color: 'black',
+                  ':hover': {
+                    backgroundColor: '#e0e0e0',
+                    color: 'black',
+                  },
                 }),
               }}
-            /> */}
-            <Autocomplete 
-            sx={{ width: '100%' }}
-              multiple
-              id="tags-outlined"
-              options={categoryOptions}
-              value={selectedCategories}  // This must match shape of options
-              isOptionEqualToValue={(option, value) => option.value === value.value}
-              getOptionLabel={(option) => option.label}
-              filterSelectedOptions
-              onChange={(event, value) => {
-                setSelectedCategories(value);  // Save full objects instead of just IDs
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="standard"
-                  placeholder="Search and select categories..."
-                  label="Multiple values"
-                  sx={{
-                    backgroundColor: 'white',
-                    borderRadius: 1,
-                    input: { color: 'black' },
-                  }}
-                />
-              )}
-              
             />
+            </fieldset>
         <div style={{ marginTop: '10px' }}>
-          <label>
+          <label style={{ color: 'black' }}>
             Minimum Rating:
             <Rating
               name="simple-controlled"
               value={rating}
               precision={0.5}
-              onChange={(e) =>
-                setRating(e.target.value)
-              }
+              onChange={(event, newValue) => setRating(newValue)}
+              sx={{ position: 'relative', top: '6px' }}
             />
           </label>
         </div>
 
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}>
+        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}sx={{ color: 'black' }}>
           Filter
         </Button>
       </form>
