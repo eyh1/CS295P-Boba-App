@@ -291,7 +291,8 @@ const AlternatingCards = () => {
           }}
         >
           <Typography variant="h4" onClick={handleClick} sx={{ color: 'black' }}>
-            {cards[activeIndex].message + ' 🔍'}
+            {/* {cards[activeIndex].message + ' 🔍'} */}
+            <p>What's your type?</p>
           </Typography>
           <Container className="mt-4">
             <TextField
