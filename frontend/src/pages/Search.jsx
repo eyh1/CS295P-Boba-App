@@ -333,7 +333,6 @@ function RatingCard({ entry_name, rating }) {
       {showFilters && (
       <form onSubmit={handleSubmit}>
         <fieldset>
-          <legend>Select Categories:</legend>
             <Select
               options={categoryOptions}
               isMulti
