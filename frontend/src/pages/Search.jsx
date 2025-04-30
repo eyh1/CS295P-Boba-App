@@ -333,7 +333,6 @@ function RatingCard({ entry_name, rating }) {
       {showFilters && (
       <form onSubmit={handleSubmit}>
         <fieldset>
-          <legend>Select Categories:</legend>
             <Select
               options={categoryOptions}
               isMulti
@@ -342,14 +341,13 @@ function RatingCard({ entry_name, rating }) {
                 setSelectedCategories(selectedIds);
               }}
               placeholder="Search and select categories..."
-              openMenuOnFocus={false}
-              openMenuOnClick={false} 
+              openMenuOnFocus={true}
+              openMenuOnClick={true}
               isSearchable
               filterOption={(option, inputValue) => {
-                if (!inputValue) return false;
+                if (!inputValue) return true;
                 return option.label.toLowerCase().includes(inputValue.toLowerCase());
-              }
-            }
+              }}
             />
         </fieldset>
 

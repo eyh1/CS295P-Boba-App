@@ -367,6 +367,12 @@ function Restaurant() {
   const [currentRest, setCurrentRest] = useState();
   const [restaurantLatLng, setRestaurantLatLng] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const getDirectionsUrl = (userLocation, address) => {
+    if (!userLocation || !address) return "#";
+    const origin = `${userLocation.lat},${userLocation.lng}`;
+    const destination = encodeURIComponent(address);
+    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+  };
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -489,6 +495,23 @@ function Restaurant() {
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation }) {
     const [directions, setDirections] = useState(null);
 
+    // Calculate distance in miles between two locations using the Haversine formula
+    const getDistanceInMiles = (loc1, loc2) => {
+      if (!loc1 || !loc2) return null;
+      const toRad = (value) => (value * Math.PI) / 180;
+      const R = 3958.8; // Earth's radius in miles
+      const dLat = toRad(loc2.lat - loc1.lat);
+      const dLng = toRad(loc2.lng - loc1.lng);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(loc1.lat)) *
+          Math.cos(toRad(loc2.lat)) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return (R * c).toFixed(2);
+    };
+
     useEffect(() => {
       if (restaurantLatLng && userLocation && window.google && window.google.maps) {
         const directionsService = new window.google.maps.DirectionsService();
@@ -516,6 +539,19 @@ function Restaurant() {
             {/* title of restaurant is centered */}
             <h1 className="titleChaRestaurant">{restaurant}</h1>
             <p>Address: {address}</p>
+            {userLocation && restaurantLatLng && (
+              <p>Distance: {getDistanceInMiles(userLocation, restaurantLatLng)} miles</p>
+            )}
+            {userLocation && address && (
+              <a
+                href={getDirectionsUrl(userLocation, address)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'inline-block', marginTop: '0px' }}
+              >
+                Get Directions
+              </a>
+            )}
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
             <img src={pic_source} className="drink-cha" />
@@ -534,8 +570,8 @@ function Restaurant() {
                 disableDefaultUI={true}
               >
                 {restaurantLatLng && <Marker position={restaurantLatLng} title="Restaurant" />}
-                {userLocation && <Marker position={userLocation} title="You" label="📍You" />}
-                {directions && <DirectionsRenderer directions={directions} />}
+                {/* {userLocation && <Marker position={userLocation} title="You" label="📍You" />} */}
+                {/* {directions && <DirectionsRenderer directions={directions} />} */}
               </Map>
             </APIProvider>
           </Grid2>
