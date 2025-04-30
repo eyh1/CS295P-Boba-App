@@ -83,3 +83,11 @@ class UserCategoryRating(models.Model):
                 check=models.Q(rating__gte=0, rating__lte=5),
                 name='user_rating_between_0_and_5'
             )  ]
+        
+        
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='bookmarks')
+    
+    class Meta:
+        unique_together = ["user", "restaurant"]
