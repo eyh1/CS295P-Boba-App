@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.AlterField(
             model_name='restaurant',
             name='image',
             field=models.ImageField(default=0, storage=backend.storages_backend.RestaurantStorage(), upload_to=''),
