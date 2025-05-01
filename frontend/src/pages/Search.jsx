@@ -28,6 +28,7 @@ import GradeIcon from '@mui/icons-material/Grade';
 
 function Search() {
     const { state } = useLocation();
+    console.log(state)
     const {
         searchTerm: initialSearchTerm = '',
         selectedCategories: initialCategories = [],
@@ -41,10 +42,10 @@ function Search() {
   const [rating, setRating] = useState(initialRating);
   const [selectedCategories, setSelectedCategories] = useState(initialCategories);
   const [categoryRatings, setCategoryRatings] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  
+  console.log("Selected Categories:", selectedCategories);
   
   
   useEffect(() => {
