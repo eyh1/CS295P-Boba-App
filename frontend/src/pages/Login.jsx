@@ -36,6 +36,9 @@ function Login() {
 
     return (<>
     <TopBar/>
+    <h1 style={{ textAlign: 'center', marginTop: '20px', fontSize: '2rem', color: '#333' }}>
+          Login
+        </h1>
     <Form route = "api/token/" method = "login"/>
     </>
     );
