@@ -10,7 +10,7 @@ import Rating from '@mui/material/Rating';
 import { useNavigate } from "react-router-dom";
 import TuneIcon from '@mui/icons-material/Tune';
 import CloseIcon from '@mui/icons-material/Close';
-
+import SearchIcon from '@mui/icons-material/Search';
 
 function TopBar() {
     const returnHome = () => {
@@ -54,7 +54,7 @@ function TopBar() {
     }, [])
 
     const handleSubmit = async (event) => {
-      event.preventDefault();
+      if (event) event.preventDefault();
       setLoading(true);
   
       const queryParams = new URLSearchParams();
@@ -86,6 +86,7 @@ function TopBar() {
     }));
     
     useEffect(() => {
+      console.log("here")
       if (!loading && shouldNavigate) {
         navigate('/search', {
           state: {
@@ -107,7 +108,7 @@ function TopBar() {
                   Zoba
                 </Navbar.Brand>
       <TextField
-          className="border-0 shadow-none" 
+          className="border-0 shadow-none m-0 p-0" 
           id="search-input"
           variant="standard" 
           placeholder="Search for a drink or cafe"
@@ -119,10 +120,20 @@ function TopBar() {
           }}
           style={{ width: '50%', minWidth: '30px', marginLeft: '0px', marginRight: '0px' }}
       />
+      <IconButton 
+        variant="outline-primary"
+        className="m-0 p-0"
+        onClick={handleSubmit}
+        sx={{ color: 'black',display: 'flex', alignItems: 'center', justifyContent: 'center',}}
+        size="large"
+      >
+        
+       <SearchIcon fontSize = "large"/>
+      </IconButton >  
                         
       <IconButton 
         variant="outline-primary"
-        className="me-1"
+        className="m-0 p-0"
         onClick={() => setShowFilters(prev => !prev)}
         sx={{ color: 'black',display: 'flex', alignItems: 'center', justifyContent: 'center',}}
         size="large"
@@ -153,7 +164,7 @@ function TopBar() {
         </Navbar.Collapse>
     </Navbar>
      < Collapse in={showFilters}>
-      <form onSubmit={handleSubmit}>
+      <div>
         <fieldset>
             <Select
               options={categoryOptions}
@@ -210,12 +221,8 @@ function TopBar() {
               sx={{ position: 'relative', top: '6px' }}
             />
           </label>
-        </div>
-
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}sx={{ color: 'black' }}>
-          Filter
-        </Button>
-      </form>
+        </div>  
+      </div>
       
           </Collapse>
           </div>

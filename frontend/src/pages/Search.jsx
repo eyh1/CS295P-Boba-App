@@ -66,6 +66,7 @@ function Search() {
 
   const getRestaurants = () => {
     setLoading(true);
+    console.log("getting")
 
     const queryParams = new URLSearchParams();
     if (selectedCategories.length > 0) {
@@ -80,6 +81,7 @@ function Search() {
     .then((data) => { setRestaurants(data); })
     .catch((error) => alert(error));
     setLoading(false)
+    console.log("done")
   };
   
   const checkLoginStatus = () => {
@@ -123,43 +125,6 @@ function Search() {
     value: category.id,
     label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
   }));
-
-
-function TopBar() {
-    const returnHome = () => {
-      window.location.href = "/";
-    }
-    
-  return (
-    <Navbar style={{ backgroundColor: "#ccae88" }} expand="lg" className="px-3">
-        <Navbar.Brand href="#">
-          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
-          Zoba
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (<div>
-            <Button variant="outline-primary" className="me-2" href="/profile">
-              Profile
-            </Button>
-            <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
-                Logout
-              </Button>
-          </div>
-        ) : (
-            <>
-              <Button variant="outline-primary" className="me-2" href="/login">
-                Login
-              </Button>
-              <Button variant="primary" href="/register">
-                Sign Up
-              </Button>
-            </>
-          )}
-        </Navbar.Collapse>
-    </Navbar>
-  );
-}
   
 function RatingCard({ entry_name, rating }) {
   return (
@@ -314,18 +279,7 @@ function RatingCard({ entry_name, rating }) {
           Don&apos;t see your restaurant or drink option? Send a request to add it here!
         </a>
       </div>
-      <Container className="mt-4">
-            <TextField
-                className="border-0 shadow-none w-100" 
-                id="search-input"
-                variant="standard" 
-                placeholder="Search for a drink or cafe"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                    disableUnderline: true,     
-                }}
-            />
+      
     <div>
       <Button variant="outline-primary" className="me-2"  onClick={() => setShowFilters(prev => !prev)} style={{ marginBottom: '10px' }}>
         {showFilters ? 'Hide Filters ✖️' : "Filter"}
@@ -378,7 +332,6 @@ function RatingCard({ entry_name, rating }) {
     )}
           </div>
 
-      </Container>
       
     </>
   );
