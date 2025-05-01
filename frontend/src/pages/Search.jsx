@@ -42,7 +42,7 @@ function Search() {
   const [rating, setRating] = useState(initialRating);
   const [selectedCategories, setSelectedCategories] = useState(initialCategories);
   const [categoryRatings, setCategoryRatings] = useState([]);
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
 
   console.log("Selected Categories:", selectedCategories);

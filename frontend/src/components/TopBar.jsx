@@ -117,7 +117,7 @@ function TopBar() {
             disableUnderline: true,
             style: { fontSize: '0.7rem' } 
           }}
-          style={{ width: '30%', minWidth: '70px', marginLeft: '0px', marginRight: '0px' }}
+          style={{ width: '50%', minWidth: '30px', marginLeft: '0px', marginRight: '0px' }}
       />
                         
       <IconButton 
