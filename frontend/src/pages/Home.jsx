@@ -1,8 +1,4 @@
 import { useState, useEffect } from "react";
-import Zooba from ".././assets/Zooba.png";
-import boba from ".././assets/chafortea.png";
-import omomo from ".././assets/omomo.png";
-import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
 import { Button, Box, Card, CardMedia, CardContent, Typography } from '@mui/material';
@@ -10,34 +6,16 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
-// import { Card } from "react-bootstrap";
 import TopBar from "../components/TopBar";
-import Select from 'react-select';
-import Rating from '@mui/material/Rating';
-import Chip from '@mui/material/Chip';
-import Autocomplete from '@mui/material/Autocomplete';
-import Stack from '@mui/material/Stack';
-
-
-
-// import RestaurantList from "./RestaurantList";
-// import Login from "./pages/Login";
-// import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [rating, setRating] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [categoryRatings, setCategoryRatings] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [shouldNavigate, setShouldNavigate] = useState(false);
   const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,17 +26,6 @@ function Home() {
       })
       .catch((error) => alert(error));
   }, []);
-
-  useEffect(() => {
-    api.get("api/category/")
-      .then((res) => res.data)
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => alert(error));
-  }, []);
-
-  
 
   useEffect(() => {
     getRestaurants();
@@ -84,87 +51,6 @@ function Home() {
     navigate("/login");
   };
 
-  const handleCategoryChange = (event) => {
-    const value = event.target.value;
-    setSelectedCategories(prev =>
-      prev.includes(value) ? prev.filter(cat => cat !== value) : [...prev, value]
-    );
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-
-    const queryParams = new URLSearchParams();
-    if (categories.length > 0) {
-      queryParams.append('categories', selectedCategories.map(cat => cat.value).join(','));
-    }
-    if (rating) {
-      queryParams.append('rating', rating);
-    }
-    api
-    .get(`/api/restaurants/?${queryParams.toString()}`)
-    .then((res) => res.data)
-    .then((data) => { setRestaurants(data); })
-    .catch((error) => alert(error));
-    setLoading(false)
-    setShouldNavigate(true);
-  };
-
-  useEffect(() => {
-    if (!loading && shouldNavigate) {
-      navigate('/search', {
-        state: {
-          searchTerm,
-          selectedCategories: selectedCategories.map(cat => cat.value),
-          rating,
-        },
-      });
-    }
-  }, [loading, shouldNavigate, navigate]);
-  
-
-  const categoryOptions = categories.map((category) => ({
-    value: category.id,
-    label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
-  }));
-
-
-function TopBar() {
-    const returnHome = () => {
-      window.location.href = "/";
-    }
-    
-  return (
-    <Navbar style={{ backgroundColor: "#ccae88" }} expand="lg" className="px-3">
-        <Navbar.Brand href="#">
-          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
-          Zoba
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (<div>
-            <Button variant="outline-primary" className="me-2" href="/profile">
-              Profile
-            </Button>
-            <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
-                Logout
-              </Button>
-          </div>
-        ) : (
-            <>
-              <Button variant="outline-primary" className="me-2" href="/login">
-                Login
-              </Button>
-              <Button variant="primary" href="/register">
-                Sign Up
-              </Button>
-            </>
-          )}
-        </Navbar.Collapse>
-    </Navbar>
-  );
-}
   
 function RatingCard({ entry_name, rating }) {
   return (
@@ -291,101 +177,9 @@ const AlternatingCards = () => {
           }}
         >
           <Typography variant="h4" onClick={handleClick} sx={{ color: 'black' }}>
-            {cards[activeIndex].message + ' 🔍'}
+            {/* {cards[activeIndex].message + ' 🔍'} */}
+            <p>What's your type?</p>
           </Typography>
-          <Container className="mt-4">
-            <TextField
-                className="border-0 shadow-none w-100" 
-                id="search-input"
-                variant="standard" 
-                placeholder="Search for a drink or cafe"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                    disableUnderline: true,     
-                }}
-            />
-    <div>
-      <Button
-        variant="outline-primary"
-        className="me-2"
-        onClick={() => setShowFilters(prev => !prev)}
-        style={{ marginBottom: '10px' }}
-        sx={{ color: 'black' }}
-      >
-        {showFilters ? 'Hide Filters ✖️' : "Filter by Categories"}
-      </Button>
-
-      {showFilters && (
-      <form onSubmit={handleSubmit}>
-        <fieldset>
-            <Select
-              options={categoryOptions}
-              isMulti
-              value={selectedCategories}
-              onChange={(selectedOptions) => {
-                setSelectedCategories(selectedOptions);
-              }}
-              placeholder="Search and select categories..."
-              openMenuOnFocus={true}
-              openMenuOnClick={true} 
-              filterOption={(option, inputValue) => {
-                if (!inputValue) return true; // Show all if no input
-                return option.label.toLowerCase().includes(inputValue.toLowerCase());
-              }}
-              styles={{
-                placeholder: (base) => ({
-                  ...base,
-                  color: 'black',
-                  fontStyle: 'italic',
-                }),
-                singleValue: (base) => ({
-                  ...base,
-                  color: 'black',
-                }),
-                input: (base) => ({
-                  ...base,
-                  color: 'black',
-                }),
-                option: (base, state) => ({
-                  ...base,
-                  color: 'black',
-                  backgroundColor: state.isFocused ? '#e0e0e0' : 'white',
-                }),
-                multiValueRemove: (base) => ({
-                  ...base,
-                  color: 'black',
-                  ':hover': {
-                    backgroundColor: '#e0e0e0',
-                    color: 'black',
-                  },
-                }),
-              }}
-            />
-            </fieldset>
-        <div style={{ marginTop: '10px' }}>
-          <label style={{ color: 'black' }}>
-            Minimum Rating:
-            <Rating
-              name="simple-controlled"
-              value={rating}
-              precision={0.5}
-              onChange={(event, newValue) => setRating(newValue)}
-              sx={{ position: 'relative', top: '6px' }}
-            />
-          </label>
-        </div>
-
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}sx={{ color: 'black' }}>
-          Filter
-        </Button>
-      </form>
-      )}
-      
-          </div>
-          
-
-      </Container>
         </CardContent>
       </Card>
     </Box>
@@ -395,7 +189,7 @@ const AlternatingCards = () => {
 
   return (
     <>
-      <TopBar />
+      <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/>
       
       <AlternatingCards />
 

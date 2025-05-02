@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework import generics
 from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer, BookmarkSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard, Bookmark
-from django.db.models import Avg
+from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard, Bookmark, UserCategoryRating
+from django.db.models import Avg, Count
 from rest_framework.response import Response
 from django.db.models import Q
 
@@ -152,3 +152,62 @@ class DeleteBookmarkView(generics.DestroyAPIView):
     def get_object(self):
         user = self.request.user
         return Bookmark.objects.get(pk=self.kwargs['pk'])
+
+class GetRecommendationsView(generics.ListAPIView):
+    serializer_class = RestaurantSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        user_category_ratings = UserCategoryRating.objects.filter(user = user)
+        top_user_categories = user_category_ratings.values('category').annotate(total = Count('category')).order_by('-total')
+
+        if top_user_categories.count() > 3:
+            top_user_categories = top_user_categories[:3]
+        
+        top_category_ids = [entry['category'] for entry in top_user_categories]
+        user_visited_restaurants_ids = user_category_ratings.values_list('restaurant',flat = True)
+        user_unvisited_restaurants = Restaurant.objects.exclude(id__in=user_visited_restaurants_ids)
+        rating = 4.0
+        print("top")
+        print(top_category_ids)
+        
+        filter = Q(restaurant_category_ratings__category__in = top_category_ids, restaurant_category_ratings__rating__gte=rating)
+        recommended_restaurants = user_unvisited_restaurants.filter(filter).distinct()
+        
+        self.top_category_ids = top_category_ids
+        print("here")
+        print(recommended_restaurants)
+        return recommended_restaurants
+        
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = response.data  
+        
+        for restaurant in data:
+            restaurant.pop('reviews', None)  
+        
+                
+        return Response({
+            'recommended_restaurants': data,
+            'top_user_categories': self.top_category_ids
+        })
+        
+class GetLatestPositiveReviewsView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        rating = 3.5
+        latest_positive_reviews =  Review.objects.annotate(avg_rating = Avg('review_category_ratings__rating')).filter(avg_rating__gte=rating, public=True).order_by('-created_at')[:5]
+        return latest_positive_reviews
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = response.data  
+        
+        for restaurant in data:
+            restaurant.pop('reviews', None)  
+        
+                
+        return Response(data)

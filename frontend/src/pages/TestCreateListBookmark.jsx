@@ -57,7 +57,7 @@ function ApiButtonsPage() {
         <div className="col-md-6">
           <div className="mb-3">
             <label htmlFor="postId" className="form-label">
-              Post ID (1-100):
+              Restaurant ID:
             </label>
             <div className="input-group">
               <input

@@ -13,7 +13,9 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
+import TestFyp from "./pages/TestFyp";
 import TestCreateListBookmark from "./pages/TestCreateListBookmark";
+import TestLatestReviews from "./pages/TestLatestReviews";
 import RestaurantPlaceholder from "./pages/Restaurant";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -46,6 +48,7 @@ function App() {
         <Route path="/register" element={<RegisterAndLogout />} />
         <Route path="/restaurant" element={<RestaurantPlaceholder/>} />
         <Route path="/search" element={<Search/>} />
+        <Route path="/latest" element={<TestLatestReviews/>} />
         <Route path="/profile" element={
           <ProtectedRoute>
             <Profile />
@@ -55,6 +58,12 @@ function App() {
         <Route path="/test" element={
         <ProtectedRoute>
           <TestCreateListBookmark />
+          </ProtectedRoute>
+        }
+        />
+        <Route path="/fyp" element={
+        <ProtectedRoute>
+          <TestFyp/>
           </ProtectedRoute>
         }
         />

@@ -4,6 +4,9 @@ import TopBar from "../components/TopBar"
 function Register() {
     return <div>
         <TopBar/>
+        <h1 style={{ textAlign: 'center', marginTop: '20px', fontSize: '2rem', color: '#333' }}>
+          Create an Account
+        </h1>
         <Form route = "/api/user/register/" method = "register"/>
     </div>
     
