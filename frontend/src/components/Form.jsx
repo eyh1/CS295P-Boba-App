@@ -34,6 +34,14 @@ function Form({route, method}) {
         }
     }
 
+    if (loading) {
+        return (
+            <div className="loading-screen">
+                <div className="spinner"></div>
+            </div>
+        );
+    }
+
     return <form onSubmit = {handleSubmit} className = "form-container">
         {/* <h1>{name}</h1> */}
         <input
