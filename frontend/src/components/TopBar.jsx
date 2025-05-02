@@ -56,7 +56,7 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
     const handleSubmit = async (event) => {
       if (event) event.preventDefault();
       setLoading(true);
-  
+      setSearchTerm(searchTerm);
       const queryParams = new URLSearchParams();
       if (categories.length > 0) {
         queryParams.append('categories', selectedCategories.map(cat => cat.value).join(','));
