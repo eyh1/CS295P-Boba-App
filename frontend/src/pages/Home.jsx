@@ -1,8 +1,4 @@
 import { useState, useEffect } from "react";
-import Zooba from ".././assets/Zooba.png";
-import boba from ".././assets/chafortea.png";
-import omomo from ".././assets/omomo.png";
-import bako from ".././assets/bako.png";
 import "../styles/Home.css"
 import TextField from "@mui/material/TextField";
 import { Button, Box, Card, CardMedia, CardContent, Typography } from '@mui/material';
@@ -10,19 +6,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
-// import { Card } from "react-bootstrap";
 import TopBar from "../components/TopBar";
-import Select from 'react-select';
-import Rating from '@mui/material/Rating';
-import Chip from '@mui/material/Chip';
-import Autocomplete from '@mui/material/Autocomplete';
-import Stack from '@mui/material/Stack';
-
-
-
-// import RestaurantList from "./RestaurantList";
-// import Login from "./pages/Login";
-// import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,8 +14,8 @@ function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [categories, setCategories] = useState([]);
   const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,17 +26,6 @@ function Home() {
       })
       .catch((error) => alert(error));
   }, []);
-
-  useEffect(() => {
-    api.get("api/category/")
-      .then((res) => res.data)
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => alert(error));
-  }, []);
-
-  
 
   useEffect(() => {
     getRestaurants();
@@ -206,22 +179,6 @@ const AlternatingCards = () => {
           <Typography variant="h4" onClick={handleClick} sx={{ color: 'black' }}>
             {cards[activeIndex].message + ' 🔍'}
           </Typography>
-          <Container className="mt-4">
-            <TextField
-                className="border-0 shadow-none w-100" 
-                id="search-input"
-                variant="standard" 
-                placeholder="Search for a drink or cafe"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                    disableUnderline: true,     
-                }}
-            />
-    
-          
-
-      </Container>
         </CardContent>
       </Card>
     </Box>
@@ -231,7 +188,7 @@ const AlternatingCards = () => {
 
   return (
     <>
-      <TopBar />
+      <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/>
       
       <AlternatingCards />
 

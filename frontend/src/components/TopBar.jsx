@@ -12,13 +12,13 @@ import TuneIcon from '@mui/icons-material/Tune';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 
-function TopBar() {
+function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
     const returnHome = () => {
       window.location.href = "/";
     }
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [restaurants, setRestaurants] = useState([]);
+    const [searchTerm, setSelfSearchTerm] = useState("");
+    const [restaurants, setSelfRestaurants] = useState([]);
     const [showFilters, setShowFilters] = useState(false);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -67,7 +67,9 @@ function TopBar() {
       api
       .get(`/api/restaurants/?${queryParams.toString()}`)
       .then((res) => res.data)
-      .then((data) => { setRestaurants(data); })
+      .then((data) => { setRestaurants(data);
+        setSelfRestaurants(data)
+       })
       .catch((error) => alert(error));
       setLoading(false)
       setShouldNavigate(true);
@@ -86,7 +88,6 @@ function TopBar() {
     }));
     
     useEffect(() => {
-      console.log("here")
       if (!loading && shouldNavigate) {
         navigate('/search', {
           state: {
@@ -113,7 +114,10 @@ function TopBar() {
           variant="standard" 
           placeholder="Search for a drink or cafe"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setSelfSearchTerm(e.target.value)
+          }}
           InputProps={{
             disableUnderline: true,
             style: { fontSize: '0.7rem' } 

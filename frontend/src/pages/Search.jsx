@@ -1,22 +1,15 @@
 import { useState, useEffect } from "react";
-import Zooba from ".././assets/Zooba.png";
 import boba from ".././assets/chafortea.png";
-import omomo from ".././assets/omomo.png";
-import bako from ".././assets/bako.png";
 import "../styles/Home.css"
-import TextField from "@mui/material/TextField";
 import { Button, Grid, Grid2 } from "@mui/material";
 import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
-import { Navbar, Nav, Container } from "react-bootstrap";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import TopBar from "../components/TopBar";
-import Select from 'react-select';
-import Rating from '@mui/material/Rating';
 import "../styles/Search.css"
 import GradeIcon from '@mui/icons-material/Grade';
 
@@ -28,7 +21,6 @@ import GradeIcon from '@mui/icons-material/Grade';
 
 function Search() {
     const { state } = useLocation();
-    console.log(state)
     const {
         searchTerm: initialSearchTerm = '',
         selectedCategories: initialCategories = [],
@@ -43,10 +35,7 @@ function Search() {
   const [selectedCategories, setSelectedCategories] = useState(initialCategories);
   const [categoryRatings, setCategoryRatings] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  console.log("Selected Categories:", selectedCategories);
-  
+  const [loading, setLoading] = useState(false);  
   
   useEffect(() => {
     api.get("api/category/")
@@ -66,7 +55,6 @@ function Search() {
 
   const getRestaurants = () => {
     setLoading(true);
-    console.log("getting")
 
     const queryParams = new URLSearchParams();
     if (selectedCategories.length > 0) {
@@ -81,7 +69,6 @@ function Search() {
     .then((data) => { setRestaurants(data); })
     .catch((error) => alert(error));
     setLoading(false)
-    console.log("done")
   };
   
   const checkLoginStatus = () => {
@@ -269,7 +256,7 @@ function RatingCard({ entry_name, rating }) {
 
   return (
     <>
-      <TopBar />
+      <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} setLoading={setLoading}/>
       <div className="text-center mt-1 mb-1">
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSey_JXU-zUdcqNyEoszZtaoNbuZa_A6Ko7z6bzToO3c3tfImQ/viewform?usp=dialog"
@@ -279,59 +266,11 @@ function RatingCard({ entry_name, rating }) {
           Don&apos;t see your restaurant or drink option? Send a request to add it here!
         </a>
       </div>
-      
-    <div>
-      <Button variant="outline-primary" className="me-2"  onClick={() => setShowFilters(prev => !prev)} style={{ marginBottom: '10px' }}>
-        {showFilters ? 'Hide Filters ✖️' : "Filter"}
-      </Button>
-
-      {showFilters && (
-      <form onSubmit={handleSubmit}>
-        <fieldset>
-            <Select
-              options={categoryOptions}
-              isMulti
-              onChange={(selectedOptions) => {
-                const selectedIds = selectedOptions.map((opt) => opt.value);
-                setSelectedCategories(selectedIds);
-              }}
-              placeholder="Search and select categories..."
-              openMenuOnFocus={true}
-              openMenuOnClick={true}
-              isSearchable
-              filterOption={(option, inputValue) => {
-                if (!inputValue) return true;
-                return option.label.toLowerCase().includes(inputValue.toLowerCase());
-              }}
-            />
-        </fieldset>
-
-        <div style={{ marginTop: '10px' }}>
-          <label>
-            Minimum Rating:
-            <Rating
-              name="simple-controlled"
-              value={rating}
-              precision={0.5}
-              onChange={(e) =>
-                setRating(e.target.value)
-              }
-            />
-          </label>
-        </div>
-
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}>
-          Filter
-        </Button>
-      </form>
-      )}
       {loading ? (
         <p>Loading...</p>
       ) : (
             <CardGrid />
     )}
-          </div>
-
       
     </>
   );
