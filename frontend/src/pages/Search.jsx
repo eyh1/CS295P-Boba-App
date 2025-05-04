@@ -12,7 +12,8 @@ import Typography from '@mui/material/Typography';
 import TopBar from "../components/TopBar";
 import "../styles/Search.css"
 import GradeIcon from '@mui/icons-material/Grade';
-
+import Select from 'react-select';
+import Rating from '@mui/material/Rating';
 
 
 // import RestaurantList from "./RestaurantList";
@@ -266,6 +267,49 @@ function RatingCard({ entry_name, rating }) {
           Don&apos;t see your restaurant or drink option? Send a request to add it here!
         </a>
       </div>
+      <div>
+      <Button variant="outline-primary" className="me-2"  onClick={() => setShowFilters(prev => !prev)} style={{ marginBottom: '10px' }}>
+        {showFilters ? 'Hide Filters ✖️' : "Filter"}
+      </Button>
+      {showFilters && (
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+            <Select
+              options={categoryOptions}
+              isMulti
+              onChange={(selectedOptions) => {
+                const selectedIds = selectedOptions.map((opt) => opt.value);
+                setSelectedCategories(selectedIds);
+              }}
+              placeholder="Search and select categories..."
+              openMenuOnFocus={true}
+              openMenuOnClick={true}
+              isSearchable
+              filterOption={(option, inputValue) => {
+                if (!inputValue) return true;
+                return option.label.toLowerCase().includes(inputValue.toLowerCase());
+              }}
+            />
+        </fieldset>
+        <div style={{ marginTop: '10px' }}>
+          <label>
+            Minimum Rating:
+            <Rating
+              name="simple-controlled"
+              value={rating}
+              precision={0.5}
+              onChange={(e) =>
+                setRating(e.target.value)
+              }
+            />
+          </label>
+        </div>
+        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}>
+          Filter
+        </Button>
+      </form>
+      )}
+          </div>
       {loading ? (
         <p>Loading...</p>
       ) : (
