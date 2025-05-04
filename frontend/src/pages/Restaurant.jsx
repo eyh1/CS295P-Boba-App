@@ -151,6 +151,31 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   };
 
   const handleSubmitReview = async () => {
+    // Validate inputs
+    if (selectedCategories.length === 0) {
+      alert("You must select at least one category.");
+      return;
+    }
+    if (categoryRatings.some(item => item.rating === undefined)) {
+        alert("A rating is missing.");
+        return;
+      }
+    if (categoryRatings.length === 0) {
+      alert("You must provide ratings for the selected categories.");
+      return;
+    }
+    if (!reviewInputs.review_sweetness) {
+      alert("Sweetness cannot be blank.");
+      return;
+    }
+    if (!reviewInputs.review_pricing) {
+      alert("Pricing cannot be blank.");
+      return;
+    }
+    if (!reviewInputs.review_content) {
+      alert("Review content cannot be blank.");
+      return;
+    }
     const reviewPayload = {
       content: reviewInputs.review_content,
       public: reviewInputs.is_public,
