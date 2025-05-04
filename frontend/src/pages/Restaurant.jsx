@@ -87,7 +87,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     // if the selected category is "Base", remove any previously selected categories with category_type = "Base"
     if (category) {
       if (category.category_type === "Base") {
-        // Remove any previously selected categories with category_type = "Base"
+        // Remove any previously selected Base category
         setSelectedCategories((prev) =>
           prev.filter((cat) => cat.category_type !== "Base")
         );
@@ -97,10 +97,13 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             return cat && cat.category_type !== "Base";
           })
         );
-          
-      // Add the new category to selectedCategories and categoryRatings
-      setSelectedCategories([...selectedCategories, category]);
-      setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
+  
+        // Add the new Base category to selectedCategories and categoryRatings
+        setSelectedCategories((prev) => [...prev, category]);
+        setCategoryRatings((prev) => [
+          ...prev,
+          { category: category.id, rating: dropdownIndex }, // Default rating of 5
+        ]);
       }
       else { // selected category is topping
         // Remove the previously selected topping for this dropdown
