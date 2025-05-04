@@ -187,7 +187,7 @@ function RatingCard({ entry_name, rating }) {
                   my: 1,
                   fontSize: '0.8rem',
                   width: '150px',
-                  height: '40px',
+                  height: 'auto',
                   display: 'flex',
                   justifyContent: 'center',
                 }}
@@ -233,7 +233,7 @@ function RatingCard({ entry_name, rating }) {
 
     return (
       <div>
-        <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
+        <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 10, marginRight: 10 }}>
         {filteredEntries.map((entry, index) => (
           <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
             <EntryCard

@@ -591,7 +591,7 @@ function Restaurant() {
         {isLoggedIn ? (
           <ReviewComponent reviews={reviews} setReviews={setReviews} rest_id={rest_id} refreshReviews={() => getRestaurantReviews(rest_id)}/>
         ) : (
-          <Button variant="outline-primary" className="me-2" href="/login">
+          <Button variant="contained" className="me-2" href="/login">
             Login to review
           </Button>
         )}
