@@ -87,7 +87,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     // if the selected category is "Base", remove any previously selected categories with category_type = "Base"
     if (category) {
       if (category.category_type === "Base") {
-        // Remove any previously selected categories with category_type = "Base"
+        // Remove any previously selected Base category
         setSelectedCategories((prev) =>
           prev.filter((cat) => cat.category_type !== "Base")
         );
@@ -97,10 +97,13 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             return cat && cat.category_type !== "Base";
           })
         );
-          
-      // Add the new category to selectedCategories and categoryRatings
-      setSelectedCategories([...selectedCategories, category]);
-      setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
+  
+        // Add the new Base category to selectedCategories and categoryRatings
+        setSelectedCategories((prev) => [...prev, category]);
+        setCategoryRatings((prev) => [
+          ...prev,
+          { category: category.id, rating: dropdownIndex }, // Default rating of 5
+        ]);
       }
       else { // selected category is topping
         // Remove the previously selected topping for this dropdown
@@ -148,6 +151,31 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   };
 
   const handleSubmitReview = async () => {
+    // Validate inputs
+    if (selectedCategories.length === 0) {
+      alert("You must select at least one category.");
+      return;
+    }
+    if (categoryRatings.some(item => item.rating === undefined)) {
+        alert("A rating is missing.");
+        return;
+      }
+    if (categoryRatings.length === 0) {
+      alert("You must provide ratings for the selected categories.");
+      return;
+    }
+    if (!reviewInputs.review_sweetness) {
+      alert("Sweetness cannot be blank.");
+      return;
+    }
+    if (!reviewInputs.review_pricing) {
+      alert("Pricing cannot be blank.");
+      return;
+    }
+    if (!reviewInputs.review_content) {
+      alert("Review content cannot be blank.");
+      return;
+    }
     const reviewPayload = {
       content: reviewInputs.review_content,
       public: reviewInputs.is_public,
@@ -591,7 +619,7 @@ function Restaurant() {
         {isLoggedIn ? (
           <ReviewComponent reviews={reviews} setReviews={setReviews} rest_id={rest_id} refreshReviews={() => getRestaurantReviews(rest_id)}/>
         ) : (
-          <Button variant="outline-primary" className="me-2" href="/login">
+          <Button variant="contained" className="me-2" href="/login">
             Login to review
           </Button>
         )}

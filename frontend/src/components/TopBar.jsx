@@ -113,29 +113,23 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
           className="border-0 shadow-none m-0 p-0" 
           id="search-input"
           variant="standard" 
-          placeholder="Search for a drink or cafe"
+          placeholder="Search for a cafe"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setSelfSearchTerm(e.target.value)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSubmit(e);
+            }
           }}
           InputProps={{
             disableUnderline: true,
             style: { fontSize: '0.7rem' } 
           }}
           style={{ width: '50%', minWidth: '30px', marginLeft: '0px', marginRight: '0px' }}
-      />
-      <IconButton 
-        variant="outline-primary"
-        className="m-0 p-0"
-        onClick={handleSubmit}
-        sx={{ color: 'black',display: 'flex', alignItems: 'center', justifyContent: 'center',}}
-        size="large"
-      >
-        
-       <SearchIcon fontSize = "large"/>
-      </IconButton >  
-                        
+      />                    
       <IconButton 
         variant="outline-primary"
         className="m-0 p-0"
@@ -168,8 +162,9 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
           )}
         </Navbar.Collapse>
     </Navbar>
-     < Collapse in={showFilters}>
+    {showFilters && (
       <div>
+      <form onSubmit={handleSubmit}>
         <fieldset>
             <Select
               options={categoryOptions}
@@ -226,11 +221,14 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
               sx={{ position: 'relative', top: '6px' }}
             />
           </label>
-        </div>  
+        </div>
+      <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}sx={{ color: 'black' }}>
+                Filter
+              </Button>
+      </form> 
       </div>
-      
-          </Collapse>
-          </div>
+    )}
+    </div>
   );
 }
 
