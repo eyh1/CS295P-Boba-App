@@ -7,6 +7,7 @@ from .models import Restaurant, Review, Category, ReviewCategoryRating, Restaura
 from django.db.models import Avg, Count
 from rest_framework.response import Response
 from django.db.models import Q
+from collections import defaultdict
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -154,43 +155,44 @@ class DeleteBookmarkView(generics.DestroyAPIView):
         return Bookmark.objects.get(pk=self.kwargs['pk'])
 
 class GetRecommendationsView(generics.ListAPIView):
-    serializer_class = RestaurantSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        user_category_ratings = UserCategoryRating.objects.filter(user = user)
-        top_user_categories = user_category_ratings.values('category').annotate(total = Count('category')).order_by('-total')
+        user_category_ratings = UserCategoryRating.objects.filter(user = user).values_list("restaurant", "category")
+        user_category_ratings = set(user_category_ratings)
+        print(user_category_ratings)
+        q = Q()
+        for category, restaurant in user_category_ratings:            
+            q |= Q(category=category, restaurant=restaurant)
+        other_user_category_ratings = UserCategoryRating.objects.filter(rating__gte=3.5).exclude(user=user).exclude(q)
+        
+        other_user_category_ratings_dict = defaultdict(set)
+        for user_cat_rating in other_user_category_ratings:
+            other_user_category_ratings_dict[user_cat_rating.user].add((user_cat_rating.restaurant, user_cat_rating.category))
+        print(other_user_category_ratings_dict)
+        other_user_jaccard_similarity = {}
+        for user, user_category_ratings in other_user_category_ratings_dict.items():
+            other_user_jaccard_similarity[user] = len(user_category_ratings.intersection(user_category_ratings)) / len(user_category_ratings.union(user_category_ratings))
+        other_user_jaccard_similarity = sorted(other_user_jaccard_similarity.items(), key=lambda x: x[1], reverse=True)
+        print(other_user_jaccard_similarity)
+        self.recommendations = []
+        
+        while len(self.recommendations) < 5 and other_user_jaccard_similarity:
+            user, _ = other_user_jaccard_similarity.pop(0)
+            other_user_category_ratings_set = other_user_category_ratings_dict[user]
+            
+            for restaurant_category in other_user_category_ratings_set:
+                if restaurant_category not in self.recommendations and restaurant_category not in user_category_ratings:
+                    self.recommendations.append(restaurant_category)
+        print(self.recommendations)
+        return self.recommendations
 
-        if top_user_categories.count() > 3:
-            top_user_categories = top_user_categories[:3]
-        
-        top_category_ids = [entry['category'] for entry in top_user_categories]
-        user_visited_restaurants_ids = user_category_ratings.values_list('restaurant',flat = True)
-        user_unvisited_restaurants = Restaurant.objects.exclude(id__in=user_visited_restaurants_ids)
-        rating = 4.0
-        print("top")
-        print(top_category_ids)
-        
-        filter = Q(restaurant_category_ratings__category__in = top_category_ids, restaurant_category_ratings__rating__gte=rating)
-        recommended_restaurants = user_unvisited_restaurants.filter(filter).distinct()
-        
-        self.top_category_ids = top_category_ids
-        print("here")
-        print(recommended_restaurants)
-        return recommended_restaurants
-        
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
-        data = response.data  
-        
-        for restaurant in data:
-            restaurant.pop('reviews', None)  
-        
                 
         return Response({
-            'recommended_restaurants': data,
-            'top_user_categories': self.top_category_ids
+            'recommended': self.recommendations
         })
         
 class GetLatestPositiveReviewsView(generics.ListAPIView):
