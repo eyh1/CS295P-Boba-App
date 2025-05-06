@@ -105,8 +105,8 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
       
     <Navbar
      style={{ backgroundColor: "#ccae88" }} expand="lg" className="p-0">
-        <Navbar.Brand href="#">
-                  <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
+        <Navbar.Brand style={{ marginLeft: "10px" }} href="#">
+                  <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome} />
                   Zoba
                 </Navbar.Brand>
       <TextField

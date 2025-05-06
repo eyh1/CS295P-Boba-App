@@ -88,6 +88,11 @@ function Home() {
     value: category.id,
     label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
   }));
+
+  const restaurantOptions = restaurants.map((restaurant) => ({
+    value: restaurant.id,
+    label: restaurant.restaurant_name.charAt(0).toUpperCase() + restaurant.restaurant_name.slice(1)
+  }));
   
   useEffect(() => {
     if (!loading && shouldNavigate) {
@@ -144,8 +149,8 @@ function TopBar() {
       
     <Navbar
      style={{ backgroundColor: "#ccae88" }} expand="lg" className="p-0">
-        <Navbar.Brand href="#">
-                  <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
+        <Navbar.Brand style={{ marginLeft: "10px" }} href="#">
+                  <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome} />
                   Zoba
                 </Navbar.Brand>   
         <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
@@ -282,7 +287,7 @@ function RatingCard({ entry_name, rating }) {
             textAlign: 'center',
             cursor: 'pointer',
             width: '400px',
-            minHeight: '300px',
+            maxHeight: '300px',
             boxSizing: 'border-box',
           }}
         >
@@ -292,22 +297,49 @@ function RatingCard({ entry_name, rating }) {
           <Container className="mt-4">
           <Box display="flex" alignItems="center" gap={1}>
 
-            <TextField
-                className="border-0 shadow-none w-80" 
-                id="search-input"
-                variant="standard" 
-                placeholder="Search for a cafe"
-                value={searchTerm}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSubmit(e);
-                  }
-                }}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                    disableUnderline: true,     
-                }}
-            />                        
+            <Select
+              options={restaurantOptions}
+              placeholder="Select a restaurant"
+              onChange={(selectedOption) => {
+                if (selectedOption) {
+                  navigate('/search', {
+                    state: {
+                      searchTerm: selectedOption.label,
+                      selectedCategories: [],
+                      rating: 0,
+                    },
+                  });
+                }
+              }}
+              styles={{
+                container: (base) => ({
+                  ...base,
+                  width: '100%',
+                }),
+                control: (base) => ({
+                  ...base,
+                  boxShadow: 'none',
+                  borderColor: '#ced4da',
+                }),
+              }}
+            />
+            {/* <Select
+            className="border-0 shadow-none w-80" 
+            options={restaurantOptions}
+              isMulti
+              value={searchTerm}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSubmit(e);
+                }
+              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                  disableUnderline: true,     
+              }}
+            >
+              
+            </Select> */}
       <IconButton 
         variant="outline-primary"
         className="m-0 p-0"
@@ -383,6 +415,14 @@ function RatingCard({ entry_name, rating }) {
         </Button>
       </form>
       )}
+      <Button 
+            variant="contained" 
+            color="primary" 
+            sx={{ mt: 2 }} 
+            onClick={() => navigate('/search')}
+          >
+            Explore All Restaurants
+          </Button>
               </Container>
         </CardContent>
       </Card>
