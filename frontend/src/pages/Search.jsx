@@ -1,25 +1,19 @@
 import { useState, useEffect } from "react";
-import Zooba from ".././assets/Zooba.png";
 import boba from ".././assets/chafortea.png";
-import omomo from ".././assets/omomo.png";
-import bako from ".././assets/bako.png";
 import "../styles/Home.css"
-import TextField from "@mui/material/TextField";
 import { Button, Grid, Grid2 } from "@mui/material";
 import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
-import { Navbar, Nav, Container } from "react-bootstrap";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import TopBar from "../components/TopBar";
-import Select from 'react-select';
-import Rating from '@mui/material/Rating';
 import "../styles/Search.css"
 import GradeIcon from '@mui/icons-material/Grade';
-
+import Select from 'react-select';
+import Rating from '@mui/material/Rating';
 
 
 // import RestaurantList from "./RestaurantList";
@@ -42,10 +36,7 @@ function Search() {
   const [selectedCategories, setSelectedCategories] = useState(initialCategories);
   const [categoryRatings, setCategoryRatings] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  
-  
+  const [loading, setLoading] = useState(false);  
   
   useEffect(() => {
     api.get("api/category/")
@@ -122,43 +113,6 @@ function Search() {
     value: category.id,
     label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
   }));
-
-
-function TopBar() {
-    const returnHome = () => {
-      window.location.href = "/";
-    }
-    
-  return (
-    <Navbar style={{ backgroundColor: "#ccae88" }} expand="lg" className="px-3">
-        <Navbar.Brand href="#">
-          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
-          Zoba
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (<div>
-            <Button variant="outline-primary" className="me-2" href="/profile">
-              Profile
-            </Button>
-            <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
-                Logout
-              </Button>
-          </div>
-        ) : (
-            <>
-              <Button variant="outline-primary" className="me-2" href="/login">
-                Login
-              </Button>
-              <Button variant="primary" href="/register">
-                Sign Up
-              </Button>
-            </>
-          )}
-        </Navbar.Collapse>
-    </Navbar>
-  );
-}
   
 function RatingCard({ entry_name, rating }) {
   return (
@@ -234,7 +188,7 @@ function RatingCard({ entry_name, rating }) {
                   my: 1,
                   fontSize: '0.8rem',
                   width: '150px',
-                  height: '40px',
+                  height: 'auto',
                   display: 'flex',
                   justifyContent: 'center',
                 }}
@@ -280,7 +234,7 @@ function RatingCard({ entry_name, rating }) {
 
     return (
       <div>
-        <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
+        <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 10, marginRight: 10 }}>
         {filteredEntries.map((entry, index) => (
           <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
             <EntryCard
@@ -303,7 +257,7 @@ function RatingCard({ entry_name, rating }) {
 
   return (
     <>
-      <TopBar />
+      <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} setLoading={setLoading}/>
       <div className="text-center mt-1 mb-1">
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSey_JXU-zUdcqNyEoszZtaoNbuZa_A6Ko7z6bzToO3c3tfImQ/viewform?usp=dialog"
@@ -313,23 +267,10 @@ function RatingCard({ entry_name, rating }) {
           Don&apos;t see your restaurant or drink option? Send a request to add it here!
         </a>
       </div>
-      <Container className="mt-4">
-            <TextField
-                className="border-0 shadow-none w-100" 
-                id="search-input"
-                variant="standard" 
-                placeholder="Search for a drink or cafe"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                    disableUnderline: true,     
-                }}
-            />
-    <div>
+      <div>
       <Button variant="outline-primary" className="me-2"  onClick={() => setShowFilters(prev => !prev)} style={{ marginBottom: '10px' }}>
         {showFilters ? 'Hide Filters ✖️' : "Filter"}
       </Button>
-
       {showFilters && (
       <form onSubmit={handleSubmit}>
         <fieldset>
@@ -350,7 +291,6 @@ function RatingCard({ entry_name, rating }) {
               }}
             />
         </fieldset>
-
         <div style={{ marginTop: '10px' }}>
           <label>
             Minimum Rating:
@@ -364,20 +304,17 @@ function RatingCard({ entry_name, rating }) {
             />
           </label>
         </div>
-
         <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}>
           Filter
         </Button>
       </form>
       )}
+          </div>
       {loading ? (
         <p>Loading...</p>
       ) : (
             <CardGrid />
     )}
-          </div>
-
-      </Container>
       
     </>
   );

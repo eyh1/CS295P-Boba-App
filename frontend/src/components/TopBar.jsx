@@ -1,39 +1,146 @@
 import "../styles/TopBar.css"
 import Zooba from "../assets/Zooba.png";
-import { Button } from "@mui/material";
-import { Navbar, Nav, Container } from "react-bootstrap";
+import { Button, TextField, IconButton} from "@mui/material";
+import { Navbar, Nav, Container, Form, Collapse } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { ACCESS_TOKEN } from "../constants";
+import Select from 'react-select';
+import api from "../api";
+import Rating from '@mui/material/Rating';
+import { useNavigate } from "react-router-dom";
+import TuneIcon from '@mui/icons-material/Tune';
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 
-
-function TopBar() {
+function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
     const returnHome = () => {
       window.location.href = "/";
     }
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [searchTerm, setSelfSearchTerm] = useState("");
+    const [restaurants, setSelfRestaurants] = useState([]);
+    const [showFilters, setShowFilters] = useState(false);
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [rating, setRating] = useState(0);
+    const [isBoxOpen, setIsBoxOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [shouldNavigate, setShouldNavigate] = useState(false);
+    const navigate = useNavigate();
+    
 
-      const checkLoginStatus = () => {
-        const token = localStorage.getItem(ACCESS_TOKEN);
-        setIsLoggedIn(!!token);
-      };
+    useEffect(() => {
+      api.get("api/category/")
+        .then((res) => res.data)
+        .then((data) => {
+          setCategories(data);
+        })
+        .catch((error) => alert(error));
+    }, []);
 
-      const handleLogout = () => {
-        localStorage.removeItem(ACCESS_TOKEN);
-        setIsLoggedIn(false);
-        navigate("/login");
-      };
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem(ACCESS_TOKEN);
+      setIsLoggedIn(!!token);
+    };
 
-     useEffect(() => {
-        checkLoginStatus();
-      }, [])
+    const handleLogout = () => {
+      localStorage.removeItem(ACCESS_TOKEN);
+      setIsLoggedIn(false);
+      navigate("/login");
+    };
+
+    useEffect(() => {
+      checkLoginStatus();
+    }, [])
+
+    const handleSubmit = async (event) => {
+      if (event) event.preventDefault();
+      setLoading(true);
+      setSearchTerm(searchTerm);
+      setSelfSearchTerm(searchTerm);
+      const queryParams = new URLSearchParams();
+      if (categories.length > 0) {
+        queryParams.append('categories', selectedCategories.map(cat => cat.value).join(','));
+      }
+      if (rating) {
+        queryParams.append('rating', rating);
+      }
+      api
+      .get(`/api/restaurants/?${queryParams.toString()}`)
+      .then((res) => res.data)
+      .then((data) => { setRestaurants(data);
+        setSelfRestaurants(data)
+       })
+      .catch((error) => alert(error));
+      setLoading(false)
+      setShouldNavigate(true);
+    };
+
+    const handleCategoryChange = (event) => {
+      const value = event.target.value;
+      setSelectedCategories(prev =>
+        prev.includes(value) ? prev.filter(cat => cat !== value) : [...prev, value]
+      );
+    };
+
+    const categoryOptions = categories.map((category) => ({
+      value: category.id,
+      label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
+    }));
+    
+    useEffect(() => {
+      if (!loading && shouldNavigate) {
+        navigate('/search', {
+          state: {
+            searchTerm,
+            selectedCategories: selectedCategories.map(cat => cat.value),
+            rating,
+          },
+        });
+      }
+    }, [loading, shouldNavigate, navigate]);
     
   return (
-    <Navbar style={{ backgroundColor: "#ccae88" }} expand="lg" className="px-3">
-        <Navbar.Brand>
-          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
-          Zoba
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+    <div  className="p-0">
+      
+    <Navbar
+     style={{ backgroundColor: "#ccae88" }} expand="lg" className="p-0">
+        <Navbar.Brand href="#">
+                  <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
+                  Zoba
+                </Navbar.Brand>
+      <TextField
+          className="border-0 shadow-none m-0 p-0" 
+          id="search-input"
+          variant="standard" 
+          placeholder="Search for a cafe"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setSelfSearchTerm(e.target.value)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSubmit(e);
+            }
+          }}
+          InputProps={{
+            disableUnderline: true,
+            style: { fontSize: '0.7rem' } 
+          }}
+          style={{ width: '50%', minWidth: '30px', marginLeft: '0px', marginRight: '0px' }}
+      />                    
+      <IconButton 
+        variant="outline-primary"
+        className="m-0 p-0"
+        onClick={() => setShowFilters(prev => !prev)}
+        sx={{ color: 'black',display: 'flex', alignItems: 'center', justifyContent: 'center',}}
+        size="large"
+      >
+        
+        {showFilters ? <CloseIcon fontSize = "large"/> : <TuneIcon fontSize = "large"/>}
+      </IconButton >        
+        <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
           { isLoggedIn ? (<div>
             <Button variant="outline-primary" className="me-2" href="/profile">
@@ -55,6 +162,73 @@ function TopBar() {
           )}
         </Navbar.Collapse>
     </Navbar>
+    {showFilters && (
+      <div>
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+            <Select
+              options={categoryOptions}
+              isMulti
+              value={selectedCategories}
+              onChange={(selectedOptions) => {
+                setSelectedCategories(selectedOptions);
+              }}
+              placeholder="Search and select categories..."
+              openMenuOnFocus={true}
+              openMenuOnClick={true} 
+              filterOption={(option, inputValue) => {
+                if (!inputValue) return true; // Show all if no input
+                return option.label.toLowerCase().includes(inputValue.toLowerCase());
+              }}
+              styles={{
+                placeholder: (base) => ({
+                  ...base,
+                  color: 'black',
+                  fontStyle: 'italic',
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: 'black',
+                }),
+                input: (base) => ({
+                  ...base,
+                  color: 'black',
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  color: 'black',
+                  backgroundColor: state.isFocused ? '#e0e0e0' : 'white',
+                }),
+                multiValueRemove: (base) => ({
+                  ...base,
+                  color: 'black',
+                  ':hover': {
+                    backgroundColor: '#e0e0e0',
+                    color: 'black',
+                  },
+                }),
+              }}
+            />
+            </fieldset>
+        <div style={{ marginTop: '10px' }}>
+          <label style={{ color: 'black' }}>
+            Minimum Rating:
+            <Rating
+              name="simple-controlled"
+              value={rating}
+              precision={0.5}
+              onChange={(event, newValue) => setRating(newValue)}
+              sx={{ position: 'relative', top: '6px' }}
+            />
+          </label>
+        </div>
+      <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}sx={{ color: 'black' }}>
+                Filter
+              </Button>
+      </form> 
+      </div>
+    )}
+    </div>
   );
 }
 

@@ -87,9 +87,9 @@ function Profile() {
     <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
         <Grid2 size={3} display="flex" flexDirection="column" alignItems="center" sx={{ border: '1px solid #ccc', borderRadius: '8px', padding: 2 }}>
             <img src={profilePic} alt="Profile" style={{ borderRadius: '50%', width: '150px', height: '150px' }} />
-            <p>Testname</p>
+            {/* <p>Testname</p> */}
             <p>Total Reviews Written: {reviews.length}</p>
-            <p>Bookmarked Restaurants:</p>
+            {/* <p>Bookmarked Restaurants:</p> */}
         </Grid2>
     
     {/* Right side of page */}

@@ -1,53 +1,37 @@
 import { useState, useEffect } from "react";
-import Zooba from ".././assets/Zooba.png";
-import boba from ".././assets/chafortea.png";
-import omomo from ".././assets/omomo.png";
-import bako from ".././assets/bako.png";
 import "../styles/Home.css"
+import Zooba from "../assets/Zooba.png";
 import TextField from "@mui/material/TextField";
-import { Button, Box, Card, CardMedia, CardContent, Typography } from '@mui/material';
+import { Button, Box, Card, CardMedia, CardContent, Typography, IconButton} from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
-// import { Card } from "react-bootstrap";
 import TopBar from "../components/TopBar";
+import TuneIcon from '@mui/icons-material/Tune';
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
-import Chip from '@mui/material/Chip';
-import Autocomplete from '@mui/material/Autocomplete';
-import Stack from '@mui/material/Stack';
-
-
-
-// import RestaurantList from "./RestaurantList";
-// import Login from "./pages/Login";
-// import { BrowserRouter, Route, Routes, Switch } from "react-router-dom";
+import LaunchIcon from '@mui/icons-material/Launch';
 
 function Home() {
+  const returnHome = () => {
+    window.location.href = "/";
+  }
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [restaurants, setRestaurants] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [rating, setRating] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [categoryRatings, setCategoryRatings] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [isBoxOpen, setIsBoxOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shouldNavigate, setShouldNavigate] = useState(false);
   const [cards, setCards] = useState([]);
-
-  
   const navigate = useNavigate();
-
-  useEffect(() => {
-    api.get("api/homeCards/")
-      .then((res) => res.data)
-      .then((data) => {
-        setCards(data);
-      })
-      .catch((error) => alert(error));
-  }, []);
+  
 
   useEffect(() => {
     api.get("api/category/")
@@ -58,7 +42,73 @@ function Home() {
       .catch((error) => alert(error));
   }, []);
 
+  const checkLoginStatus = () => {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    setIsLoggedIn(!!token);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(ACCESS_TOKEN);
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+
+  useEffect(() => {
+    checkLoginStatus();
+  }, [])
+
+  const handleSubmit = async (event) => {
+    if (event) event.preventDefault();
+    setLoading(true);
+    const queryParams = new URLSearchParams();
+    if (categories.length > 0) {
+      queryParams.append('categories', selectedCategories.map(cat => cat.value).join(','));
+    }
+    if (rating) {
+      queryParams.append('rating', rating);
+    }
+    api
+    .get(`/api/restaurants/?${queryParams.toString()}`)
+    .then((res) => res.data)
+    .then((data) => { setRestaurants(data);
+     })
+    .catch((error) => alert(error));
+    setLoading(false)
+    setShouldNavigate(true);
+  };
+
+  const handleCategoryChange = (event) => {
+    const value = event.target.value;
+    setSelectedCategories(prev =>
+      prev.includes(value) ? prev.filter(cat => cat !== value) : [...prev, value]
+    );
+  };
+
+  const categoryOptions = categories.map((category) => ({
+    value: category.id,
+    label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
+  }));
   
+  useEffect(() => {
+    if (!loading && shouldNavigate) {
+      navigate('/search', {
+        state: {
+          searchTerm,
+          selectedCategories: selectedCategories.map(cat => cat.value),
+          rating,
+        },
+      });
+    }
+  }, [loading, shouldNavigate, navigate]);
+  
+  useEffect(() => {
+    api.get("api/homeCards/")
+      .then((res) => res.data)
+      .then((data) => {
+        setCards(data);
+      })
+      .catch((error) => alert(error));
+  }, []);
 
   useEffect(() => {
     getRestaurants();
@@ -72,76 +122,33 @@ function Home() {
       .then((data) => { setRestaurants(data)})
       .catch((error) => alert(error));
   };
-  
-  const checkLoginStatus = () => {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    setIsLoggedIn(!!token);
-  };
 
-  const handleLogout = () => {
-    localStorage.removeItem(ACCESS_TOKEN);
-    setIsLoggedIn(false);
-    navigate("/login");
-  };
-
-  const handleCategoryChange = (event) => {
-    const value = event.target.value;
-    setSelectedCategories(prev =>
-      prev.includes(value) ? prev.filter(cat => cat !== value) : [...prev, value]
-    );
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-
-    const queryParams = new URLSearchParams();
-    if (categories.length > 0) {
-      queryParams.append('categories', selectedCategories.map(cat => cat.value).join(','));
-    }
-    if (rating) {
-      queryParams.append('rating', rating);
-    }
-    api
-    .get(`/api/restaurants/?${queryParams.toString()}`)
-    .then((res) => res.data)
-    .then((data) => { setRestaurants(data); })
-    .catch((error) => alert(error));
-    setLoading(false)
-    setShouldNavigate(true);
-  };
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (!loading && shouldNavigate) {
-      navigate('/search', {
-        state: {
-          searchTerm,
-          selectedCategories: selectedCategories.map(cat => cat.value),
-          rating,
-        },
-      });
-    }
-  }, [loading, shouldNavigate, navigate]);
-  
+    const interval = setInterval(() => {
+      setActiveIndex((prevIndex) => (prevIndex + 1) % cards.length);
+    }, 5000); // every 5 seconds
+  return () => clearInterval(interval); // cleanup
+  }, [cards.length]);
 
-  const categoryOptions = categories.map((category) => ({
-    value: category.id,
-    label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
-  }));
-
+  const handleClick = () => {
+    navigate('/search', {
+      state: {searchTerm: "",  selectedCategories: cards[activeIndex].categories, rating: cards[activeIndex].rating }
+   });
+  }; 
 
 function TopBar() {
-    const returnHome = () => {
-      window.location.href = "/";
-    }
-    
   return (
-    <Navbar style={{ backgroundColor: "#ccae88" }} expand="lg" className="px-3">
+    <div  className="p-0">
+      
+    <Navbar
+     style={{ backgroundColor: "#ccae88" }} expand="lg" className="p-0">
         <Navbar.Brand href="#">
-          <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
-          Zoba
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                  <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
+                  Zoba
+                </Navbar.Brand>   
+        <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
           { isLoggedIn ? (<div>
             <Button variant="outline-primary" className="me-2" href="/profile">
@@ -163,8 +170,10 @@ function TopBar() {
           )}
         </Navbar.Collapse>
     </Navbar>
-  );
+    </div>
+  )
 }
+  
   
 function RatingCard({ entry_name, rating }) {
   return (
@@ -222,25 +231,12 @@ function RatingCard({ entry_name, rating }) {
     </Card>
   );
 }
-const AlternatingCards = () => {
 
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prevIndex) => (prevIndex + 1) % cards.length);
-    }, 5000); // every 5 seconds
-  return () => clearInterval(interval); // cleanup
-  }, [cards.length]);
-
-  const handleClick = () => {
-    navigate('/search', {
-      state: {searchTerm: "",  selectedCategories: cards[activeIndex].categories, rating: cards[activeIndex].rating }
-   });
-  }; 
-
-  if (cards.length != 0) {
-    return (
+  return (
+    <>
+      <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/>
+      
+      {cards.length > 0 &&
       <Box
       sx={{
         width: '100vw',
@@ -290,32 +286,38 @@ const AlternatingCards = () => {
             boxSizing: 'border-box',
           }}
         >
-          <Typography variant="h4" onClick={handleClick} sx={{ color: 'black' }}>
-            {cards[activeIndex].message + ' 🔍'}
+          <Typography variant="h4" onClick={handleClick} sx={{ color: 'black', '&:hover': {textDecoration: 'underline',}, }}>
+            {cards[activeIndex].message}  <LaunchIcon fontSize = "large"/>
           </Typography>
           <Container className="mt-4">
+          <Box display="flex" alignItems="center" gap={1}>
+
             <TextField
-                className="border-0 shadow-none w-100" 
+                className="border-0 shadow-none w-80" 
                 id="search-input"
                 variant="standard" 
-                placeholder="Search for a drink or cafe"
+                placeholder="Search for a cafe"
                 value={searchTerm}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSubmit(e);
+                  }
+                }}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
                     disableUnderline: true,     
                 }}
-            />
-    <div>
-      <Button
+            />                        
+      <IconButton 
         variant="outline-primary"
-        className="me-2"
+        className="m-0 p-0"
         onClick={() => setShowFilters(prev => !prev)}
-        style={{ marginBottom: '10px' }}
-        sx={{ color: 'black' }}
+        sx={{ color: 'black',display: 'flex', alignItems: 'center', justifyContent: 'center',}}
+        size="large"
       >
-        {showFilters ? 'Hide Filters ✖️' : "Filter by Categories"}
-      </Button>
-
+        {showFilters ? <CloseIcon fontSize = "large"/> : <TuneIcon fontSize = "large"/>}
+      </IconButton >
+      </Box>
       {showFilters && (
       <form onSubmit={handleSubmit}>
         <fieldset>
@@ -376,29 +378,15 @@ const AlternatingCards = () => {
           </label>
         </div>
 
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}sx={{ color: 'black' }}>
+        <Button variant="outline-primary" type="submit" style={{ marginTop: '10px' }}sx={{ color: 'black' }}>
           Filter
         </Button>
       </form>
       )}
-      
-          </div>
-          
-
-      </Container>
+              </Container>
         </CardContent>
       </Card>
-    </Box>
-    );
-  }
-  }
-
-  return (
-    <>
-      <TopBar />
-      
-      <AlternatingCards />
-
+    </Box>}
     </>
   );
 }

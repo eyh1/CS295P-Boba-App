@@ -36,7 +36,13 @@ function Login() {
 
     return (<>
     <TopBar/>
+    <h1 style={{ textAlign: 'center', marginTop: '20px', fontSize: '3rem', color: '#333' }}>
+          Login
+        </h1>
     <Form route = "api/token/" method = "login"/>
+    <p style={{ textAlign: 'center', fontSize: '1.5rem', marginTop: '16px' }}>
+      <strong>New to Zoba? <a href="/register"><strong>Sign up</strong></a></strong>
+    </p>
     </>
     );
     // return <div class = "login-container">
