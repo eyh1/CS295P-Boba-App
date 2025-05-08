@@ -105,10 +105,11 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
       
     <Navbar
      style={{ backgroundColor: "#ccae88" }} expand="lg" className="p-0">
-        <Navbar.Brand href="#">
+        <Navbar.Brand href="#" style={{ paddingLeft: '12px' }} >
                   <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome}/>
                   Zoba
                 </Navbar.Brand>
+                
       <TextField
           className="border-0 shadow-none m-0 p-0" 
           id="search-input"
@@ -131,15 +132,22 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
           style={{ width: '50%', minWidth: '30px', marginLeft: '0px', marginRight: '0px' }}
       />                    
       <IconButton 
-        variant="outline-primary"
-        className="m-0 p-0"
-        onClick={() => setShowFilters(prev => !prev)}
-        sx={{ color: 'black',display: 'flex', alignItems: 'center', justifyContent: 'center',}}
-        size="large"
-      >
-        
-        {showFilters ? <CloseIcon fontSize = "large"/> : <TuneIcon fontSize = "large"/>}
-      </IconButton >        
+            variant="outlined"
+            className="m-0 p-0"
+            onClick={() => setShowFilters(prev => !prev)}
+            sx={{ 
+                color: 'black',
+                display: 'flex',
+                flexDirection: 'column',  
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0.5,
+            }}
+            size="large"
+            >
+            {showFilters ? <CloseIcon fontSize="large" /> : <TuneIcon fontSize="large" />}
+            <span style={{ fontSize: '0.8rem' }}>Filter</span>
+            </IconButton>
         <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
           { isLoggedIn ? (<div>
