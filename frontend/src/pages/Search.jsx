@@ -155,7 +155,7 @@ function RatingCard({ entry_name, rating }) {
         sx={{
           m: 2,
           cursor: 'pointer',
-          boxShadow: 3,
+          boxShadow: 1,
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -187,20 +187,31 @@ function RatingCard({ entry_name, rating }) {
                   mx: 0.5,
                   my: 1,
                   fontSize: '0.8rem',
-                  width: '150px',
+                  width: '140px',
                   height: 'auto',
                   display: 'flex',
                   justifyContent: 'center',
+                  // color of individual rating for category
+                  backgroundColor: "hsl(160, 36%, 95%)"
                 }}
               >
-                <CardContent sx={{ p: 1, textAlign: 'center', maxWidth: '150px' }}>
+                <CardContent sx={{ p: 1, textAlign: 'center', maxWidth: '150px',  }}>
                   <Typography
                     variant="body2"
                     component="div"
                     sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    <strong>{category_rating.category_name}: {category_rating.rating}<GradeIcon sx={{ fontSize: 16, ml: 0.5, alignSelf: 'center', position: 'relative', top: '-2px' }} /></strong>
-                    
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <strong>{category_rating.category_name}</strong>
+                      <Rating
+                        name={`read-only-${index}`}
+                        value={parseFloat(category_rating.rating)}
+                        precision={0.1}
+                        readOnly
+                        size="small"
+                        sx={{ mt: 0.5 }}
+                      />
+                    </div>
                   </Typography>
                 </CardContent>
               </Card>
@@ -234,7 +245,7 @@ function RatingCard({ entry_name, rating }) {
 
     return (
       <div>
-        <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 10, marginRight: 10 }}>
+        <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
         {filteredEntries.map((entry, index) => (
           <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
             <EntryCard
@@ -256,21 +267,24 @@ function RatingCard({ entry_name, rating }) {
   }
 
   return (
-    <>
+    <div style={{ backgroundColor: " hsl(160, 36%, 95%)"//"#f2f2f2" color of page
+      , minHeight: "100vh" }}>
       <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} setLoading={setLoading}/>
-      <div className="text-center mt-1 mb-1">
-        <a
-          href="https://docs.google.com/forms/d/e/1FAIpQLSey_JXU-zUdcqNyEoszZtaoNbuZa_A6Ko7z6bzToO3c3tfImQ/viewform?usp=dialog"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Don&apos;t see your restaurant or drink option? Send a request to add it here!
-        </a>
-      </div>
+      
       <div>
-      <Button variant="outline-primary" className="me-2"  onClick={() => setShowFilters(prev => !prev)} style={{ marginBottom: '10px' }}>
-        {showFilters ? 'Hide Filters ✖️' : "Filter"}
-      </Button>
+    <Button
+      variant=""
+      className="me-2"
+      onClick={() => setShowFilters(prev => !prev)}
+      style={{
+        marginTop: '1rem',
+        marginBottom: '10px',
+        backgroundColor: "#8CC6B3",
+        color: "black",
+      }}
+    >
+      {showFilters ? 'Hide Filters ✖️' : "Filter"}
+    </Button>
       {showFilters && (
       <form onSubmit={handleSubmit}>
         <fieldset>
@@ -304,8 +318,9 @@ function RatingCard({ entry_name, rating }) {
             />
           </label>
         </div>
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px' }}>
-          Filter
+        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px', backgroundColor: "#8CC6B3", // Set the button background color
+    color: "white", }}>
+          Apply Filter
         </Button>
       </form>
       )}
@@ -315,8 +330,16 @@ function RatingCard({ entry_name, rating }) {
       ) : (
             <CardGrid />
     )}
-      
-    </>
+      <div className="text-center mt-1 mb-1">
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSey_JXU-zUdcqNyEoszZtaoNbuZa_A6Ko7z6bzToO3c3tfImQ/viewform?usp=dialog"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Don&apos;t see your restaurant or drink option? Send a request to add it here!
+        </a>
+      </div>
+    </div>
   );
 }
 

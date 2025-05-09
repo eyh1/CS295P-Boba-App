@@ -544,25 +544,6 @@ function Restaurant() {
       return (R * c).toFixed(2);
     };
 
-    useEffect(() => {
-      if (restaurantLatLng && userLocation && window.google && window.google.maps) {
-        const directionsService = new window.google.maps.DirectionsService();
-        directionsService.route(
-          {
-            origin: userLocation,
-            destination: restaurantLatLng,
-            travelMode: window.google.maps.TravelMode.DRIVING,
-          },
-          (result, status) => {
-            if (status === 'OK') {
-              setDirections(result);
-            } else {
-              console.error(`error fetching directions ${result}`);
-            }
-          }
-        );
-      }
-    }, [restaurantLatLng, userLocation]);
 
     return (
       <Container style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>
@@ -623,7 +604,11 @@ function Restaurant() {
         {isLoggedIn ? (
           <ReviewComponent reviews={reviews} setReviews={setReviews} rest_id={rest_id} refreshReviews={() => getRestaurantReviews(rest_id)}/>
         ) : (
-          <Button variant="contained" className="me-2" href="/login">
+          <Button variant="contained" href="/login" sx={{
+            "&:hover": {
+              color: "white"
+            },
+          }}>
             Login to review
           </Button>
         )}
