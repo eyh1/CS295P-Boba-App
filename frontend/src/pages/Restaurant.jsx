@@ -172,6 +172,10 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       alert("Pricing cannot be blank.");
       return;
     }
+    if (isNaN(Number(reviewInputs.review_pricing))) {
+        alert("Pricing must be a number.");
+        return;
+    }
     if (!reviewInputs.review_content) {
       alert("Review content cannot be blank.");
       return;
