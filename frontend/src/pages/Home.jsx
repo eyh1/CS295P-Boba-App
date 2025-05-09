@@ -30,6 +30,7 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [shouldNavigate, setShouldNavigate] = useState(false);
   const [cards, setCards] = useState([]);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const navigate = useNavigate();
   
 
@@ -295,22 +296,16 @@ function RatingCard({ entry_name, rating }) {
             {cards[activeIndex].message}  <LaunchIcon fontSize = "large"/>
           </Typography>
           <Container className="mt-4">
-          <Box display="flex" alignItems="center" gap={1}>
 
+          <form onSubmit={handleSubmit}>
+          <fieldset>
             <Select
               options={restaurantOptions}
               placeholder="Select a restaurant"
-              onChange={(selectedOption) => {
-                if (selectedOption) {
-                  navigate('/search', {
-                    state: {
-                      searchTerm: selectedOption.label,
-                      selectedCategories: [],
-                      rating: 0,
-                    },
-                  });
-                }
-              }}
+              openMenuOnFocus={false}
+              openMenuOnClick={false}
+              value={selectedRestaurant}
+              onChange={(selectedOption) => setSelectedRestaurant(selectedOption)}
               styles={{
                 container: (base) => ({
                   ...base,
@@ -323,6 +318,24 @@ function RatingCard({ entry_name, rating }) {
                 }),
               }}
             />
+            <Button
+            fullWidth
+              variant="contained"
+              sx={{ color: 'black', mt: 1 }}
+              onClick={() => {
+                if (selectedRestaurant) {
+                  navigate('/search', {
+                    state: {
+                      searchTerm: selectedRestaurant.label,
+                      selectedCategories: [],
+                      rating: 0,
+                    },
+                  });
+                }
+              }}
+            >
+              Search by Restaurant
+            </Button>
             {/* <Select
             className="border-0 shadow-none w-80" 
             options={restaurantOptions}
@@ -340,64 +353,40 @@ function RatingCard({ entry_name, rating }) {
             >
               
             </Select> */}
-      <IconButton 
-        variant="outline-primary"
-        className="m-0 p-0"
-        onClick={() => setShowFilters(prev => !prev)}
-        sx={{ color: 'black',display: 'flex', alignItems: 'center', justifyContent: 'center',}}
-        size="large"
-      >
-        {showFilters ? <CloseIcon fontSize = "large"/> : <TuneIcon fontSize = "large"/>}
-      </IconButton >
-      </Box>
-      {showFilters && (
-      <form onSubmit={handleSubmit}>
-        <fieldset>
-            <Select
-              options={categoryOptions}
-              isMulti
-              value={selectedCategories}
-              onChange={(selectedOptions) => {
-                setSelectedCategories(selectedOptions);
-              }}
-              placeholder="Search and select categories..."
-              openMenuOnFocus={true}
-              openMenuOnClick={true} 
-              filterOption={(option, inputValue) => {
-                if (!inputValue) return true; // Show all if no input
-                return option.label.toLowerCase().includes(inputValue.toLowerCase());
-              }}
-              styles={{
-                placeholder: (base) => ({
-                  ...base,
-                  color: 'black',
-                  fontStyle: 'italic',
-                }),
-                singleValue: (base) => ({
-                  ...base,
-                  color: 'black',
-                }),
-                input: (base) => ({
-                  ...base,
-                  color: 'black',
-                }),
-                option: (base, state) => ({
-                  ...base,
-                  color: 'black',
-                  backgroundColor: state.isFocused ? '#e0e0e0' : 'white',
-                }),
-                multiValueRemove: (base) => ({
-                  ...base,
-                  color: 'black',
-                  ':hover': {
-                    backgroundColor: '#e0e0e0',
-                    color: 'black',
-                  },
-                }),
-              }}
-            />
+            <Typography variant="h6" sx={{ color: 'black', marginTop: 1 }}>
+              Or
+            </Typography>
+
+            <Box mt={0}>
+              <Select
+                isMulti
+                value={selectedCategories}
+                onChange={(selectedOptions) => {
+                  setSelectedCategories(selectedOptions);
+                }}
+                placeholder="Search and select categories"
+                openMenuOnFocus={false}
+                openMenuOnClick={false}
+                filterOption={(option, inputValue) => {
+                  if (!inputValue) return true; // Show all if no input
+                  return option.label.toLowerCase().includes(inputValue.toLowerCase());
+                }}
+                styles={{
+                  container: (base) => ({
+                    ...base,
+                    width: '100%',
+                  }),
+                  control: (base) => ({
+                    ...base,
+                    boxShadow: 'none',
+                    borderColor: '#ced4da',
+                  }),
+                }}
+                options={categoryOptions}
+              />
+            </Box>
             </fieldset>
-        <div style={{ marginTop: '10px' }}>
+        {/* <div style={{ marginTop: '10px' }}>
           <label style={{ color: 'black' }}>
             Minimum Rating:
             <Rating
@@ -408,21 +397,21 @@ function RatingCard({ entry_name, rating }) {
               sx={{ position: 'relative', top: '6px' }}
             />
           </label>
-        </div>
+        </div> */}
 
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '10px' }}sx={{ color: 'black' }}>
-          Filter
+        <Button variant="contained" type="submit" style={{ marginTop: '10px' }}sx={{ color: 'black' }}>
+          Filter By Category
         </Button>
       </form>
-      )}
-      <Button 
+
+      {/* <Button 
             variant="contained" 
             color="primary" 
             sx={{ mt: 2 }} 
             onClick={() => navigate('/search')}
           >
             Explore All Restaurants
-          </Button>
+          </Button> */}
               </Container>
         </CardContent>
       </Card>
