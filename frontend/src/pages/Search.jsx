@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import boba from ".././assets/chafortea.png";
-import "../styles/Home.css"
-import { Button, Grid, Grid2, TextField } from "@mui/material";
+// import "../styles/Home.css"
+import { Button, Grid, Grid2 } from "@mui/material";
 import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
@@ -10,10 +10,11 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import TopBar from "../components/TopBar";
-import "../styles/Search.css"
+// import "../styles/Search.css"
 import GradeIcon from '@mui/icons-material/Grade';
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
+import TextField from "@mui/material/TextField";
 
 
 // import RestaurantList from "./RestaurantList";
@@ -139,16 +140,6 @@ function RatingCard({ entry_name, rating }) {
     });
   };
 
-  function CategoryRatingCard({ category, rating }) {
-    return (
-      <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
-        <Card.Body className="p-1 text-center">
-          <strong>{category}:</strong> {rating} ⭐
-        </Card.Body>
-      </Card>
-    );
-  }
-
   return (
       <Card
         onClick={handleClick}
@@ -159,6 +150,7 @@ function RatingCard({ entry_name, rating }) {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
+          borderRadius: 4,
         }}
       >
         <CardMedia
@@ -192,7 +184,8 @@ function RatingCard({ entry_name, rating }) {
                   display: 'flex',
                   justifyContent: 'center',
                   // color of individual rating for category
-                  backgroundColor: "hsl(160, 36%, 98%)"
+                  backgroundColor: "hsl(160, 36%, 98%)",
+                  borderRadius: 2,
                 }}
               >
                 <CardContent sx={{ p: 1, textAlign: 'center', maxWidth: '150px',  }}>
@@ -271,25 +264,19 @@ function RatingCard({ entry_name, rating }) {
       , minHeight: "100vh" }}>
       <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} setLoading={setLoading}/>
       <TextField
-          className="border-0 shadow-none m-0 p-0" 
-          id="search-input"
           variant="standard" 
-          placeholder="Search for a cafe"
+          label="Search for a cafe"
+          color="success"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setSelfSearchTerm(e.target.value)
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               handleSubmit(e);
             }
           }}
-          InputProps={{
-            disableUnderline: true,
-            style: { fontSize: '0.7rem' } 
-          }}
-          style={{ width: '50%', minWidth: '30px', marginLeft: '0px', marginRight: '0px' }}
+          style={{ width: '70%', minWidth: '30px', marginTop: '1rem', marginBottom: '10px'}}
       />
       <div>
       
@@ -300,11 +287,11 @@ function RatingCard({ entry_name, rating }) {
       style={{
         marginTop: '1rem',
         marginBottom: '10px',
-        backgroundColor: "#f4f4f4",
+        backgroundColor: "#8CC6B3",
         color: "black",
       }}
     >
-      {showFilters ? 'Hide Filters ✖️' : "Filter"}
+      {showFilters ? 'Hide Filters ✖️' : "Filter by Category"}
     </Button>
       {showFilters && (
       <form onSubmit={handleSubmit}>

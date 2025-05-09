@@ -161,7 +161,7 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
           )}
         </Navbar.Collapse>
     </Navbar>
-    {showFilters && (
+    {/* {showFilters && (
       <div>
       <form onSubmit={handleSubmit}>
         <fieldset>
@@ -226,7 +226,7 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
               </Button>
       </form> 
       </div>
-    )}
+    )} */}
       </div>
     </div>
   );
