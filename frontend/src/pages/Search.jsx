@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import boba from ".././assets/chafortea.png";
 import "../styles/Home.css"
-import { Button, Grid, Grid2 } from "@mui/material";
+import { Button, Grid, Grid2, TextField } from "@mui/material";
 import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
@@ -192,7 +192,7 @@ function RatingCard({ entry_name, rating }) {
                   display: 'flex',
                   justifyContent: 'center',
                   // color of individual rating for category
-                  backgroundColor: "hsl(160, 36%, 95%)"
+                  backgroundColor: "hsl(160, 36%, 98%)"
                 }}
               >
                 <CardContent sx={{ p: 1, textAlign: 'center', maxWidth: '150px',  }}>
@@ -270,8 +270,29 @@ function RatingCard({ entry_name, rating }) {
     <div style={{ backgroundColor: " hsl(160, 36%, 95%)"//"#f2f2f2" color of page
       , minHeight: "100vh" }}>
       <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} setLoading={setLoading}/>
-      
+      <TextField
+          className="border-0 shadow-none m-0 p-0" 
+          id="search-input"
+          variant="standard" 
+          placeholder="Search for a cafe"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setSelfSearchTerm(e.target.value)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSubmit(e);
+            }
+          }}
+          InputProps={{
+            disableUnderline: true,
+            style: { fontSize: '0.7rem' } 
+          }}
+          style={{ width: '50%', minWidth: '30px', marginLeft: '0px', marginRight: '0px' }}
+      />
       <div>
+      
     <Button
       variant=""
       className="me-2"
@@ -279,7 +300,7 @@ function RatingCard({ entry_name, rating }) {
       style={{
         marginTop: '1rem',
         marginBottom: '10px',
-        backgroundColor: "#8CC6B3",
+        backgroundColor: "#f4f4f4",
         color: "black",
       }}
     >

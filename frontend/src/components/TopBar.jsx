@@ -101,40 +101,28 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
     }, [loading, shouldNavigate, navigate]);
     
   return (
-    <div  className="p-0">
+    <div style={{ paddingTop: "100px" }}>
+      <div className="p-0">
       
     <Navbar
-
-    // color of navbar
-     style={{ backgroundColor: "#8CC6B3", }} expand="lg" className="p-0">
+      // color of navbar
+      style={{
+        backgroundColor: "#8CC6B3",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        width: "100%",
+        zIndex: 1000
+      }}>
         <Navbar.Brand style={{ marginLeft: "10px" }} href="#">
                   <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome} />
 
                   Zoba
                 </Navbar.Brand>
                 
-      <TextField
-          className="border-0 shadow-none m-0 p-0" 
-          id="search-input"
-          variant="standard" 
-          placeholder="Search for a cafe"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setSelfSearchTerm(e.target.value)
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSubmit(e);
-            }
-          }}
-          InputProps={{
-            disableUnderline: true,
-            style: { fontSize: '0.7rem' } 
-          }}
-          style={{ width: '50%', minWidth: '30px', marginLeft: '0px', marginRight: '0px' }}
-      />                    
-      <IconButton 
+                          
+      {/* <IconButton 
             variant="outlined"
             className="m-0 p-0"
             onClick={() => setShowFilters(prev => !prev)}
@@ -150,7 +138,7 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
             >
             {showFilters ? <CloseIcon fontSize="large" /> : <TuneIcon fontSize="large" />}
             <span style={{ fontSize: '0.8rem' }}>Filter</span>
-            </IconButton>
+            </IconButton> */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
           { isLoggedIn ? (<div>
@@ -239,6 +227,7 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
       </form> 
       </div>
     )}
+      </div>
     </div>
   );
 }

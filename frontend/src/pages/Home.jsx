@@ -144,41 +144,41 @@ function Home() {
    });
   }; 
 
-function TopBar() {
-  return (
-    <div  className="p-0">
+// function TopBar() {
+//   return (
+//     <div  className="p-0">
       
-    <Navbar
-     style={{ backgroundColor: "#ccae88" }} expand="lg" className="p-0">
-        <Navbar.Brand style={{ marginLeft: "10px" }} href="#">
-                  <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome} />
-                  Zoba
-                </Navbar.Brand>   
-        <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (<div>
-            <Button variant="outline-primary" className="me-2" href="/profile">
-              Profile
-            </Button>
-            <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
-                Logout
-              </Button>
-          </div>
-        ) : (
-            <>
-              <Button variant="outline-primary" className="me-2" href="/login">
-                Login
-              </Button>
-              <Button variant="primary" href="/register">
-                Sign Up
-              </Button>
-            </>
-          )}
-        </Navbar.Collapse>
-    </Navbar>
-    </div>
-  )
-}
+//     <Navbar
+//      style={{ backgroundColor: "#ccae88" }} expand="lg" className="p-0">
+//         <Navbar.Brand style={{ marginLeft: "10px" }} href="#">
+//                   <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome} />
+//                   Zoba
+//                 </Navbar.Brand>   
+//         <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
+//         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+//           { isLoggedIn ? (<div>
+//             <Button variant="outline-primary" className="me-2" href="/profile">
+//               Profile
+//             </Button>
+//             <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
+//                 Logout
+//               </Button>
+//           </div>
+//         ) : (
+//             <>
+//               <Button variant="outline-primary" className="me-2" href="/login">
+//                 Login
+//               </Button>
+//               <Button variant="primary" href="/register">
+//                 Sign Up
+//               </Button>
+//             </>
+//           )}
+//         </Navbar.Collapse>
+//     </Navbar>
+//     </div>
+//   )
+// }
   
   
 function RatingCard({ entry_name, rating }) {
@@ -240,7 +240,8 @@ function RatingCard({ entry_name, rating }) {
 
   return (
     <>
-      <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/>
+      {/* <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/> */}
+      <TopBar/>
       
       {cards.length > 0 &&
       <Box
