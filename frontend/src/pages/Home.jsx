@@ -131,11 +131,18 @@ function Home() {
 
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const [isFading, setIsFading] = useState(false);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveIndex((prevIndex) => (prevIndex + 1) % cards.length);
-    }, 5000); // every 5 seconds
-  return () => clearInterval(interval); // cleanup
+      setIsFading(true); // Start fading out the current image
+      setTimeout(() => {
+        setActiveIndex((prevIndex) => (prevIndex + 1) % cards.length); // Switch to the next image
+        setIsFading(false); // Fade in the new image
+      }, 500); // Duration of the fade-out effect
+    }, 5000); // Switch every 5 seconds
+  
+    return () => clearInterval(interval); // Cleanup
   }, [cards.length]);
 
   const handleClick = () => {
@@ -143,53 +150,6 @@ function Home() {
       state: {searchTerm: "",  selectedCategories: cards[activeIndex].categories, rating: cards[activeIndex].rating }
    });
   }; 
-
-function TopBar() {
-  return (
-    <div  className="p-0">
-      
-    <Navbar
-     style={{ backgroundColor: "#ccae88" }} expand="lg" className="p-0">
-        <Navbar.Brand style={{ marginLeft: "10px" }} href="#">
-                  <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome} />
-                  Zoba
-                </Navbar.Brand>   
-        <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (<div>
-            <Button variant="outline-primary" className="me-2" href="/profile">
-              Profile
-            </Button>
-            <Button variant="outline-primary" className="me-2" onClick={handleLogout}>
-                Logout
-              </Button>
-          </div>
-        ) : (
-            <>
-              <Button variant="outline-primary" className="me-2" href="/login">
-                Login
-              </Button>
-              <Button variant="primary" href="/register">
-                Sign Up
-              </Button>
-            </>
-          )}
-        </Navbar.Collapse>
-    </Navbar>
-    </div>
-  )
-}
-  
-  
-function RatingCard({ entry_name, rating }) {
-  return (
-    <Card className="text-center shadow-sm border-0 rounded-pill bg-light px-3 py-2 mb-2">
-      <Card.Body className="p-1">
-        <strong>{entry_name}</strong> {rating} ⭐
-      </Card.Body>
-    </Card>
-  );
-}
 
   // The card that contains the pics and cafe info
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, image }) {
@@ -240,7 +200,8 @@ function RatingCard({ entry_name, rating }) {
 
   return (
     <>
-      <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/>
+      {/* <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/> */}
+      <TopBar/>
       
       {cards.length > 0 &&
       <Box
@@ -273,6 +234,8 @@ function RatingCard({ entry_name, rating }) {
             position: 'absolute',
             top: 0,
             left: 0,
+            opacity: isFading ? .25 : 1, // Fade out when isFading is true
+    transition: 'opacity 0.5s ease-in-out', // Smooth transition effect
           }}
         />
         <CardContent
@@ -292,9 +255,22 @@ function RatingCard({ entry_name, rating }) {
             boxSizing: 'border-box',
           }}
         >
-          <Typography variant="h4" onClick={handleClick} sx={{ color: 'black', '&:hover': {textDecoration: 'underline',}, }}>
-            {cards[activeIndex].message}  <LaunchIcon fontSize = "large"/>
-          </Typography>
+            <Typography
+    variant="h4"
+    onClick={handleClick}
+    sx={{
+      color: "black",
+      opacity: isFading ? 0 : 1, // Fade out when isFading is true
+          visibility: isFading ? "hidden" : "visible", // Hide the text when fading out
+
+      transition: "opacity 0.5s ease-in-out", // Smooth transition effect
+      "&:hover": {
+        textDecoration: "underline",
+      },
+    }}
+  >
+    {cards[activeIndex].message} <LaunchIcon fontSize="large" />
+  </Typography>
           <Container className="mt-4">
 
           <form onSubmit={handleSubmit}>
