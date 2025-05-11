@@ -382,9 +382,8 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
           </button>
         </div>
       ) : (
-        <button className="btn btn-secondary" onClick={() => setIsReviewing(true)}>
-          Write a Review
-        </button>
+        setIsReviewing(true),
+        <p>hi</p>
       )}
     </div>
   );
@@ -395,6 +394,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
 // Main Restaurant Component
 function Restaurant() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isReviewing, setIsReviewing] = useState(false);
   // reviewer_Name, review_pricing, review_sweetness, is_public, review_content
   // some dummy reviews for testing
 //   const [reviews, setReviews] = useState([
@@ -558,23 +558,51 @@ function Restaurant() {
     return (
       <Container>
         <Grid2 container spacing={1} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
-          <Grid2 size={{xs:12, md: 12}} justifyContent={"center"}>
-            {/* title of restaurant is centered */}
-            <h1 className="titleChaRestaurant">{restaurant}</h1>
-            <p>Address: {address}</p>
-            {userLocation && restaurantLatLng && (
-              <p>Distance: {getDistanceInMiles(userLocation, restaurantLatLng)} miles</p>
-            )}
-            {userLocation && address && (
-              <a
-                href={getDirectionsUrl(userLocation, address)}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: 'inline-block', marginTop: '0px' }}
-              >
-                Get Directions
-              </a>
-            )}
+          <Grid2 size={{xs:12, md: 12}} justifyContent={"start"}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {/* Title aligned to the left */}
+            <h1 style={{ margin: 0 }}>{restaurant}</h1>
+
+            {isLoggedIn ? (
+        <button className="btn btn-secondary" onClick={() => setIsReviewing(true)}>
+        Write a Review
+      </button>
+  ) : (
+    <Button
+      variant="contained"
+      href="/login"
+      sx={{
+        "&:hover": {
+          color: "white",
+        },
+      }}
+      style={{ backgroundColor: "#6BAB90", color: "black" }}
+    >
+      Login to review
+    </Button>
+  )}
+          </div>
+
+{/* Distance Section */}
+<div style={{ textAlign: "center", marginTop: "20px" }}>
+  {userLocation && restaurantLatLng && (
+    <p>Distance: {getDistanceInMiles(userLocation, restaurantLatLng)} miles</p>
+  )}
+  
+</div>
+{isReviewing && (
+  <div style={{ marginTop: "20px" }}>
+    <ReviewComponent
+      reviews={reviews}
+      setReviews={setReviews}
+      rest_id={rest_id}
+      refreshReviews={() => {
+        getRestaurantReviews(rest_id);
+        setIsReviewing(false); // Hide the ReviewComponent after submitting
+      }}
+    />
+  </div>
+)}
                     <div>
           <div className="d-flex flex-wrap justify-content-center mt-2">
             {restaurant_category_ratings.map((category_rating, index) => (
@@ -612,18 +640,7 @@ function Restaurant() {
         </Grid2>
 
         <h1 className="titleChaRestaurant">Reviews:</h1>
-        {isLoggedIn ? (
-          <ReviewComponent reviews={reviews} setReviews={setReviews} rest_id={rest_id} refreshReviews={() => getRestaurantReviews(rest_id)}/>
-        ) : (
-          <Button variant="contained" href="/login" sx={{
-            "&:hover": {
-              color: "white",
-            },
-          }}
-          style={{ backgroundColor: "#6BAB90", color: "black" }}>
-            Login to review
-          </Button>
-        )}
+        
         <CardContent>
           {reviews.slice().reverse().map((entry, index) => (
             <ReviewCard
