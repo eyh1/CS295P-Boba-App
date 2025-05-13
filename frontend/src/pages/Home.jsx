@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "../styles/Home.css"
 import Zooba from "../assets/Zooba.png";
 import TextField from "@mui/material/TextField";
-import { Button, Box, Card, CardMedia, CardContent, Typography, IconButton} from '@mui/material';
+import { Button, Box, Card, CardMedia, CardContent, Typography, IconButton, Grid, CardHeader, Avatar, Divider} from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
@@ -15,6 +15,7 @@ import Select from 'react-select';
 import Rating from '@mui/material/Rating';
 import LaunchIcon from '@mui/icons-material/Launch';
 import '@fontsource/poppins/500';
+import { Star, StarBorder, StarHalf, AttachMoney, CalendarToday } from "@mui/icons-material"
 
 function Home() {
   const returnHome = () => {
@@ -28,10 +29,12 @@ function Home() {
   const [categories, setCategories] = useState([]);
   const [rating, setRating] = useState(0);
   const [isBoxOpen, setIsBoxOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);  
   const [shouldNavigate, setShouldNavigate] = useState(false);
   const [cards, setCards] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [latestReviews, setLatestReviews] = useState([])
+
   const navigate = useNavigate();
   
 
@@ -151,6 +154,26 @@ function Home() {
       state: {searchTerm: "",  selectedCategories: cards[activeIndex].categories, rating: cards[activeIndex].rating }
    });
   }; 
+
+  useEffect(() => {
+      api.get("api/review/get_latest/")
+        .then((res) => res.data)
+        .then((data) => {
+          setLatestReviews(data);
+        })
+        .catch((error) =>{
+
+        console.log(error)});
+    }, []);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
 
   // The card that contains the pics and cafe info
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, image }) {
@@ -424,7 +447,106 @@ function Home() {
         
       </Card>
     </Box>}
+<div style={{ backgroundColor: " hsl(160, 36%, 95%)"//"#f2f2f2" color of page
+      , minHeight: "100vh" }}>
+    <Container maxWidth="lg" sx={{ py: 8 }}>
+      <Typography variant="h3" component="h1" align="center" gutterBottom sx={{pt:4, mb: 4, fontWeight: "bold", fontFamily: 'Poppins',
+ } }>
+        Latest Reviews
+      </Typography>
+
+      <Grid container spacing={3}>
+        {latestReviews.map((review) => (
+          <Grid item xs={12} sm={6} md={4} key={review.id}>
+            <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+              <CardHeader
+                avatar={<Avatar sx={{ bgcolor: '#8CC6B3' }}>{review.username.charAt(0).toUpperCase()}</Avatar>}
+                title={
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Typography variant="subtitle1" component="span">
+                      {review.username}
+                    </Typography>
+                    <Typography variant="subtitle1" component="span">
+                      {"$ " + review.pricing}
+                    </Typography>
+                  </Box>
+                }
+                subheader={
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                    <CalendarToday sx={{ fontSize: "0.875rem", mr: 0.5 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {formatDate(review.created_at)}
+                    </Typography>
+                  </Box>
+                }
+                sx={{ pb: 0 }}
+              />
+
+              <CardContent sx={{ pt: 1, pb: 1, flexGrow: 1 }}>
+                <Typography variant="h6" component="h2" gutterBottom>
+                  {review.restaurant_name}
+                </Typography>
+
+                <Typography variant="subtitle1" component="span">
+                      {"Sweetness: " + review.sweetness}
+                    </Typography>
+
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                  {review.content === "" ? "No detailed review provided." : review.content}
+                </Typography>
+
+                <Divider sx={{ my: .5 }} />
+
+                <Box sx={{ display: "flex", alignItems : "center", justifyContent: 'center', flexDirection: "row", gap: 1 }}>
+                  {review.review_category_ratings.map((category_rating, index) => (
+                    <Card
+                key={index}
+                sx={{
+                  border: '.5px solid gray',
+                  px: 1,
+                  mx: 0.5,
+                  my: 1,
+                  fontSize: '0.8rem',
+                  width: '140px',
+                  height: 'auto',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  // color of individual rating for category
+                  backgroundColor: "hsl(160, 36%, 98%)",
+                  borderRadius: 2,
+                }}
+              >
+                <CardContent sx={{ p: 1, textAlign: 'center', maxWidth: '150px',  }}>
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <strong>{category_rating.category_name}</strong>
+                      <Rating
+                        name={`read-only-${index}`}
+                        value={parseFloat(category_rating.rating)}
+                        precision={0.1}
+                        readOnly
+                        size="small"
+                        sx={{ mt: 0.5 }}
+                      />
+                    </div>
+                  </Typography>
+                </CardContent>
+              </Card>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
+    </div>
     </>
+
   );
 }
 

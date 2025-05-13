@@ -1,12 +1,15 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer, BookmarkSerializer
+from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer
+from .serializers import RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer
+from.serializers import BookmarkSerializer, RecommendedRestaurantSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard, Bookmark, UserCategoryRating
 from django.db.models import Avg, Count
 from rest_framework.response import Response
 from django.db.models import Q
+from collections import defaultdict
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -18,16 +21,14 @@ class ListRestaurantView(generics.ListAPIView):
     permission_classes = [AllowAny]
     
     def get_queryset(self):
-        categories = self.request.query_params.get('categories', None)
-        rating = self.request.query_params.get('rating', 0)
-        
+        categories = self.request.query_params.get('categories', None)        
         queryset = Restaurant.objects.all()
                 
         if categories:
             category_list = categories.split(',')
             
             for category in category_list:
-                filter = Q(restaurant_category_ratings__category=category, restaurant_category_ratings__rating__gte=rating)
+                filter = Q(restaurant_category_ratings__category=category)
                 queryset = queryset.filter(filter).distinct()
 
         return queryset
@@ -36,9 +37,23 @@ class ListRestaurantView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
         data = response.data  
-        
+        categories = self.request.query_params.get('categories', None)
+        if categories:
+            categories = categories.split(',')
         for restaurant in data:
-            restaurant.pop('reviews', None)  
+            final_categories = []
+            restaurant.pop('reviews', None) 
+            if categories:
+                if restaurant["restaurant_category_ratings"]:
+                    for category_rating in restaurant["restaurant_category_ratings"]:
+                        if category_rating["id"] in categories:
+                            final_categories.append(category_rating)
+                    for category_rating in final_categories:
+                        restaurant["restaurant_category_ratings"].pop(category_rating)
+            restaurant["restaurant_category_ratings"] = sorted(restaurant["restaurant_category_ratings"], key = lambda x : x["rating"], reverse=True)
+            while len(final_categories) < 4 and len(restaurant["restaurant_category_ratings"]) > 0:
+                final_categories.append(restaurant["restaurant_category_ratings"].pop(0))
+            restaurant["restaurant_category_ratings"] = final_categories
                 
         return Response(data)
 
@@ -154,44 +169,52 @@ class DeleteBookmarkView(generics.DestroyAPIView):
         return Bookmark.objects.get(pk=self.kwargs['pk'])
 
 class GetRecommendationsView(generics.ListAPIView):
-    serializer_class = RestaurantSerializer
+    serializer_class = RecommendedRestaurantSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        user_category_ratings = UserCategoryRating.objects.filter(user = user)
-        top_user_categories = user_category_ratings.values('category').annotate(total = Count('category')).order_by('-total')
+        user_category_ratings = UserCategoryRating.objects.filter(user = user).values_list("restaurant", "category")
+        user_category_ratings = set(user_category_ratings)
+        q = Q()
+        for category, restaurant in user_category_ratings:            
+            q |= Q(category=category, restaurant=restaurant)
+        other_user_category_ratings = UserCategoryRating.objects.filter(rating__gte=3.5).exclude(user=user).exclude(q)
+        
+        other_user_category_ratings_dict = defaultdict(set)
+        for user_cat_rating in other_user_category_ratings:
+            other_user_category_ratings_dict[user_cat_rating.user].add((user_cat_rating.restaurant, user_cat_rating.category))
+        other_user_jaccard_similarity = {}
+        for user, user_category_ratings in other_user_category_ratings_dict.items():
+            other_user_jaccard_similarity[user] = len(user_category_ratings.intersection(user_category_ratings)) / len(user_category_ratings.union(user_category_ratings))
+        other_user_jaccard_similarity = sorted(other_user_jaccard_similarity.items(), key=lambda x: x[1], reverse=True)
+        self.recommendations = []
+        
+        while len(self.recommendations) < 5 and other_user_jaccard_similarity:
+            user, _ = other_user_jaccard_similarity.pop(0)
+            other_user_category_ratings_set = other_user_category_ratings_dict[user]
+            
+            for restaurant_category in other_user_category_ratings_set:
+                if restaurant_category not in self.recommendations and restaurant_category not in user_category_ratings:
+                    self.recommendations.append(restaurant_category)
+        return self.recommendations
 
-        if top_user_categories.count() > 3:
-            top_user_categories = top_user_categories[:3]
-        
-        top_category_ids = [entry['category'] for entry in top_user_categories]
-        user_visited_restaurants_ids = user_category_ratings.values_list('restaurant',flat = True)
-        user_unvisited_restaurants = Restaurant.objects.exclude(id__in=user_visited_restaurants_ids)
-        rating = 4.0
-        print("top")
-        print(top_category_ids)
-        
-        filter = Q(restaurant_category_ratings__category__in = top_category_ids, restaurant_category_ratings__rating__gte=rating)
-        recommended_restaurants = user_unvisited_restaurants.filter(filter).distinct()
-        
-        self.top_category_ids = top_category_ids
-        print("here")
-        print(recommended_restaurants)
-        return recommended_restaurants
-        
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
-        data = response.data  
+        grouped = defaultdict(list)
+        for first, second in self.recommendations:
+            grouped[first].append(second)
+        data = list(grouped.items())
         
-        for restaurant in data:
-            restaurant.pop('reviews', None)  
-        
-                
-        return Response({
-            'recommended_restaurants': data,
-            'top_user_categories': self.top_category_ids
-        })
+        result = []
+        for restaurant, category_list in data:
+            category_ids = [c.id for c in category_list]
+            restaurant_data = RestaurantSerializer(restaurant).data
+            filtered_ratings = (restaurant.restaurant_category_ratings.filter(category__in=category_ids).order_by('-rating')[:4])
+            restaurant_data["restaurant_category_ratings"] = RestaurantCategoryRatingSerializer(filtered_ratings, many=True).data
+            restaurant_data.pop('reviews', None)
+            result.append(restaurant_data)
+        return Response(result)
         
 class GetLatestPositiveReviewsView(generics.ListAPIView):
     serializer_class = ReviewSerializer

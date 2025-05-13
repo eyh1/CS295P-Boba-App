@@ -64,8 +64,6 @@ class RestaurantSerializer(serializers.ModelSerializer):
     
     def get_restaurant_category_ratings(self, obj):
         restaurant_category_ratings = obj.restaurant_category_ratings.all()
-        for i in restaurant_category_ratings:
-            print(i.rating)
         return RestaurantCategoryRatingSerializer(restaurant_category_ratings, many=True, read_only=True).data
     
 class RestaurantCategoryRatingSerializer(serializers.ModelSerializer):
@@ -101,3 +99,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
         fields = ["id", "user", "restaurant"]
+        
+class RecommendedRestaurantSerializer(serializers.Serializer):
+    
+    restaurant = RestaurantSerializer(read_only=True)
