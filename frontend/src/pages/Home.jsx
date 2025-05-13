@@ -7,13 +7,14 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import TopBar from "../components/TopBar";
+import TopBarInvis from "../components/TopBarInvis";
 import TuneIcon from '@mui/icons-material/Tune';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
 import LaunchIcon from '@mui/icons-material/Launch';
+import '@fontsource/poppins/500';
 
 function Home() {
   const returnHome = () => {
@@ -139,7 +140,7 @@ function Home() {
       setTimeout(() => {
         setActiveIndex((prevIndex) => (prevIndex + 1) % cards.length); // Switch to the next image
         setIsFading(false); // Fade in the new image
-      }, 500); // Duration of the fade-out effect
+      }, 300); // Duration of the fade-out effect
     }, 5000); // Switch every 5 seconds
   
     return () => clearInterval(interval); // Cleanup
@@ -201,7 +202,7 @@ function Home() {
   return (
     <>
       {/* <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/> */}
-      <TopBar/>
+      <TopBarInvis/>
       
       {cards.length > 0 &&
       <Box
@@ -212,6 +213,7 @@ function Home() {
         justifyContent: 'center',
         alignItems: 'center',
         boxSizing: 'border-box',
+        color: '#8CC6B3',
         backgroundColor: '#f0f0f0',
       }}
     >
@@ -221,6 +223,7 @@ function Home() {
           height: '100%',
           position: 'relative',
           overflow: 'hidden',
+          borderRadius: 0,
         }}
       >
         <CardMedia
@@ -232,46 +235,73 @@ function Home() {
             height: '100%',
             objectFit: 'cover',
             position: 'absolute',
+            // borderRadius: 0,
             top: 0,
             left: 0,
-            opacity: isFading ? .25 : 1, // Fade out when isFading is true
+            opacity: isFading ? .75 : 1, // Fade out when isFading is true
     transition: 'opacity 0.5s ease-in-out', // Smooth transition effect
           }}
         />
-        <CardContent
-          sx={{
+
+        <Box >
+            
+        <Box sx={{
             position: 'absolute',
-            top: '50%',
+            top: '20%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(255, 255, 255, .85)',
+            // backgroundColor: 'rgba(255, 255, 255, .85)',
             color: 'black',
             padding: 2,
-            borderRadius: 4,
+            borderRadius: 3,
             textAlign: 'center',
-            cursor: 'pointer',
-            width: '400px',
+            width: '100%',
             maxHeight: '300px',
+            boxSizing: 'border-box',
+          }}>
+            <Typography
+                variant="h4"
+                onClick={handleClick}
+                sx={{
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                fontWeight: '700',
+                color: "white",
+                fontFamily: 'Poppins',
+                fontSize: 40,
+                cursor: 'pointer',
+                opacity: isFading ? 0.25 : 1, // Fade out when isFading is true
+            //   visibility: isFading ? "hidden" : "visible", // Hide the text when fading out
+
+            transition: "opacity 0.5s ease-in-out", // Smooth transition effect
+            "&:hover": {
+                textDecoration: "underline",
+            },
+            }}
+        >
+            {cards[activeIndex].message} -> 
+            {/* <LaunchIcon fontSize="large" /> */}
+            </Typography>
+        </Box>
+            
+        {/* </CardContent> */}
+            <CardContent
+          sx={{
+            position: 'absolute',
+            top: '55%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) scale(1.2)',
+            backgroundColor: 'rgba(255, 255, 255, .85)',
+            color: 'black',
+            padding: 1,
+            borderRadius: 3,
+            textAlign: 'center',
+            width: '400px',
+            height: '270px',
             boxSizing: 'border-box',
           }}
         >
-            <Typography
-    variant="h4"
-    onClick={handleClick}
-    sx={{
-      color: "black",
-      opacity: isFading ? 0 : 1, // Fade out when isFading is true
-          visibility: isFading ? "hidden" : "visible", // Hide the text when fading out
-
-      transition: "opacity 0.5s ease-in-out", // Smooth transition effect
-      "&:hover": {
-        textDecoration: "underline",
-      },
-    }}
-  >
-    {cards[activeIndex].message} <LaunchIcon fontSize="large" />
-  </Typography>
-          <Container className="mt-4">
+            
+          <Container className="mt-4" >
 
           <form onSubmit={handleSubmit}>
           <fieldset>
@@ -297,7 +327,8 @@ function Home() {
             <Button
             fullWidth
               variant="contained"
-              sx={{ color: 'black', mt: 1 }}
+              type="submit"
+              sx={{ color: 'white', bgcolor: "#8CC6B3", mt: 1, borderRadius: 999 }}
               onClick={() => {
                 if (selectedRestaurant) {
                   navigate('/search', {
@@ -329,7 +360,7 @@ function Home() {
             >
               
             </Select> */}
-            <Typography variant="h6" sx={{ color: 'black', marginTop: 1 }}>
+            <Typography variant="h6" sx={{ color: '#8CC6B3', marginTop: 1 }}>
               Or
             </Typography>
 
@@ -375,7 +406,7 @@ function Home() {
           </label>
         </div> */}
 
-        <Button variant="contained" type="submit" style={{ marginTop: '10px' }}sx={{ color: 'black' }}>
+        <Button variant="contained" type="submit" style={{ marginTop: '10px' }}sx={{ color: 'white', bgcolor: "#8CC6B3", mt: 1, borderRadius: 999 }}>
           Filter By Category
         </Button>
       </form>
@@ -389,7 +420,8 @@ function Home() {
             Explore All Restaurants
           </Button> */}
               </Container>
-        </CardContent>
+        </CardContent></Box>
+        
       </Card>
     </Box>}
     </>
