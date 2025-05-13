@@ -327,6 +327,7 @@ function Home() {
             <Button
             fullWidth
               variant="contained"
+              type="submit"
               sx={{ color: 'white', bgcolor: "#8CC6B3", mt: 1, borderRadius: 999 }}
               onClick={() => {
                 if (selectedRestaurant) {
