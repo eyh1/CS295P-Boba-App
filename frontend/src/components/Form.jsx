@@ -2,6 +2,7 @@ import {useState} from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+import "../styles/Form.css";
 
 function Form({route, method}) {
     const [username, setUsername] = useState("");
@@ -42,7 +43,8 @@ function Form({route, method}) {
         );
     }
 
-    return <form onSubmit = {handleSubmit} className = "form-container">
+    return<div style={{ backgroundColor: " hsl(160, 36%, 95%)"}}>
+        <form onSubmit = {handleSubmit} className = "form-container">
         {/* <h1>{name}</h1> */}
         <input
             className = "form-input"
@@ -50,6 +52,10 @@ function Form({route, method}) {
             value = {username}
             onChange = {(e) => setUsername(e.target.value)}
             placeholder = "Username"
+            style={{
+                backgroundColor: "white",
+                color: "black",
+              }}
         />
         <input
             className = "form-input"
@@ -57,11 +63,16 @@ function Form({route, method}) {
             value = {password}
             onChange = {(e) => setPassword(e.target.value)}
             placeholder = "Password"
+            style={{
+                backgroundColor: "white",
+                color: "black",
+              }}
         />
         <button className = "btn btn-secondary btn-lg btn-block" type = "submit">
             {name}
         </button>
     </form>
+    </div>
 }
 
 export default Form

@@ -172,6 +172,10 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       alert("Pricing cannot be blank.");
       return;
     }
+    if (isNaN(Number(reviewInputs.review_pricing))) {
+        alert("Pricing must be a number.");
+        return;
+    }
     if (!reviewInputs.review_content) {
       alert("Review content cannot be blank.");
       return;
@@ -341,6 +345,11 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             className="mb-2 w-50"
             value={reviewInputs.review_pricing}
             onChange={(e) => handleReviewChange("review_pricing", e.target.value)}
+            InputProps={{
+              style: {
+                backgroundColor: "white", // Set the input area background to white
+              },
+            }}
           />
           <TextField
             label="Your Review"
@@ -350,6 +359,11 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             className="mb-2 w-50"
             value={reviewInputs.review_content}
             onChange={(e) => handleReviewChange("review_content", e.target.value)}
+            InputProps={{
+              style: {
+                backgroundColor: "white", // Set the input area background to white
+              },
+            }}
           />
           <div className="form-check mb-2">
             <input
@@ -540,28 +554,9 @@ function Restaurant() {
       return (R * c).toFixed(2);
     };
 
-    useEffect(() => {
-      if (restaurantLatLng && userLocation && window.google && window.google.maps) {
-        const directionsService = new window.google.maps.DirectionsService();
-        directionsService.route(
-          {
-            origin: userLocation,
-            destination: restaurantLatLng,
-            travelMode: window.google.maps.TravelMode.DRIVING,
-          },
-          (result, status) => {
-            if (status === 'OK') {
-              setDirections(result);
-            } else {
-              console.error(`error fetching directions ${result}`);
-            }
-          }
-        );
-      }
-    }, [restaurantLatLng, userLocation]);
 
     return (
-      <Container style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>
+      <Container>
         <Grid2 container spacing={1} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
           <Grid2 size={{xs:12, md: 12}} justifyContent={"center"}>
             {/* title of restaurant is centered */}
@@ -580,6 +575,17 @@ function Restaurant() {
                 Get Directions
               </a>
             )}
+                    <div>
+          <div className="d-flex flex-wrap justify-content-center mt-2">
+            {restaurant_category_ratings.map((category_rating, index) => (
+              <CategoryRatingCard
+                key={index}
+                category={category_rating.category_name}
+                rating={category_rating.rating}
+              />
+            ))}
+          </div>
+        </div>
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
             <img src={pic_source} className="drink-cha" />
@@ -604,22 +610,17 @@ function Restaurant() {
             </APIProvider>
           </Grid2>
         </Grid2>
-        <div>
-          <div className="d-flex flex-wrap justify-content-center mt-2">
-            {restaurant_category_ratings.map((category_rating, index) => (
-              <CategoryRatingCard
-                key={index}
-                category={category_rating.category_name}
-                rating={category_rating.rating}
-              />
-            ))}
-          </div>
-        </div>
+
         <h1 className="titleChaRestaurant">Reviews:</h1>
         {isLoggedIn ? (
           <ReviewComponent reviews={reviews} setReviews={setReviews} rest_id={rest_id} refreshReviews={() => getRestaurantReviews(rest_id)}/>
         ) : (
-          <Button variant="contained" className="me-2" href="/login">
+          <Button variant="contained" href="/login" sx={{
+            "&:hover": {
+              color: "white",
+            },
+          }}
+          style={{ backgroundColor: "#6BAB90", color: "black" }}>
             Login to review
           </Button>
         )}
@@ -670,9 +671,9 @@ function Restaurant() {
 
   return (
     <>
-      <div>
+      <div  style={{ backgroundColor: "hsl(160, 36%, 95%)", minHeight: "100vh" }}>
         <TopBar />
-        <div className="card">
+        <div>
           <CardGrid />
         </div>
       </div>
