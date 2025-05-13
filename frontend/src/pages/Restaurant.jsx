@@ -16,6 +16,9 @@ import Rating from '@mui/material/Rating';
 import TextField from "@mui/material/TextField";
 import Container from '@mui/material/Container';
 import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
+import Box from '@mui/material/Box';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   const [toppingDropdowns, setToppingDropdowns] = useState([]); // State to track dropdown instances
@@ -201,6 +204,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       setSelectedCategories([]);
       setCategoryRatings([]);
       refreshReviews();
+      // getRestaurantReviews(rest_id);
     } catch (error) {
       console.error("Error submitting review:", error);
       alert("We failed to receive your review.");
@@ -502,19 +506,40 @@ function Restaurant() {
 
   function CategoryRatingCard({ category, rating }) {
     return (
-      <Card className="shadow-sm border-0 bg-light px-2 py-1 mx-1 my-1" style={{ minWidth: "auto", fontSize: "0.9rem" }}>
+      <Card
+        sx={{
+          boxShadow: 1, // Equivalent to "shadow-sm"
+          border: 0, // Equivalent to "border-0"
+          backgroundColor: "hsl(160, 36%, 85%)", // Equivalent to "bg-light"
+          py: .5, // Padding on the top and bottom (py = padding-y)
+          mr: 1, // Margin on the left and right (mx = margin-x)
+          my: 1, // Margin on the top and bottom (my = margin-y)
+          borderRadius: "20px", // Rounded corners
+        }}
+      >
         <CardContent className="p-1 text-center">
           <strong>{category}:</strong>
           <Rating name="read-only" value={rating} readOnly precision={0.5} size="small" sx={{ verticalAlign: 'middle' }}/>
-        </CardContent>
-      </Card>
-    );
-  }
+          </CardContent>
+        </Card>
+      );
+    }
 
 
   function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings }) {
   return (
-    <Card className="text-center shadow-sm border-0 bg-light px-3 py-2 mb-2">
+    <Card
+  sx={{
+    textAlign: "center", // Equivalent to "text-center"
+    boxShadow: 1, // Equivalent to "shadow-sm"
+    border: 0, // Equivalent to "border-0"
+    backgroundColor: "white", // Equivalent to "bg-light"
+    px: 3, // Padding on the left and right (px = padding-x)
+    py: 2, // Padding on the top and bottom (py = padding-y)
+    mb: 4, // Margin on the bottom (mb = margin-bottom)
+    borderRadius: 4, // Adds rounded corners (4px radius)
+  }}
+>
       <CardContent className="p-2">
         <p><strong>{is_public ? reviewer_Name : "Anonymous"}'s Review:</strong></p>
         <p><strong>Price:</strong> ${review_pricing}<br></br> <strong> Sweetness:</strong> {review_sweetness}%</p>
@@ -554,57 +579,119 @@ function Restaurant() {
       return (R * c).toFixed(2);
     };
 
+    const itemData = [
+      {
+        img: 'https://images.unsplash.com/photo-1549388604-817d15aa0110',
+        title: 'Bed',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1525097487452-6278ff080c31',
+        title: 'Books',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1523413651479-597eb2da0ad6',
+        title: 'Sink',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1563298723-dcfebaa392e3',
+        title: 'Kitchen',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1588436706487-9d55d73a39e3',
+        title: 'Blinds',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1574180045827-681f8a1a9622',
+        title: 'Chairs',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1530731141654-5993c3016c77',
+        title: 'Laptop',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1481277542470-605612bd2d61',
+        title: 'Doors',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7',
+        title: 'Coffee',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1516455207990-7a41ce80f7ee',
+        title: 'Storage',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1597262975002-c5c3b14bbd62',
+        title: 'Candle',
+      },
+      {
+        img: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4',
+        title: 'Coffee table',
+      },
+    ];
 
     return (
       <Container>
-        <Grid2 container spacing={1} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
+        <Grid2 container spacing={1} sx={{marginTop:8, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
           <Grid2 size={{xs:12, md: 12}} justifyContent={"start"}>
+          <div>
+          <Box sx={{ width: "auto", height: 200, overflowY: 'scroll' }}>
+            <ImageList variant="masonry" cols={4} gap={8}>
+              {itemData.map((item) => (
+                <ImageListItem key={item.img}>
+                  <img
+                    srcSet={pic_source}
+                    src={pic_source}
+                    alt={item.title}
+                    loading="lazy"
+                  />
+                </ImageListItem>
+              ))}
+            </ImageList>
+          </Box>
+          </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            {/* Title aligned to the left */}
+            {/* Title */}
             <h1 style={{ margin: 0 }}>{restaurant}</h1>
-
+            {/* Login to Review / Write a Review button */}
             {isLoggedIn ? (
-        <button className="btn btn-secondary" onClick={() => setIsReviewing(true)}>
-        Write a Review
-      </button>
-  ) : (
-    <Button
-      variant="contained"
-      href="/login"
-      sx={{
-        "&:hover": {
-          color: "white",
-        },
-      }}
-      style={{ backgroundColor: "#6BAB90", color: "black" }}
-    >
-      Login to review
-    </Button>
-  )}
+              <button className="btn btn-secondary" onClick={() => setIsReviewing(true)}>
+                Write a Review
+              </button>
+                ) : (
+                <Button
+                  variant="contained"
+                  href="/login"
+                  sx={{
+                    "&:hover": {
+                      color: "white",
+                    },
+                  }}
+                  style={{ backgroundColor: "#8CC6B3", color: "black" }}
+                >
+                  Login to review
+                </Button>
+                )}
           </div>
 
-{/* Distance Section */}
-<div style={{ textAlign: "center", marginTop: "20px" }}>
-  {userLocation && restaurantLatLng && (
-    <p>Distance: {getDistanceInMiles(userLocation, restaurantLatLng)} miles</p>
-  )}
-  
-</div>
-{isReviewing && (
-  <div style={{ marginTop: "20px" }}>
-    <ReviewComponent
-      reviews={reviews}
-      setReviews={setReviews}
-      rest_id={rest_id}
-      refreshReviews={() => {
-        getRestaurantReviews(rest_id);
-        setIsReviewing(false); // Hide the ReviewComponent after submitting
-      }}
-    />
-  </div>
-)}
-                    <div>
-          <div className="d-flex flex-wrap justify-content-center mt-2">
+          {/* Distance Section */}
+          <div style={{ textAlign: "left", marginTop: "5px" }}>
+            <p style={{ margin: 0 }}>{address}</p> {/* Remove margin for the address */}
+            {userLocation && restaurantLatLng && (
+              <p style={{ margin: 0 }}> {/* Remove margin for the distance */}
+                Distance: {getDistanceInMiles(userLocation, restaurantLatLng)} miles
+              </p>
+            )}
+            <a
+              href={getDirectionsUrl(userLocation, address)}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none", color: "#007bff" }}
+            >
+              Get Directions
+            </a>
+          </div>
+          <div className="d-flex flex-wrap justify-content-left mt-2">
             {restaurant_category_ratings.map((category_rating, index) => (
               <CategoryRatingCard
                 key={index}
@@ -613,12 +700,13 @@ function Restaurant() {
               />
             ))}
           </div>
-        </div>
           </Grid2>
-          <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
+          {/* old photo location */}
+          {/* <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
             <img src={pic_source} className="drink-cha" />
-          </Grid2>
-          <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
+          </Grid2> */}
+          {/* Old map location */}
+          {/* <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
             <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
               <Map
                 style={{
@@ -634,10 +722,23 @@ function Restaurant() {
                 {restaurantLatLng && <Marker position={restaurantLatLng} title="Restaurant" />}
                 {/* {userLocation && <Marker position={userLocation} title="You" label="📍You" />} */}
                 {/* {directions && <DirectionsRenderer directions={directions} />} */}
-              </Map>
+              {/* </Map>
             </APIProvider>
-          </Grid2>
+          </Grid2> */}
         </Grid2>
+        {isReviewing && (
+          <div style={{ marginTop: "20px" }}>
+            <ReviewComponent
+              reviews={reviews}
+              setReviews={setReviews}
+              rest_id={rest_id}
+              refreshReviews={() => {
+                getRestaurantReviews(rest_id);
+                setIsReviewing(false); // Hide the ReviewComponent after submitting
+              }}
+            />
+          </div>
+        )}
 
         <h1 className="titleChaRestaurant">Reviews:</h1>
         
