@@ -460,7 +460,7 @@ function Home() {
           <Grid item xs={12} sm={6} md={4} key={review.id}>
             <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
               <CardHeader
-                avatar={<Avatar sx={{ bgcolor: "primary.main" }}>{review.username.charAt(0).toUpperCase()}</Avatar>}
+                avatar={<Avatar sx={{ bgcolor: '#8CC6B3' }}>{review.username.charAt(0).toUpperCase()}</Avatar>}
                 title={
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Typography variant="subtitle1" component="span">
