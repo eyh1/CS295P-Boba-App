@@ -635,22 +635,25 @@ function Restaurant() {
         <Grid2 container spacing={1} sx={{marginTop:8, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
           <Grid2 size={{xs:12, md: 12}} justifyContent={"start"}>
           <div>
-          <Box sx={{ width: "auto", height: 200, overflowY: 'scroll' }}>
-            <ImageList variant="masonry" cols={4} gap={8}>
-              {itemData.map((item) => (
-                <ImageListItem key={item.img}>
-                  <img
-                    srcSet={pic_source}
-                    src={pic_source}
-                    alt={item.title}
-                    loading="lazy"
-                  />
-                </ImageListItem>
-              ))}
-            </ImageList>
+          <Box sx={{borderRadius: "10px",  width: "auto", height: 250, overflowY: 'scroll' }}>
+          <ImageList variant="masonry" cols={4} gap={8}>
+  {itemData.map((item) => (
+    <ImageListItem key={item.img}>
+      <img
+        srcSet={pic_source}
+        src={pic_source}
+        alt={item.title}
+        loading="lazy"
+        style={{
+          // borderRadius: "10px", // Add rounded edges
+        }}
+      />
+    </ImageListItem>
+  ))}
+</ImageList>
           </Box>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{marginTop:4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             {/* Title */}
             <h1 style={{ margin: 0 }}>{restaurant}</h1>
             {/* Login to Review / Write a Review button */}
