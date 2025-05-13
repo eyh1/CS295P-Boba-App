@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer, BookmarkSerializer
+from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer
+from .serializers import RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer
+from.serializers import BookmarkSerializer, RecommendedRestaurantSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Restaurant, Review, Category, ReviewCategoryRating, RestaurantCategoryRating, HomeCard, Bookmark, UserCategoryRating
 from django.db.models import Avg, Count
@@ -20,7 +22,6 @@ class ListRestaurantView(generics.ListAPIView):
     
     def get_queryset(self):
         categories = self.request.query_params.get('categories', None)
-        rating = self.request.query_params.get('rating', 0)
         
         queryset = Restaurant.objects.all()
                 
@@ -28,7 +29,7 @@ class ListRestaurantView(generics.ListAPIView):
             category_list = categories.split(',')
             
             for category in category_list:
-                filter = Q(restaurant_category_ratings__category=category, restaurant_category_ratings__rating__gte=rating)
+                filter = Q(restaurant_category_ratings__category=category)
                 queryset = queryset.filter(filter).distinct()
 
         return queryset
@@ -38,9 +39,22 @@ class ListRestaurantView(generics.ListAPIView):
         response = super().list(request, *args, **kwargs)
         data = response.data  
         
+        categories = self.request.query_params.get('categories', None)
+        
         for restaurant in data:
-            restaurant.pop('reviews', None)  
-                
+            final_categories = []
+            restaurant.pop('reviews', None) 
+            if categories:
+                if restaurant["restaurant_category_ratings"]:
+                    for category_rating in restaurant["restaurant_category_ratings"]:
+                        if category_rating["id"] in categories:
+                            final_categories.append(category_rating)
+                    for category_rating in final_categories:
+                        restaurant["restaurant_category_ratings"].pop(category_rating)
+            restaurant["restaurant_category_ratings"] = sorted(restaurant["restaurant_category_ratings"], key = lambda x : x["rating"], reverse=True)
+            while len(final_categories) < 4 and len(restaurant["restaurant_category_ratings"]) > 0:
+                final_categories.append(restaurant["restaurant_category_ratings"].pop(0))
+            restaurant["restaurant_category_ratings"] = final_categories
         return Response(data)
 
 class CreateReviewView(generics.CreateAPIView):
@@ -194,6 +208,9 @@ class GetRecommendationsView(generics.ListAPIView):
         return Response({
             'recommended': self.recommendations
         })
+        
+                
+        return Response(serializer.data)
         
 class GetLatestPositiveReviewsView(generics.ListAPIView):
     serializer_class = ReviewSerializer
