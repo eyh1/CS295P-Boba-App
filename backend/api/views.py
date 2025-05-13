@@ -21,16 +21,14 @@ class ListRestaurantView(generics.ListAPIView):
     permission_classes = [AllowAny]
     
     def get_queryset(self):
-        categories = self.request.query_params.get('categories', None)
-        rating = self.request.query_params.get('rating', 0)
-        
+        categories = self.request.query_params.get('categories', None)        
         queryset = Restaurant.objects.all()
                 
         if categories:
             category_list = categories.split(',')
             
             for category in category_list:
-                filter = Q(restaurant_category_ratings__category=category, restaurant_category_ratings__rating__gte=rating)
+                filter = Q(restaurant_category_ratings__category=category)
                 queryset = queryset.filter(filter).distinct()
 
         return queryset
@@ -39,9 +37,23 @@ class ListRestaurantView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
         data = response.data  
-        
+        categories = self.request.query_params.get('categories', None)
+        if categories:
+            categories = categories.split(',')
         for restaurant in data:
-            restaurant.pop('reviews', None)  
+            final_categories = []
+            restaurant.pop('reviews', None) 
+            if categories:
+                if restaurant["restaurant_category_ratings"]:
+                    for category_rating in restaurant["restaurant_category_ratings"]:
+                        if category_rating["id"] in categories:
+                            final_categories.append(category_rating)
+                    for category_rating in final_categories:
+                        restaurant["restaurant_category_ratings"].pop(category_rating)
+            restaurant["restaurant_category_ratings"] = sorted(restaurant["restaurant_category_ratings"], key = lambda x : x["rating"], reverse=True)
+            while len(final_categories) < 4 and len(restaurant["restaurant_category_ratings"]) > 0:
+                final_categories.append(restaurant["restaurant_category_ratings"].pop(0))
+            restaurant["restaurant_category_ratings"] = final_categories
                 
         return Response(data)
 
