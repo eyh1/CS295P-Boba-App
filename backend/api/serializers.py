@@ -100,7 +100,6 @@ class BookmarkSerializer(serializers.ModelSerializer):
         model = Bookmark
         fields = ["id", "user", "restaurant"]
         
-class RecommendedRestaurantSerializer(serializers.ModelSerializer):
+class RecommendedRestaurantSerializer(serializers.Serializer):
     
-    recommended_restaurants = RestaurantSerializer(many=True)
-    recommended_categories = CategorySerializer(many=True)
+    restaurant = RestaurantSerializer(read_only=True)
