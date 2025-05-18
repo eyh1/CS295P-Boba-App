@@ -354,17 +354,26 @@ function Home() {
               sx={{ color: 'white', bgcolor: "#8CC6B3", mt: 1, borderRadius: 999 }}
               onClick={() => {
                 if (selectedRestaurant) {
-                  navigate('/search', {
+                    navigate('/search', {
                     state: {
-                      searchTerm: selectedRestaurant.label,
-                      selectedCategories: [],
-                      rating: 0,
+                        searchTerm: selectedRestaurant.label,
+                        selectedCategories: [],
+                        rating: 0,
                     },
-                  });
+                    });
+                } else {
+                    navigate('/search', {
+                    state: {
+                        searchTerm: "",
+                        selectedCategories: [],
+                        rating: 0,
+                    },
+                    });
                 }
-              }}
+                }}
+
             >
-              Search by Restaurant
+              {selectedRestaurant ? "Search by Restaurant" : "Explore All Restaurants"}
             </Button>
             {/* <Select
             className="border-0 shadow-none w-80" 
