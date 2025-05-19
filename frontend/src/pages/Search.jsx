@@ -273,7 +273,7 @@ function RatingCard({ entry_name, rating }) {
                   mx: 0.5,
                   my: 1,
                   fontSize: '0.8rem',
-                  width: '140px',
+                  width: '130px',
                   height: 'auto',
                   display: 'flex',
                   justifyContent: 'center',

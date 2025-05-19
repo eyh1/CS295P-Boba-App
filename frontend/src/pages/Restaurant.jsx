@@ -420,21 +420,21 @@ function Restaurant() {
   
     return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
   };
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.error("Error getting user location:", error);
-        }
-      );
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         setUserLocation({
+  //           lat: position.coords.latitude,
+  //           lng: position.coords.longitude
+  //         });
+  //       },
+  //       (error) => {
+  //         console.error("Error getting user location:", error);
+  //       }
+  //     );
+  //   }
+  // }, []);
   
 
   const checkLoginStatus = () => {
