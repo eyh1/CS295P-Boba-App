@@ -224,7 +224,7 @@ function Home() {
 
   return (
     <>
-      {/* <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} loading={setLoading}/> */}
+      
       <TopBarInvis/>
       
       {cards.length > 0 &&
@@ -308,21 +308,21 @@ function Home() {
             
         {/* </CardContent> */}
             <CardContent
-          sx={{
-            position: 'absolute',
-            top: '55%',
-            left: '50%',
-            transform: 'translate(-50%, -50%) scale(1.2)',
-            backgroundColor: 'rgba(255, 255, 255, .85)',
-            color: 'black',
-            padding: 1,
-            borderRadius: 3,
-            textAlign: 'center',
-            width: '400px',
-            height: '270px',
-            boxSizing: 'border-box',
-          }}
-        >
+            sx={{
+                position: 'absolute',
+                top: '55%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: 'rgba(255, 255, 255, .85)',
+                color: 'black',
+                padding: { xs: 0, sm: 2 },
+                borderRadius: 3,
+                textAlign: 'center',
+                width: { xs: '95%', sm: 500 },
+                minHeight: { xs: 'auto', sm: 270 },
+                boxSizing: 'border-box',
+            }}
+            >
             
           <Container className="mt-4" >
 
@@ -425,32 +425,13 @@ function Home() {
               />
             </Box>
             </fieldset>
-        {/* <div style={{ marginTop: '10px' }}>
-          <label style={{ color: 'black' }}>
-            Minimum Rating:
-            <Rating
-              name="simple-controlled"
-              value={rating}
-              precision={0.5}
-              onChange={(event, newValue) => setRating(newValue)}
-              sx={{ position: 'relative', top: '6px' }}
-            />
-          </label>
-        </div> */}
+        
 
-        <Button variant="contained" type="submit" style={{ marginTop: '10px' }}sx={{ color: 'white', bgcolor: "#8CC6B3", mt: 1, borderRadius: 999 }}>
+        <Button variant="contained" type="submit" style={{ marginTop: '10px' }}sx={{ color: 'white', bgcolor: "#8CC6B3", mt: 1, mb: 0, borderRadius: 999 }}>
           Filter By Category
         </Button>
       </form>
 
-      {/* <Button 
-            variant="contained" 
-            color="primary" 
-            sx={{ mt: 2 }} 
-            onClick={() => navigate('/search')}
-          >
-            Explore All Restaurants
-          </Button> */}
               </Container>
         </CardContent></Box>
         
