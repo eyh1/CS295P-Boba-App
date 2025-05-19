@@ -301,7 +301,7 @@ function Home() {
             },
             }}
         >
-            {cards[activeIndex].message} -> 
+            {cards[activeIndex].message}
             {/* <LaunchIcon fontSize="large" /> */}
             </Typography>
         </Box>

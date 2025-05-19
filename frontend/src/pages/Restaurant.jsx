@@ -414,9 +414,10 @@ function Restaurant() {
   const [restaurantLatLng, setRestaurantLatLng] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const getDirectionsUrl = (userLocation, address) => {
-    if (!userLocation || !address) return "#";
-    const origin = `${userLocation.lat},${userLocation.lng}`;
+
+    const origin = userLocation ? `${userLocation.lat},${userLocation.lng}` : ""; // Return an empty string if userLocation is not available
     const destination = encodeURIComponent(address);
+  
     return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
   };
   useEffect(() => {
@@ -508,17 +509,17 @@ function Restaurant() {
     return (
       <Card
         sx={{
-          boxShadow: 1, // Equivalent to "shadow-sm"
-          border: 0, // Equivalent to "border-0"
-          backgroundColor: "hsl(160, 36%, 85%)", // Equivalent to "bg-light"
-          py: .5, // Padding on the top and bottom (py = padding-y)
-          mr: 1, // Margin on the left and right (mx = margin-x)
-          my: 1, // Margin on the top and bottom (my = margin-y)
+          boxShadow: 1,
+          border: 0,
+          backgroundColor: "hsl(160, 36%, 85%)",
+          py: .5, // Padding on the top and bottom
+          mr: 1, // Margin on the left and right
+          my: 1, // Margin on the top and bottom
           borderRadius: "20px", // Rounded corners
         }}
       >
         <CardContent className="p-1 text-center">
-          <strong>{category}:</strong>
+        <strong style={{ marginLeft: "5px", marginRight: "5px" }}>{category}:</strong>
           <Rating name="read-only" value={rating} readOnly precision={0.5} size="small" sx={{ verticalAlign: 'middle' }}/>
           </CardContent>
         </Card>
@@ -664,7 +665,7 @@ function Restaurant() {
                 ) : (
                 <Button
                   variant="contained"
-                  href="/login"
+                  href="/login" state={{ from: location }}
                   sx={{
                     "&:hover": {
                       color: "white",
