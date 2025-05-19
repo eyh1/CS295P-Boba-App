@@ -11,6 +11,8 @@ class HomeCard(models.Model):
     rating = models.DecimalField(max_digits = 3, decimal_places = 2)
 
     class Meta:
+        unique_together = ["message", "image", "rating"]
+
         constraints = [
             models.CheckConstraint(
                 check=models.Q(rating__gte=0, rating__lte=5),
@@ -39,8 +41,8 @@ class Review(models.Model):
 
 class Category(models.Model):
     ALLOWED_CATEGORY_TYPES = [
-        {'base','Base'},
-        {'topping', 'Topping'}
+        ('base','Base'),
+        ('topping', 'Topping')
     ]
     category_name = models.CharField(max_length = 100, unique = True)
     category_type = models.CharField(max_length = 100, choices = ALLOWED_CATEGORY_TYPES, default = "base")
