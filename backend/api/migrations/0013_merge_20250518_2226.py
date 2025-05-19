@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0010_restaurant_image_alter_restaurant_unique_together_and_more'),
+        ('api', '0010_restaurant_image_alter_category_category_type_and_more'),
         ('api', '0012_alter_category_category_type_bookmark'),
     ]
 
