@@ -47,7 +47,7 @@ def download_and_store_image_to_s3(image_url, restaurant):
     
     
 
-API_KEY = 'flxIoYuXoFqBj29qaNCFF3f7-rK-XyQsITZhSmC-qwo3-IIkP5EnMg4EOwMS76QOJ_PO_uOsfx-jRgT0XabXUsZ_Fs2MYzng3n16z19LmFR2bMIT2VUIm0onUPIraHYx'
+API_KEY = YELP_API_KEY
 HEADERS = {'Authorization': f'Bearer {API_KEY}'}
 
 def fetch_and_save_boba_restaurants():
