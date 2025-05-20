@@ -22,13 +22,19 @@ class HomeCard(models.Model):
 class Restaurant(models.Model):
     restaurant_name = models.CharField(max_length=120)
     address = models.CharField(max_length=200)
-    image = models.ImageField(storage=RestaurantStorage(), upload_to='', null = True, blank = True)
     
     class Meta:
         unique_together = ["restaurant_name", "address"]
-    
+
     def __str__(self):
         return self.restaurant_name + ", " + self.address
+
+class RestaurantImage(models.Model):
+    restaurant = models.ForeignKey(Restaurant, related_name='restaurant_images', on_delete=models.CASCADE)
+    image = models.ImageField(storage=RestaurantStorage(), upload_to='', null=True, blank=True)
+
+    def __str__(self):
+        return f"Image for {self.restaurant}"
 
 class Review(models.Model):
     content = models.TextField()
