@@ -126,7 +126,7 @@ function RatingCard({ entry_name, rating }) {
 }
 
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, image }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, restaurant_images }) {
   const navigate = useNavigate();
   
   const handleClick = () => {
@@ -241,9 +241,10 @@ function RatingCard({ entry_name, rating }) {
         <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
         {filteredEntries.map((entry, index) => (
           <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
+            {console.log(entry)}  
             <EntryCard
               key={index}
-              pic_source={entry.image}
+              pic_source={entry.restaurant_images?.[0]?.image}
               restaurant={entry.restaurant_name}
               address = {entry.address}
               rating1={entry.ratings[0]}

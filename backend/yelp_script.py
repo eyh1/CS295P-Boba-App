@@ -5,8 +5,15 @@ import os
 import django
 import re
 
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 django.setup()
+
+
+from django.contrib.auth.models import User
+from api.models import Restaurant, Review, ReviewCategoryRating, Category, RestaurantCategoryRating, HomeCard, Bookmark, RestaurantImage
+import random
+
 
 
 from api.models import Restaurant, RestaurantImage
@@ -32,11 +39,11 @@ def download_and_store_image_to_s3(image_url, restaurant):
         # Create model instance with image
         img = RestaurantImage(restaurant=restaurant)
         img.image.save(filename, image_content, save=True)
-
+        print(f"Uploaded: {filename}")
         return img
     except Exception as e:
         print(f"Failed to upload image from {image_url}: {e}")
-        return None
+        raise e
     
     
 
@@ -49,7 +56,7 @@ def fetch_and_save_boba_restaurants():
     # Yelp search API
     search_url = 'https://api.yelp.com/v3/businesses/search'
     params = {
-        'term': "boba",
+        'term': "Omomo",
         'location': 'Irvine',
         'limit': 1
     }
@@ -87,11 +94,59 @@ def fetch_and_save_boba_restaurants():
             print(f"Exists: {name} - {address}")
 
         # Save photos if they don't already exist
-        for photo_url in photos:
-            RestaurantImage.objects.get_or_create(
+        
+def delete_external_images():
+    images_to_delete = RestaurantImage.objects.filter(image__startswith="https")
+
+    total = images_to_delete.count()
+    print(f"Found {total} external image(s) to delete...")
+
+    for img in images_to_delete:
+        print(f"Deleting image with URL: {img.image}")
+        img.delete()
+
+    print("Done.")
+    
+def generate_random_reviews():
+    users = User.objects.all()
+    bases = Category.objects.filter(category_type="Base")
+    toppings = Category.objects.filter(category_type="Topping")
+    restaurants = Restaurant.objects.all()
+    for restaurant in restaurants:
+        for _ in range(5):
+            user = users.order_by('?').first()
+            content = "This is a random review."
+            #random number between 5 and 10
+            pricing = random.randint(5, 10)
+            sweetness = random.choice(range(0, 126, 25))
+            public = True
+
+            review = Review.objects.create(
+                content=content,
+                user=user,
                 restaurant=restaurant,
-                image=photo_url
+                public=public,
+                pricing=pricing,
+                sweetness=sweetness
+            )
+
+            # Randomly assign categories to the review
+            category = bases.order_by('?').first()
+            rating = 4.0
+            ReviewCategoryRating.objects.create(
+                review=review,
+                category=category,
+                rating=rating
+            )
+            category = toppings.order_by('?').first()
+            rating = 4.0
+            ReviewCategoryRating.objects.create(
+                review=review,
+                category=category,
+                rating=rating
             )
 
 if __name__ == "__main__":
-    fetch_and_save_boba_restaurants()
+    # fetch_and_save_boba_restaurants()
+    # delete_external_images()
+    generate_random_reviews()
