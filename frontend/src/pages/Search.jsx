@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import boba from ".././assets/chafortea.png";
 // import "../styles/Home.css"
-import { Button, Grid, Grid2 } from "@mui/material";
+import { Button, Grid, Grid2, Switch, FormControlLabel } from "@mui/material";
 import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
@@ -31,6 +31,8 @@ function Search() {
       
   const [searchTerm,setSearchTerm] = useState(initialSearchTerm);
   const [restaurants, setRestaurants] = useState([]);
+  const [originalRestaurants, setOriginalRestaurants] = useState([]);
+  const [sortedByDistance, setSortedByDistance] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [categories, setCategories] = useState([]);
   const [rating, setRating] = useState(initialRating);
@@ -68,7 +70,10 @@ function Search() {
     api
     .get(`/api/restaurants/?${queryParams.toString()}`)
     .then((res) => res.data)
-    .then((data) => { setRestaurants(data); })
+    .then((data) => { 
+      setRestaurants(data); 
+      setOriginalRestaurants(data);
+    })
     .catch((error) => alert(error));
     setLoading(false)
   };
@@ -76,6 +81,87 @@ function Search() {
   const checkLoginStatus = () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
     setIsLoggedIn(!!token);
+  };
+
+      // Calculate distance in miles between two locations using the Haversine formula
+      const getDistanceInMiles = (loc1, loc2) => {
+        if (!loc1 || !loc2) return null;
+        const toRad = (value) => (value * Math.PI) / 180;
+        const R = 3958.8; // Earth's radius in miles
+        const dLat = toRad(loc2.lat - loc1.lat);
+        const dLng = toRad(loc2.lng - loc1.lng);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(loc1.lat)) *
+            Math.cos(toRad(loc2.lat)) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return (R * c).toFixed(2);
+      };
+
+  // Get coordinates from address using OpenCage API
+  const getCoordinatesFromAddress = async (address) => {
+    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);
+    const data = await response.json();
+    if (data.status === "OK" && data.results.length > 0) {
+      const { lat, lng } = data.results[0].geometry.location;
+      return { latitude: lat, longitude: lng };
+    }
+    return null;
+  };
+
+  // Haversine formula helpers
+  const toRadians = (deg) => (deg * Math.PI) / 180;
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of Earth in km
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+              Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Sort restaurants by distance from user
+  const sortByDistance = async () => {
+    if (sortedByDistance) {
+      setRestaurants(originalRestaurants);
+      setSortedByDistance(false);
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const userLat = position.coords.latitude;
+      const userLon = position.coords.longitude;
+
+      const updated = await Promise.all(
+        restaurants.map(async (rest) => {
+          const coords = await getCoordinatesFromAddress(rest.address);
+          if (coords) {
+            const distance = getDistanceInMiles(
+              { lat: userLat, lng: userLon },
+              { lat: coords.latitude, lng: coords.longitude }
+            );
+            return { ...rest, distance };
+          }
+          return rest;
+        })
+      );
+
+      const sorted = updated.slice().sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+      setRestaurants(sorted);
+      setSortedByDistance(true);
+    }, () => {
+      alert("Unable to retrieve your location.");
+    });
   };
 
   const handleLogout = () => {
@@ -105,7 +191,10 @@ function Search() {
     api
     .get(`/api/restaurants/?${queryParams.toString()}`)
     .then((res) => res.data)
-    .then((data) => { setRestaurants(data); })
+    .then((data) => { 
+      setRestaurants(data);
+      setOriginalRestaurants(data);
+    })
     .catch((error) => alert(error));
     setLoading(false)
   };
@@ -126,7 +215,8 @@ function RatingCard({ entry_name, rating }) {
 }
 
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, restaurant_images }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, image, distance, restaurant_images }) {
+
   const navigate = useNavigate();
   
   const handleClick = () => {
@@ -169,6 +259,11 @@ function RatingCard({ entry_name, rating }) {
           <Typography variant="body2" color="text.secondary">
             {address}
           </Typography>
+          {distance != null && (
+            <Typography variant="body2" color="text.secondary" sx={{ marginTop: '4px' }}>
+              {distance} miles away
+            </Typography>
+          )}
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginTop: 8}}>
             {restaurant_category_ratings.map((category_rating, index) => (
               <Card
@@ -179,7 +274,7 @@ function RatingCard({ entry_name, rating }) {
                   mx: 0.5,
                   my: 1,
                   fontSize: '0.8rem',
-                  width: '140px',
+                  width: '130px',
                   height: 'auto',
                   display: 'flex',
                   justifyContent: 'center',
@@ -252,6 +347,7 @@ function RatingCard({ entry_name, rating }) {
               rating3={entry.ratings[2]}
               rest_id={entry.id}
               restaurant_category_ratings={entry.restaurant_category_ratings}
+              distance = {entry.distance}
             />
             </Grid2>
           ))}
@@ -294,6 +390,17 @@ function RatingCard({ entry_name, rating }) {
     >
       {showFilters ? 'Hide Filters ✖️' : "Filter by Category"}
     </Button>
+    <FormControlLabel
+      control={
+        <Switch
+          checked={sortedByDistance}
+          onChange={sortByDistance}
+          name="sortByDistance"
+          color="primary"
+        />
+      }
+      label="Sort by Distance"
+    />
       {showFilters && (
       <form onSubmit={handleSubmit}>
         <fieldset>
