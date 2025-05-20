@@ -11,6 +11,8 @@ class HomeCard(models.Model):
     rating = models.DecimalField(max_digits = 3, decimal_places = 2)
 
     class Meta:
+        unique_together = ["message", "image", "rating"]
+
         constraints = [
             models.CheckConstraint(
                 check=models.Q(rating__gte=0, rating__lte=5),
@@ -20,13 +22,19 @@ class HomeCard(models.Model):
 class Restaurant(models.Model):
     restaurant_name = models.CharField(max_length=120)
     address = models.CharField(max_length=200)
-    image = models.ImageField(storage=RestaurantStorage(), upload_to='', null = True, blank = True)
     
     class Meta:
         unique_together = ["restaurant_name", "address"]
-    
+
     def __str__(self):
         return self.restaurant_name + ", " + self.address
+
+class RestaurantImage(models.Model):
+    restaurant = models.ForeignKey(Restaurant, related_name='restaurant_images', on_delete=models.CASCADE)
+    image = models.ImageField(storage=RestaurantStorage(), upload_to='', null=True, blank=True)
+
+    def __str__(self):
+        return f"Image for {self.restaurant}"
 
 class Review(models.Model):
     content = models.TextField()
@@ -39,8 +47,8 @@ class Review(models.Model):
 
 class Category(models.Model):
     ALLOWED_CATEGORY_TYPES = [
-        {'base','Base'},
-        {'topping', 'Topping'}
+        ('base','Base'),
+        ('topping', 'Topping')
     ]
     category_name = models.CharField(max_length = 100, unique = True)
     category_type = models.CharField(max_length = 100, choices = ALLOWED_CATEGORY_TYPES, default = "base")

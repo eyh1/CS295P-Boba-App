@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Restaurant, Review, ReviewCategoryRating, Category, RestaurantCategoryRating, HomeCard, Bookmark
+from .models import Restaurant, Review, ReviewCategoryRating, Category, RestaurantCategoryRating, HomeCard, Bookmark, RestaurantImage
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,10 +53,11 @@ class ReviewSerializer(serializers.ModelSerializer):
 class RestaurantSerializer(serializers.ModelSerializer):
     restaurant_category_ratings = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
-    
+    restaurant_images = serializers.SerializerMethodField()
+
     class Meta:
         model = Restaurant
-        fields = ["id", "restaurant_name", "address", "reviews", "restaurant_category_ratings", "image"]
+        fields = ["id", "restaurant_name", "address", "reviews", "restaurant_category_ratings", "restaurant_images"]
       
     def get_reviews(self, obj):
         reviews = obj.reviews.filter(public = True)  
@@ -66,6 +67,17 @@ class RestaurantSerializer(serializers.ModelSerializer):
         restaurant_category_ratings = obj.restaurant_category_ratings.all()
         return RestaurantCategoryRatingSerializer(restaurant_category_ratings, many=True, read_only=True).data
     
+    def get_restaurant_images(self, obj):
+        restaurant_images = obj.restaurant_images.all()
+        return RestaurantImageSerializer(restaurant_images, many=True, read_only=True).data
+
+class RestaurantImageSerializer(serializers.ModelSerializer):
+    restaurant = serializers.PrimaryKeyRelatedField(read_only=True)
+    
+    class Meta:
+        model = RestaurantImage
+        fields = ["id", "restaurant", "image"]
+        
 class RestaurantCategoryRatingSerializer(serializers.ModelSerializer):
     restaurant = serializers.PrimaryKeyRelatedField(read_only=True)
     category = serializers.PrimaryKeyRelatedField(read_only=True)
