@@ -1,16 +1,11 @@
 import "../styles/TopBar.css"
 import Zooba from "../assets/Zooba.png";
-import { Button, TextField, IconButton, Box, Typography} from "@mui/material";
+import { Button, Grid2, TextField, IconButton, Box, Typography} from "@mui/material";
 import { Navbar, Nav, Container, Form, Collapse } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { ACCESS_TOKEN } from "../constants";
-import Select from 'react-select';
 import api from "../api";
-import Rating from '@mui/material/Rating';
 import { useNavigate } from "react-router-dom";
-import TuneIcon from '@mui/icons-material/Tune';
-import CloseIcon from '@mui/icons-material/Close';
-import SearchIcon from '@mui/icons-material/Search';
 import '@fontsource/poppins';
 
 function TopBarInvis({setSearchTerm = () => {}, setRestaurants = () => {}}) {
@@ -54,40 +49,6 @@ function TopBarInvis({setSearchTerm = () => {}, setRestaurants = () => {}}) {
       checkLoginStatus();
     }, [])
 
-    const handleSubmit = async (event) => {
-      if (event) event.preventDefault();
-      setLoading(true);
-      setSearchTerm(searchTerm);
-      setSelfSearchTerm(searchTerm);
-      const queryParams = new URLSearchParams();
-      if (categories.length > 0) {
-        queryParams.append('categories', selectedCategories.map(cat => cat.value).join(','));
-      }
-      if (rating) {
-        queryParams.append('rating', rating);
-      }
-      api
-      .get(`/api/restaurants/?${queryParams.toString()}`)
-      .then((res) => res.data)
-      .then((data) => { setRestaurants(data);
-        setSelfRestaurants(data)
-       })
-      .catch((error) => alert(error));
-      setLoading(false)
-      setShouldNavigate(true);
-    };
-
-    const handleCategoryChange = (event) => {
-      const value = event.target.value;
-      setSelectedCategories(prev =>
-        prev.includes(value) ? prev.filter(cat => cat !== value) : [...prev, value]
-      );
-    };
-
-    const categoryOptions = categories.map((category) => ({
-      value: category.id,
-      label: category.category_name.charAt(0).toUpperCase() + category.category_name.slice(1)
-    }));
     
     useEffect(() => {
       if (!loading && shouldNavigate) {
@@ -106,7 +67,6 @@ function TopBarInvis({setSearchTerm = () => {}, setRestaurants = () => {}}) {
       <div className="p-0">
       
     <Navbar
-      // color of navbar
       style={{
         backgroundColor: "transparent",
         position: "fixed",
@@ -128,24 +88,77 @@ function TopBarInvis({setSearchTerm = () => {}, setRestaurants = () => {}}) {
       
         <Navbar.Toggle aria-controls="basic-navbar-nav" className="ms-1 p-1" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          { isLoggedIn ? (<Box sx={{ m: 2 }}>
-            <Button variant="contained" className="me-2" href="/profile" sx={{bgcolor: "#8CC6B3", borderRadius: 999}}>
-              Profile
-            </Button>
-            <Button variant="contained" className="me-2" onClick={handleLogout} sx={{bgcolor: "white", color:'#8CC6B3', borderRadius: 999}}>
-                Logout
-              </Button>
-          </Box>
-        ) : (
-            <Box sx={{ m: 2 }}>
-              <Button variant="contained"  className="me-2" href="/login" sx={{bgcolor: "#8CC6B3", borderRadius: 999}}>
-                Login
-              </Button>
-              <Button variant="contained" href="/register" sx={{bgcolor: "white", color:'#8CC6B3', borderRadius: 999}}>
-                Sign Up
-              </Button>
-            </Box>
-          )}
+          {isLoggedIn ? (
+    <>
+      <Button
+        variant="contained"
+        href="/profile"
+        sx={{
+          bgcolor: "#8CC6B3",
+          borderRadius: 999,
+          minWidth: 80,
+          maxWidth: 150,
+          flexShrink: 1,
+          whiteSpace: 'nowrap',
+          ml: 1,
+        }}
+      >
+        Profile
+      </Button>
+      <Button
+        variant="contained"
+        onClick={handleLogout}
+        sx={{
+          bgcolor: "white",
+          color: '#8CC6B3',
+          borderRadius: 999,
+          minWidth: 80,
+          maxWidth: 150,
+          flexShrink: 1,
+          whiteSpace: 'nowrap',
+          ml: 1,
+          mr: 1,
+        }}
+      >
+        Logout
+      </Button>
+    </>
+  ) : (
+    <>
+      <Button
+        variant="contained"
+        href="/login"
+        sx={{
+          bgcolor: "#8CC6B3",
+          borderRadius: 999,
+          minWidth: 80,
+          maxWidth: 150,
+          flexShrink: 1,
+          whiteSpace: 'nowrap',
+          ml: 1,
+        }}
+      >
+        Login
+      </Button>
+      <Button
+        variant="contained"
+        href="/register"
+        sx={{
+          bgcolor: "white",
+          color: '#8CC6B3',
+          borderRadius: 999,
+          minWidth: 80,
+          maxWidth: 150,
+          flexShrink: 1,
+          whiteSpace: 'nowrap',
+          ml: 1,
+          mr: 1,
+        }}
+      >
+        Sign Up
+      </Button>
+    </>
+  )}
         </Navbar.Collapse>
     </Navbar>
     
