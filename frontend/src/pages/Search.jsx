@@ -333,25 +333,34 @@ function RatingCard({ entry_name, rating }) {
 
     return (
       <div>
-        <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
-        {filteredEntries.map((entry, index) => (
-          <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
-            {console.log(entry)}  
-            <EntryCard
-              key={index}
-              pic_source={entry.restaurant_images?.[0]?.image}
-              restaurant={entry.restaurant_name}
-              address = {entry.address}
-              rating1={entry.ratings[0]}
-              rating2={entry.ratings[1]}
-              rating3={entry.ratings[2]}
-              rest_id={entry.id}
-              restaurant_category_ratings={entry.restaurant_category_ratings}
-              distance = {entry.distance}
-            />
+        <Grid2
+          container
+          spacing={2}
+          sx={{
+            marginTop: 2,
+            marginBottom: 2,
+            marginLeft: { xs: 0, md: 5 },
+            marginRight: { xs: 0, md: 5 }
+          }}
+        >
+          {filteredEntries.map((entry, index) => (
+            <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
+              {console.log(entry)}
+              <EntryCard
+                key={index}
+                pic_source={entry.restaurant_images?.[0]?.image}
+                restaurant={entry.restaurant_name}
+                address={entry.address}
+                rating1={entry.ratings[0]}
+                rating2={entry.ratings[1]}
+                rating3={entry.ratings[2]}
+                rest_id={entry.id}
+                restaurant_category_ratings={entry.restaurant_category_ratings}
+                distance={entry.distance}
+              />
             </Grid2>
           ))}
-          </Grid2>
+        </Grid2>
       </div>
     );
   }
