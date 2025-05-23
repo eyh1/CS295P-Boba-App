@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer
+from .serializers import UserSerializer, RestaurantSerializer, ReviewSerializer, RestaurantListSerializer
 from .serializers import RestaurantCategoryRatingSerializer, CategorySerializer, HomeCardSerializer
 from.serializers import BookmarkSerializer, RecommendedRestaurantSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -30,7 +30,7 @@ class ListRestaurantNamesView(APIView):
         return Response(names)
     
 class ListRestaurantView(generics.ListAPIView):
-    serializer_class = RestaurantSerializer
+    serializer_class = RestaurantListSerializer
     permission_classes = [AllowAny]
     
     def get_queryset(self):
@@ -72,7 +72,6 @@ class ListRestaurantView(generics.ListAPIView):
             categories = categories.split(',')
         for restaurant in data:
             final_categories = []
-            restaurant.pop('reviews', None) 
             if categories:
                 if restaurant["restaurant_category_ratings"]:
                     for category_rating in restaurant["restaurant_category_ratings"]:

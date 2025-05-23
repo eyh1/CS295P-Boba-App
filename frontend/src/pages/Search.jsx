@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import boba from ".././assets/chafortea.png";
 // import "../styles/Home.css"
 import { Button, Grid, Grid2, Switch, FormControlLabel } from "@mui/material";
@@ -15,6 +15,7 @@ import GradeIcon from '@mui/icons-material/Grade';
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
 import TextField from "@mui/material/TextField";
+import debounce from 'lodash.debounce';
 
 
 // import RestaurantList from "./RestaurantList";
@@ -41,8 +42,6 @@ function Search() {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);  
   const [nextPageUrl, setNextPageUrl] = useState("/api/restaurants/");
-  const loadingRef = useRef(false);
-
 
   useEffect(() => {
     api.get("api/category/")
@@ -61,21 +60,21 @@ function Search() {
   }, [])
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = debounce(() => {
       if (
         window.innerHeight + window.scrollY >=
           document.body.offsetHeight - 300 && // 300px from bottom
         nextPageUrl &&
-        !loadingRef.current 
+        !loading
       ) {
         getRestaurants(true);
       }
-    };
+    }, 200);
 
     window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [nextPageUrl]);
+  }, [nextPageUrl, loading]);
 
   const buildUrl = (pageUrl = null) => {
     if (pageUrl) return pageUrl; // if next page URL already contains filters, use it directly
@@ -91,10 +90,7 @@ function Search() {
   };
 
   const getRestaurants = (loadMore = false) => {
-    if (loadingRef.current) return;
-
     setLoading(true);
-    loadingRef.current = true;
 
     let url;
     if (loadMore && nextPageUrl) {
@@ -117,7 +113,6 @@ function Search() {
 
     if (!url) {
       setLoading(false);
-      loadingRef.current = false;
       return;
     }
     api
@@ -134,10 +129,7 @@ function Search() {
         setNextPageUrl(data.next);
       })
       .catch((error) => alert(error))
-      .finally(() => {
-        setLoading(false);
-        loadingRef.current = false;
-  });
+      .finally(() => setLoading(false));
 };
   const checkLoginStatus = () => {
     const token = localStorage.getItem(ACCESS_TOKEN);

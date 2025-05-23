@@ -49,6 +49,22 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def get_restaurant_name(self, obj):
         return obj.restaurant.restaurant_name
+
+class RestaurantListSerializer(serializers.ModelSerializer):
+    restaurant_category_ratings = serializers.SerializerMethodField()
+    restaurant_images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Restaurant
+        fields = ["id", "restaurant_name", "address", "restaurant_category_ratings", "restaurant_images"]
+    
+    def get_restaurant_category_ratings(self, obj):
+        restaurant_category_ratings = obj.restaurant_category_ratings.all()
+        return RestaurantCategoryRatingSerializer(restaurant_category_ratings, many=True, read_only=True).data
+    
+    def get_restaurant_images(self, obj):
+        restaurant_images = obj.restaurant_images.all()
+        return RestaurantImageSerializer(restaurant_images, many=True, read_only=True).data
     
 class RestaurantSerializer(serializers.ModelSerializer):
     restaurant_category_ratings = serializers.SerializerMethodField()
