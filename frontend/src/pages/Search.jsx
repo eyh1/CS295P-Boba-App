@@ -15,6 +15,7 @@ import GradeIcon from '@mui/icons-material/Grade';
 import Select from 'react-select';
 import Rating from '@mui/material/Rating';
 import TextField from "@mui/material/TextField";
+import debounce from 'lodash.debounce';
 
 
 // import RestaurantList from "./RestaurantList";
@@ -40,7 +41,8 @@ function Search() {
   const [categoryRatings, setCategoryRatings] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);  
-  
+  const [nextPageUrl, setNextPageUrl] = useState("/api/restaurants/");
+
   useEffect(() => {
     api.get("api/category/")
       .then((res) => res.data)
@@ -53,12 +55,29 @@ function Search() {
   
 
   useEffect(() => {
-    getRestaurants();
+    getRestaurants(false);
     checkLoginStatus();
   }, [])
 
-  const getRestaurants = () => {
-    setLoading(true);
+  useEffect(() => {
+    const handleScroll = debounce(() => {
+      if (
+        window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 300 && // 300px from bottom
+        nextPageUrl &&
+        !loading
+      ) {
+        getRestaurants(true);
+      }
+    }, 200);
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [nextPageUrl, loading]);
+
+  const buildUrl = (pageUrl = null) => {
+    if (pageUrl) return pageUrl; // if next page URL already contains filters, use it directly
 
     const queryParams = new URLSearchParams();
     if (selectedCategories.length > 0) {
@@ -67,17 +86,51 @@ function Search() {
     if (rating) {
       queryParams.append('rating', rating);
     }
-    api
-    .get(`/api/restaurants/?${queryParams.toString()}`)
-    .then((res) => res.data)
-    .then((data) => { 
-      setRestaurants(data); 
-      setOriginalRestaurants(data);
-    })
-    .catch((error) => alert(error));
-    setLoading(false)
+    return `/api/restaurants/?${queryParams.toString()}`;
   };
-  
+
+  const getRestaurants = (loadMore = false) => {
+    setLoading(true);
+
+    let url;
+    if (loadMore && nextPageUrl) {
+      const parsedUrl = new URL(nextPageUrl, window.location.origin);
+      const queryParams = new URLSearchParams(parsedUrl.search);
+
+      // Append current filters
+      if (selectedCategories.length > 0) {
+        queryParams.set('categories', selectedCategories.join(','));
+      }
+      if (rating) {
+        queryParams.set('rating', rating);
+      }
+
+      parsedUrl.search = queryParams.toString();
+      url = parsedUrl.toString().replace(window.location.origin, ''); // make it relative
+    } else {
+      url = buildUrl();
+    }
+
+    if (!url) {
+      setLoading(false);
+      return;
+    }
+    api
+      .get(url)
+      .then((res) => res.data)
+      .then((data) => {
+        if (loadMore) {
+          setRestaurants((prev) => [...prev, ...data.results]);
+          setOriginalRestaurants((prev) => [...prev, ...data.results]);
+        } else {
+          setRestaurants(data.results);
+          setOriginalRestaurants(data.results);
+        }
+        setNextPageUrl(data.next);
+      })
+      .catch((error) => alert(error))
+      .finally(() => setLoading(false));
+};
   const checkLoginStatus = () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
     setIsLoggedIn(!!token);
@@ -449,12 +502,11 @@ function RatingCard({ entry_name, rating }) {
         </Button>
       </form>
       )}
-          </div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-            <CardGrid />
-    )}
+      <CardGrid />
+
+      </div>
+        {loading && <p>Loading...</p>}
+
       <div className="text-center mt-1 mb-1">
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSey_JXU-zUdcqNyEoszZtaoNbuZa_A6Ko7z6bzToO3c3tfImQ/viewform?usp=dialog"

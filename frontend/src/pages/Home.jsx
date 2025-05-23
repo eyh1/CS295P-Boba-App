@@ -24,6 +24,7 @@ function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [restaurants, setRestaurants] = useState([]);
+  const [restaurantNames, setRestaurantNames] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -43,6 +44,15 @@ function Home() {
       .then((res) => res.data)
       .then((data) => {
         setCategories(data);
+      })
+      .catch((error) => alert(error));
+  }, []);
+
+  useEffect(() => {
+    api.get("api/restaurants/names/")
+      .then((res) => res.data)
+      .then((data) => {
+        setRestaurantNames(data);
       })
       .catch((error) => alert(error));
   }, []);
@@ -127,7 +137,7 @@ function Home() {
 
   const getRestaurants = () => {
     api
-      .get("/api/restaurants/")
+      .get("/api/restaurants/names/")
       .then((res) => res.data)
       .then((data) => { setRestaurants(data)})
       .catch((error) => alert(error));

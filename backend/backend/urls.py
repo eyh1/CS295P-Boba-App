@@ -19,13 +19,14 @@ from django.urls import path, include
 from api.views import CreateUserView, ListRestaurantView, CreateReviewView, ListReviewsForRestauarantView
 from api.views import DeleteReviewView, GetRestaurantCategoryRatingView, ListCategoryView, ListUserReviewsView
 from api.views import ListHomeCardView, ListUserBookmarksView, CreateBookmarkView, DeleteBookmarkView, GetRecommendationsView
-from api.views import GetLatestPositiveReviewsView
+from api.views import GetLatestPositiveReviewsView, ListRestaurantNamesView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/user/register/", CreateUserView.as_view(), name="register"),
     path("api/restaurants/", ListRestaurantView.as_view(), name="get_restaurants"),
+    path("api/restaurants/names/", ListRestaurantNamesView.as_view(), name="get_restaurant_names"),
     path("api/homeCards/", ListHomeCardView.as_view(), name="get_home_cards"),
     path("api/review/<int:restaurantPk>/create/", CreateReviewView.as_view(), name="create_review"),
     path("api/review/<int:pk>/delete/", DeleteReviewView.as_view(), name="delete_review"),
