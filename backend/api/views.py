@@ -24,10 +24,8 @@ class ListRestaurantNamesView(APIView):
 
     def get(self, request):
         # Fetch only the 'name' field as a list of dicts
-        restaurants = Restaurant.objects.values('restaurant_name')
-        # Extract the names into a simple list
-        names = [r['restaurant_name'] for r in restaurants]
-        return Response(names)
+        restaurants = Restaurant.objects.values('id', 'restaurant_name', 'address')
+        return Response(restaurants)
     
 class ListRestaurantView(generics.ListAPIView):
     serializer_class = RestaurantListSerializer
@@ -67,21 +65,17 @@ class ListRestaurantView(generics.ListAPIView):
     
     def category_logic(self,data):
         categories = self.request.query_params.get('categories', None)
-        print(categories)
         if categories:
-            categories = categories.split(',')
+            categories = [int(c) for c in categories.split(',') if c.strip().isdigit()]
         for restaurant in data:
             final_categories = []
             if categories:
                 if restaurant["restaurant_category_ratings"]:
                     for category_rating in restaurant["restaurant_category_ratings"]:
-                        if restaurant["restaurant_name"] == "HeyTea":
-                            print(category_rating["id"])
-                        if category_rating["id"] in categories:
-                            
+                        if category_rating["category"] in categories:
                             final_categories.append(category_rating)
                     for category_rating in final_categories:
-                        restaurant["restaurant_category_ratings"].pop(category_rating)
+                        restaurant["restaurant_category_ratings"].remove(category_rating)
             restaurant["restaurant_category_ratings"] = sorted(restaurant["restaurant_category_ratings"], key = lambda x : x["rating"], reverse=True)
             while len(final_categories) < 4 and len(restaurant["restaurant_category_ratings"]) > 0:
                 final_categories.append(restaurant["restaurant_category_ratings"].pop(0))

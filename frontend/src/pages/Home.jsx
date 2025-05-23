@@ -35,7 +35,6 @@ function Home() {
   const [cards, setCards] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [latestReviews, setLatestReviews] = useState([])
-  const [nextPageUrl, setNextPageUrl] = useState("/api/restaurants/");
 
   const navigate = useNavigate();
   
@@ -137,15 +136,10 @@ function Home() {
   }, [])
 
   const getRestaurants = () => {
-    if (!nextPageUrl) return; // no more pages to load
-
     api
-      .get(nextPageUrl)
+      .get("/api/restaurants/names/")
       .then((res) => res.data)
-      .then((data) => {
-        setRestaurants((prev) => [...prev, ...data.results]); // append new items
-        setNextPageUrl(data.next); // update next page URL, or null if no more pages
-      })
+      .then((data) => { setRestaurants(data)})
       .catch((error) => alert(error));
   };
 
