@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_rename_restaurantname_restaurant_restaurant_name'),
+        ('api', '0002_category_reviewcategoryrating'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

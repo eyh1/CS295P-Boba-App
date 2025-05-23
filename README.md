@@ -52,4 +52,4 @@ npm run dev\
 4/21/2025
 npm install @vis.gl/react-google-maps
 
-qnpm install lodash.debounce
+npm install lodash.debounce
