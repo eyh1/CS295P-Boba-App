@@ -10,11 +10,24 @@ from django.db.models import Avg, Count
 from rest_framework.response import Response
 from django.db.models import Q
 from collections import defaultdict
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
+
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+class ListRestaurantNamesView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        # Fetch only the 'name' field as a list of dicts
+        restaurants = Restaurant.objects.values('restaurant_name')
+        # Extract the names into a simple list
+        names = [r['restaurant_name'] for r in restaurants]
+        return Response(names)
     
 class ListRestaurantView(generics.ListAPIView):
     serializer_class = RestaurantSerializer
@@ -35,9 +48,26 @@ class ListRestaurantView(generics.ListAPIView):
 
     
     def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        data = response.data  
+        queryset = self.get_queryset()
+
+        # Apply pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = serializer.data
+            # Perform your post-processing logic here
+            self.category_logic(data)
+            return self.get_paginated_response(data)
+
+        # Fallback if pagination is disabled
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        self.category_logic(data)
+        return Response(data)
+    
+    def category_logic(self,data):
         categories = self.request.query_params.get('categories', None)
+        print(categories)
         if categories:
             categories = categories.split(',')
         for restaurant in data:
@@ -46,7 +76,10 @@ class ListRestaurantView(generics.ListAPIView):
             if categories:
                 if restaurant["restaurant_category_ratings"]:
                     for category_rating in restaurant["restaurant_category_ratings"]:
+                        if restaurant["restaurant_name"] == "HeyTea":
+                            print(category_rating["id"])
                         if category_rating["id"] in categories:
+                            
                             final_categories.append(category_rating)
                     for category_rating in final_categories:
                         restaurant["restaurant_category_ratings"].pop(category_rating)
@@ -54,8 +87,6 @@ class ListRestaurantView(generics.ListAPIView):
             while len(final_categories) < 4 and len(restaurant["restaurant_category_ratings"]) > 0:
                 final_categories.append(restaurant["restaurant_category_ratings"].pop(0))
             restaurant["restaurant_category_ratings"] = final_categories
-                
-        return Response(data)
 
 class CreateReviewView(generics.CreateAPIView):
     queryset = Review.objects.all()
@@ -75,6 +106,8 @@ class CreateReviewView(generics.CreateAPIView):
 
 class ListReviewsForRestauarantView(generics.ListAPIView):
     serializer_class = RestaurantSerializer
+    pagination_class = None
+
     permission_classes = [AllowAny]
     def get_queryset(self):
         restaurant_id = self.kwargs['pk']
@@ -92,6 +125,7 @@ class GetRestaurantCategoryRatingView(generics.RetrieveAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantCategoryRatingSerializer
     permission_classes = [AllowAny]
+    pagination_class = None
 
     def retrieve(self, request, **kwargs):
         restaurant = self.kwargs['restaurantPk']
@@ -112,11 +146,13 @@ class ListCategoryView(generics.ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
     queryset = Category.objects.all()
-    
+    pagination_class = None
+
 
 class ListUserReviewsView(generics.ListAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         user = self.request.user
@@ -125,6 +161,7 @@ class ListUserReviewsView(generics.ListAPIView):
 class ListUserBookmarksView(generics.ListAPIView):
     serializer_class = BookmarkSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         user = self.request.user
@@ -158,7 +195,8 @@ class ListHomeCardView(generics.ListAPIView):
     serializer_class = HomeCardSerializer
     permission_classes = [AllowAny]
     queryset = HomeCard.objects.all()
-    
+    pagination_class = None
+
 
 class DeleteBookmarkView(generics.DestroyAPIView):
     serializer_class = BookmarkSerializer
@@ -171,6 +209,8 @@ class DeleteBookmarkView(generics.DestroyAPIView):
 class GetRecommendationsView(generics.ListAPIView):
     serializer_class = RecommendedRestaurantSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None
+
 
     def get_queryset(self):
         user = self.request.user
@@ -219,6 +259,7 @@ class GetRecommendationsView(generics.ListAPIView):
 class GetLatestPositiveReviewsView(generics.ListAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [AllowAny]
+    pagination_class = None
 
     def get_queryset(self):
         rating = 3.5
@@ -228,7 +269,6 @@ class GetLatestPositiveReviewsView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
         data = response.data  
-        
         for restaurant in data:
             restaurant.pop('reviews', None)  
         

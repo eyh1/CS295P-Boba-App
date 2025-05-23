@@ -24,6 +24,7 @@ function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [restaurants, setRestaurants] = useState([]);
+  const [restaurantNames, setRestaurantNames] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -34,6 +35,7 @@ function Home() {
   const [cards, setCards] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [latestReviews, setLatestReviews] = useState([])
+  const [nextPageUrl, setNextPageUrl] = useState("/api/restaurants/");
 
   const navigate = useNavigate();
   
@@ -43,6 +45,15 @@ function Home() {
       .then((res) => res.data)
       .then((data) => {
         setCategories(data);
+      })
+      .catch((error) => alert(error));
+  }, []);
+
+  useEffect(() => {
+    api.get("api/restaurants/names/")
+      .then((res) => res.data)
+      .then((data) => {
+        setRestaurantNames(data);
       })
       .catch((error) => alert(error));
   }, []);
@@ -126,10 +137,15 @@ function Home() {
   }, [])
 
   const getRestaurants = () => {
+    if (!nextPageUrl) return; // no more pages to load
+
     api
-      .get("/api/restaurants/")
+      .get(nextPageUrl)
       .then((res) => res.data)
-      .then((data) => { setRestaurants(data)})
+      .then((data) => {
+        setRestaurants((prev) => [...prev, ...data.results]); // append new items
+        setNextPageUrl(data.next); // update next page URL, or null if no more pages
+      })
       .catch((error) => alert(error));
   };
 
