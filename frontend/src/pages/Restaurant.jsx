@@ -375,6 +375,10 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
               className="form-check-input"
               checked={reviewInputs.is_public}
               onChange={(e) => handleReviewChange("is_public", e.target.checked)}
+              style={{
+                backgroundColor: reviewInputs.is_public ? '#8CC6B3' : 'white',
+                borderColor: '#8CC6B3'
+              }}
             />
             <label className="form-check-label">Make this review public</label>
           </div>
