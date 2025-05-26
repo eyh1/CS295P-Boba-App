@@ -519,7 +519,7 @@ function Home() {
                   display: 'flex',
                   justifyContent: 'center',
                   // color of individual rating for category
-                  backgroundColor: "hsl(160, 36%, 98%)",
+                  backgroundColor: "hsl(160, 36%, 85%)",
                   borderRadius: 2,
                 }}
               >
