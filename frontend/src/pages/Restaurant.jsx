@@ -407,6 +407,7 @@ function Restaurant() {
 //   ]); 
   const location = useLocation();
   const { name_from_home, pic_from_home, ratings_from_home, rest_id } = location.state || {};
+  console.log("Restaurant page received state:", location.state); // Debug log
   const [reviews, setReviews] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [reviewJson, setReviewJson] = useState([]);
@@ -452,17 +453,17 @@ function Restaurant() {
 
   const getRestaurants = (id) => {
     api
-      .get("api/restaurants/")
+      .get(`api/restaurant/${id}/reviews/`)  // Using the reviews endpoint which returns restaurant data
       .then((res) => res.data)
       .then((data) => { 
-          setRestaurants(data); 
-          
-          if (data.length > 0 && data[0].restaurant_category_ratings) {
-            const fetchedRests = data.filter(item => item.id === id);
-            setCurrentRest((fetchedRests));
-            if (fetchedRests.length > 0 && fetchedRests[0].address) {
+          if (data && data.length > 0) {
+            const restaurant = data[0];  // The first item contains the restaurant data
+            setRestaurants([restaurant]);
+            setCurrentRest([restaurant]);
+            
+            if (restaurant.address) {
               const fetchCoordinates = async () => {
-                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fetchedRests[0].address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);             
+                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(restaurant.address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);             
                 const data = await response.json();
                 const location = data.results[0]?.geometry.location;
                 if (location) {
@@ -471,23 +472,26 @@ function Restaurant() {
               };
               fetchCoordinates();
             }
-            // console.log("rest data is", fetchedRests); 
-
-        }})
-      .catch((error) => alert(error));
-    
-    
-    
+          } else {
+            console.error("No restaurant found with ID:", id);
+            alert("Restaurant not found");
+          }
+      })
+      .catch((error) => {
+        console.error("Error fetching restaurant:", error);
+        alert("Error fetching restaurant details");
+      });
   };
 
 
   const getRestaurantReviews = (id) => {
+    console.log("Fetching reviews for restaurant:", id);
     api
-      .get(`api/restaurant/${id}/reviews/`)
+      .get(`api/restaurant/${id}/reviews/`)  // This endpoint is correct based on backend urls.py
       .then((res) => res.data)
       .then((data) => {
+        console.log("Received review data:", data);
         setReviewJson(data);
-        // console.log("Fetched reviews:", data);
 
         if (data.length > 0 && data[0].reviews) {
           const fetchedReviews = data[0].reviews.map((review) => ({
@@ -499,10 +503,16 @@ function Restaurant() {
             review_category_ratings: review.review_category_ratings,
           }));
 
-          setReviews((fetchedReviews));
+          setReviews(fetchedReviews);
+        } else {
+          console.log("No reviews found for this restaurant");
+          setReviews([]);
         }
       })
-      .catch((error) => alert(error));
+      .catch((error) => {
+        console.error("Error fetching reviews:", error);
+        alert("Error fetching restaurant reviews");
+      });
   };
 
   function CategoryRatingCard({ category, rating }) {
@@ -590,7 +600,7 @@ function Restaurant() {
         title: 'Books',
       },
       {
-        img: 'https://images.unsplash.com/photo-1523413651479-597eb2da0ad6',
+        img: 'https://images.unsplash.com/photo-1523413651479-5993c3016c77',
         title: 'Sink',
       },
       {
@@ -638,16 +648,22 @@ function Restaurant() {
           <div>
           <Box sx={{borderRadius: "10px",  width: "auto", height: 250, overflowY: 'scroll' }}>
           <ImageList variant="masonry" cols={4} gap={8}>
-  {itemData.map((item) => (
+  {currentRest?.[0]?.restaurant_images?.map((image, index) => (
+    <ImageListItem key={index}>
+      <img
+        srcSet={image.image}
+        src={image.image}
+        alt={`Restaurant image ${index + 1}`}
+        loading="lazy"
+      />
+    </ImageListItem>
+  )) || itemData.map((item) => (
     <ImageListItem key={item.img}>
       <img
-        srcSet={pic_source}
-        src={pic_source}
+        srcSet={currentRest?.[0]?.restaurant_images?.[0]?.image || pic_source || boba}
+        src={currentRest?.[0]?.restaurant_images?.[0]?.image || pic_source || boba}
         alt={item.title}
         loading="lazy"
-        style={{
-          // borderRadius: "10px", // Add rounded edges
-        }}
       />
     </ImageListItem>
   ))}
@@ -764,9 +780,12 @@ function Restaurant() {
   }
 
   function CardGrid() {
-
   const entries = [
-    { pic: pic_from_home, name: name_from_home, ratings: [ratings_from_home[0], ratings_from_home[1], ratings_from_home[2]] },
+    { 
+      pic: currentRest?.[0]?.restaurant_images?.[0]?.image || pic_from_home || boba,
+      name: name_from_home, 
+      ratings: [ratings_from_home[0], ratings_from_home[1], ratings_from_home[2]] 
+    },
   ];
 
   return (
@@ -774,7 +793,7 @@ function Restaurant() {
       {entries.map((entry, index) => (
         <EntryCard
         key={index}
-        pic_source={entry.pic || boba}
+        pic_source={entry.pic}
         restaurant={entry.name}
         rating1={entry.ratings[0]}
         rating2={entry.ratings[1]}
