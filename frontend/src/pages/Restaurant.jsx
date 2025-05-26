@@ -309,7 +309,7 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                 </div>
   ))}
             {/* Button to add a new dropdown */}
-            <button onClick={addToppingDropdown} className="w-50 w-md-100 btn btn-primary mb-2">
+            <button onClick={addToppingDropdown} className="w-50 w-md-100 btn" style={{ backgroundColor: "#8CC6B3", color: "black" }}>
               Add a topping
             </button>
 
@@ -414,8 +414,29 @@ function Restaurant() {
   const [currentRest, setCurrentRest] = useState();
   const [restaurantLatLng, setRestaurantLatLng] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
-  const getDirectionsUrl = (userLocation, address) => {
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "Date not available";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid date";
+      
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      };
+      return date.toLocaleString(undefined, options);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Error formatting date";
+    }
+  };
+
+  const getDirectionsUrl = (userLocation, address) => {
     const origin = userLocation ? `${userLocation.lat},${userLocation.lng}` : ""; // Return an empty string if userLocation is not available
     const destination = encodeURIComponent(address);
   
@@ -487,21 +508,25 @@ function Restaurant() {
   const getRestaurantReviews = (id) => {
     console.log("Fetching reviews for restaurant:", id);
     api
-      .get(`api/restaurant/${id}/reviews/`)  // This endpoint is correct based on backend urls.py
+      .get(`api/restaurant/${id}/reviews/`)
       .then((res) => res.data)
       .then((data) => {
         console.log("Received review data:", data);
         setReviewJson(data);
 
         if (data.length > 0 && data[0].reviews) {
-          const fetchedReviews = data[0].reviews.map((review) => ({
-            reviewer_Name: review.username,  
-            review_pricing: review.pricing, 
-            review_sweetness: review.sweetness,  
-            is_public: review.public,
-            review_content: review.content, 
-            review_category_ratings: review.review_category_ratings,
-          }));
+          const fetchedReviews = data[0].reviews.map((review) => {
+            console.log("Review created_at:", review.created_at); // Add this line for debugging
+            return {
+              reviewer_Name: review.username,  
+              review_pricing: review.pricing, 
+              review_sweetness: review.sweetness,  
+              is_public: review.public,
+              review_content: review.content, 
+              review_category_ratings: review.review_category_ratings,
+              created_at: review.created_at,
+            };
+          });
 
           setReviews(fetchedReviews);
         } else {
@@ -537,20 +562,20 @@ function Restaurant() {
     }
 
 
-  function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings }) {
+  function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings, created_at }) {
   return (
     <Card
-  sx={{
-    textAlign: "center", // Equivalent to "text-center"
-    boxShadow: 1, // Equivalent to "shadow-sm"
-    border: 0, // Equivalent to "border-0"
-    backgroundColor: "white", // Equivalent to "bg-light"
-    px: 3, // Padding on the left and right (px = padding-x)
-    py: 2, // Padding on the top and bottom (py = padding-y)
-    mb: 4, // Margin on the bottom (mb = margin-bottom)
-    borderRadius: 4, // Adds rounded corners (4px radius)
-  }}
->
+      sx={{
+        textAlign: "center",
+        boxShadow: 1,
+        border: 0,
+        backgroundColor: "white",
+        px: 3,
+        py: 2,
+        mb: 4,
+        borderRadius: 4,
+      }}
+    >
       <CardContent className="p-2">
         <p><strong>{is_public ? reviewer_Name : "Anonymous"}'s Review:</strong></p>
         <p><strong>Price:</strong> ${review_pricing}<br></br> <strong> Sweetness:</strong> {review_sweetness}%</p>
@@ -565,6 +590,7 @@ function Restaurant() {
             />
           ))}
         </div>
+        <p className="text-muted mt-3" style={{ fontSize: '0.9em' }}>Posted on: {formatDate(created_at)}</p>
       </CardContent>
     </Card>
   );
@@ -772,6 +798,7 @@ function Restaurant() {
               is_public={entry.is_public}
               review_content={entry.review_content}
               review_category_ratings={entry.review_category_ratings}
+              created_at={entry.created_at}
             />
           ))}
         </CardContent>
