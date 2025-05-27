@@ -47,8 +47,8 @@ def download_and_store_image_to_s3(image_url, restaurant):
     
     
 
-API_KEY = YELP_API_KEY
-HEADERS = {'Authorization': f'Bearer {API_KEY}'}
+# API_KEY = YELP_API_KEY
+# HEADERS = {'Authorization': f'Bearer {API_KEY}'}
 
 def fetch_and_save_boba_restaurants():
     print("Fetching boba restaurants from Yelp...")
@@ -113,7 +113,7 @@ def generate_random_reviews():
     toppings = Category.objects.filter(category_type="Topping")
     restaurants = Restaurant.objects.all()
     for restaurant in restaurants:
-        for _ in range(5):
+        for _ in range(2):
             user = users.order_by('?').first()
             content = "This is a random review."
             #random number between 5 and 10
@@ -132,14 +132,14 @@ def generate_random_reviews():
 
             # Randomly assign categories to the review
             category = bases.order_by('?').first()
-            rating = 4.0
+            rating = random.randint(0,3)
             ReviewCategoryRating.objects.create(
                 review=review,
                 category=category,
                 rating=rating
             )
             category = toppings.order_by('?').first()
-            rating = 4.0
+            rating = random.randint(0,3)
             ReviewCategoryRating.objects.create(
                 review=review,
                 category=category,
