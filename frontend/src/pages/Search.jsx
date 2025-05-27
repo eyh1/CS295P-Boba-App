@@ -398,7 +398,6 @@ function RatingCard({ entry_name, rating }) {
         >
           {filteredEntries.map((entry, index) => (
             <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
-              {console.log(entry)}
               <EntryCard
                 key={index}
                 pic_source={entry.restaurant_images?.[0]?.image}
