@@ -153,17 +153,6 @@ function Search() {
         return (R * c).toFixed(2);
       };
 
-  // Get coordinates from address using OpenCage API
-  const getCoordinatesFromAddress = async (address) => {
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);
-    const data = await response.json();
-    if (data.status === "OK" && data.results.length > 0) {
-      const { lat, lng } = data.results[0].geometry.location;
-      return { latitude: lat, longitude: lng };
-    }
-    return null;
-  };
-
   // Haversine formula helpers
   const toRadians = (deg) => (deg * Math.PI) / 180;
 
@@ -197,7 +186,7 @@ function Search() {
 
       const updated = await Promise.all(
         restaurants.map(async (rest) => {
-          const coords = await getCoordinatesFromAddress(rest.address);
+          const coords = { latitude: rest.lat, longitude: rest.lng };
           if (coords) {
             const distance = getDistanceInMiles(
               { lat: userLat, lng: userLon },
