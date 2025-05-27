@@ -41,6 +41,7 @@ class ListRestaurantView(generics.ListAPIView):
             for category in category_list:
                 filter = Q(restaurant_category_ratings__category=category)
                 queryset = queryset.filter(filter).distinct()
+            queryset = queryset.annotate( avg_category_rating=Avg('restaurant_category_ratings__rating', filter=Q(restaurant_category_ratings__category__in=category_list))).order_by('-avg_category_rating')
 
         return queryset
 
