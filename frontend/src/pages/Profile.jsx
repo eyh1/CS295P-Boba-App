@@ -111,16 +111,26 @@ function Profile() {
         sx={{
             boxShadow: 1,
             border: 0,
-            backgroundColor: "white",
+            backgroundColor: "hsl(160, 36%, 85%)",
             py: 0,
             mr: 1,
-            my: 1   ,
+            my: 1,
             borderRadius: "20px",
-            height: '40px'
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
         }}
         >
-        <CardContent sx={{ p: 1, textAlign: "center" }}>
-            <strong style={{ marginLeft: "5px", marginRight: "5px" ,}}>{category}:</strong>
+        <CardContent sx={{ 
+            p: 1, 
+            textAlign: "center",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            '&:last-child': { pb: 1 }
+        }}>
+            <strong style={{ marginLeft: "5px", marginRight: "5px" }}>{category}:</strong>
             <Rating
             name="read-only"
             value={rating}
@@ -419,7 +429,16 @@ function Profile() {
                             {review.restaurant_name}
                         </Typography>
 
-                        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ mb: 2 }}>
+                        
+
+
+                            <strong>Price:</strong> ${review.pricing}<br></br> <strong>Sweetness:</strong> {review.sweetness}%
+
+
+                        <Typography variant="body1" color="text.primary" sx={{ mb: 1, mt: 2, textAlign: 'center' }}>
+                            {review.content}
+                        </Typography>
+                        <div className="d-flex flex-wrap justify-content-center mt-2">
                             {review.review_category_ratings.map((category_rating, index) => (
                             <CategoryRatingCard
                                 key={index}
@@ -427,20 +446,7 @@ function Profile() {
                                 rating={category_rating.rating}
                             />
                             ))}
-                        </Stack>
-
-                        <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-                            <Typography variant="body2" color="text.secondary">
-                            <strong>Sweetness:</strong> {review.sweetness}%
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                            <strong>Price:</strong> ${review.pricing}
-                            </Typography>
-                        </Stack>
-
-                        <Typography variant="body1" color="text.primary" sx={{ mb: 1 }}>
-                            {review.content}
-                        </Typography>
+                        </div>
                         </Box>
 
                         <Divider />

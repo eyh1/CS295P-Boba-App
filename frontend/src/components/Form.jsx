@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import "../styles/Form.css";
 
-function Form({route, method}) {
+function Form({route, method, from}) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -21,7 +21,11 @@ function Form({route, method}) {
             if (method === "login") {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access)
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh)
-                navigate("/") // navigate to home
+                if (from.from === '/restaurant' && from.returnTo) {
+                    navigate(from.from, { state: from.returnTo })
+                } else {
+                    navigate(from.from || '/') // fallback to home if no specific return path
+                }
             }
             else { // if we are registering, navigate to login
                 navigate("/login")}
