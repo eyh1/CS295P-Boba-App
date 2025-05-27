@@ -529,99 +529,45 @@ function Restaurant() {
   );
 }
 
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation }) {
-    const [directions, setDirections] = useState(null);
-
-    // Calculate distance in miles between two locations using the Haversine formula
-    const getDistanceInMiles = (loc1, loc2) => {
-      if (!loc1 || !loc2) return null;
-      const toRad = (value) => (value * Math.PI) / 180;
-      const R = 3958.8; // Earth's radius in miles
-      const dLat = toRad(loc2.lat - loc1.lat);
-      const dLng = toRad(loc2.lng - loc1.lng);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(loc1.lat)) *
-          Math.cos(toRad(loc2.lat)) *
-          Math.sin(dLng / 2) *
-          Math.sin(dLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return (R * c).toFixed(2);
-    };
-
-    const itemData = [
-      {
-        img: 'https://images.unsplash.com/photo-1549388604-817d15aa0110',
-        title: 'Bed',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1525097487452-6278ff080c31',
-        title: 'Books',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1523413651479-597eb2da0ad6',
-        title: 'Sink',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1563298723-dcfebaa392e3',
-        title: 'Kitchen',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1588436706487-9d55d73a39e3',
-        title: 'Blinds',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1574180045827-681f8a1a9622',
-        title: 'Chairs',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1530731141654-5993c3016c77',
-        title: 'Laptop',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1481277542470-605612bd2d61',
-        title: 'Doors',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7',
-        title: 'Coffee',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1516455207990-7a41ce80f7ee',
-        title: 'Storage',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1597262975002-c5c3b14bbd62',
-        title: 'Candle',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4',
-        title: 'Coffee table',
-      },
-    ];
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation, restaurant_images }) {
 
     return (
       <Container>
         <Grid2 container spacing={1} sx={{marginTop:8, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
           <Grid2 size={{xs:12, md: 12}} justifyContent={"start"}>
           <div>
-          <Box sx={{borderRadius: "10px",  width: "auto", height: 250, overflowY: 'scroll' }}>
-          <ImageList variant="masonry" cols={4} gap={8}>
-  {itemData.map((item) => (
-    <ImageListItem key={item.img}>
+          <Box
+  sx={{
+    display: 'flex',
+    overflowX: 'auto',
+    gap: 0.5,
+    padding: 1,
+    scrollSnapType: 'x mandatory', // optional: for snapping
+  }}
+>
+  {restaurant_images.map((item) => (
+    <Box
+      key={item.id}
+      sx={{
+        flex: '0 0 auto',
+        width: 'clamp(140px, 40vw, 250px)', // fixed width or responsive via clamp
+        scrollSnapAlign: 'start', // optional: for snapping
+      }}
+    >
       <img
-        srcSet={pic_source}
-        src={pic_source}
-        alt={item.title}
+        src={item.image}
+        alt=""
         loading="lazy"
         style={{
-          // borderRadius: "10px", // Add rounded edges
+          width: '100%',
+          height: 'clamp(150px, 25vw, 200px)',
+          objectFit: 'cover',
+          borderRadius: '8px',
         }}
       />
-    </ImageListItem>
+    </Box>
   ))}
-</ImageList>
-          </Box>
+</Box>
           </div>
           <div style={{marginTop:4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             {/* Title */}
@@ -753,6 +699,7 @@ function Restaurant() {
         address={currentRest ? currentRest[0].address : "No address available"}
         restaurantLatLng={restaurantLatLng}
         userLocation={userLocation}
+        restaurant_images={currentRest ? currentRest[0].restaurant_images : []}
       />
       ))}
     </div>

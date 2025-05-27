@@ -230,7 +230,7 @@ function RatingCard({ entry_name, rating }) {
 }
 
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, image, distance, restaurant_images }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, image, distance }) {
 
   const navigate = useNavigate();
   
@@ -345,7 +345,6 @@ function RatingCard({ entry_name, rating }) {
       entry.restaurant_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-
     return (
       <div>
         <Grid2
@@ -362,7 +361,7 @@ function RatingCard({ entry_name, rating }) {
             <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
               <EntryCard
                 key={index}
-                pic_source={entry.restaurant_images?.[0]?.image}
+                pic_source={entry.restaurant_image?.image}
                 restaurant={entry.restaurant_name}
                 address={entry.address}
                 rating1={entry.ratings[0]}

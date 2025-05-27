@@ -52,20 +52,20 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class RestaurantListSerializer(serializers.ModelSerializer):
     restaurant_category_ratings = serializers.SerializerMethodField()
-    restaurant_images = serializers.SerializerMethodField()
+    restaurant_image = serializers.SerializerMethodField()
     distance = serializers.SerializerMethodField()
 
     class Meta:
         model = Restaurant
-        fields = ["id", "restaurant_name", "address", "lat", "lng", "restaurant_category_ratings", "restaurant_images", "distance"]
+        fields = ["id", "restaurant_name", "address", "lat", "lng", "restaurant_category_ratings", "restaurant_image", "distance"]
 
     def get_restaurant_category_ratings(self, obj):
         restaurant_category_ratings = obj.restaurant_category_ratings.all()
         return RestaurantCategoryRatingSerializer(restaurant_category_ratings, many=True, read_only=True).data
     
-    def get_restaurant_images(self, obj):
-        restaurant_images = obj.restaurant_images.all()
-        return RestaurantImageSerializer(restaurant_images, many=True, read_only=True).data
+    def get_restaurant_image(self, obj):
+        restaurant_image = obj.restaurant_images.first()
+        return RestaurantImageSerializer(restaurant_image, read_only=True).data
     
     def get_distance(self, obj):
         lat = self.context.get('lat')
