@@ -507,6 +507,7 @@ function Restaurant() {
   const [currentRest, setCurrentRest] = useState();
   const [restaurantLatLng, setRestaurantLatLng] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const navigate = useNavigate();
 
   const formatDate = (dateString) => {
     if (!dateString) return "Date not available";
@@ -706,6 +707,8 @@ function Restaurant() {
 
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation }) {
     const [directions, setDirections] = useState(null);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     // Calculate distance in miles between two locations using the Haversine formula
     const getDistanceInMiles = (loc1, loc2) => {
@@ -798,6 +801,20 @@ function Restaurant() {
       },
     ];
 
+    const handleLoginClick = () => {
+      navigate('/login', { 
+        state: { 
+          from: '/restaurant',
+          returnTo: {
+            name_from_home: restaurant,
+            pic_from_home: pic_source,
+            ratings_from_home: [rating1, rating2, rating3],
+            rest_id: rest_id
+          }
+        } 
+      });
+    };
+
     return (
       <Container>
         <Grid2 container spacing={1} sx={{marginTop:8, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
@@ -879,7 +896,7 @@ function Restaurant() {
                 ) : (
                 <Button
                   variant="contained"
-                  href="/login" state={{ from: location }}
+                  onClick={handleLoginClick}
                   sx={{
                     "&:hover": {
                       color: "white",
