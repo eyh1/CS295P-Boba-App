@@ -145,8 +145,41 @@ def generate_random_reviews():
                 category=category,
                 rating=rating
             )
+            
+GOOGLE_API_KEY = "GOOGLE API KEY HERE"
 
+def get_coordinates_from_address(address):
+    base_url = "https://maps.googleapis.com/maps/api/geocode/json"
+    params = {
+        "address": address,
+        "key": GOOGLE_API_KEY
+    }
+
+    response = requests.get(base_url, params=params)
+    data = response.json()
+    print(data)
+
+    if data.get("status") == "OK" and data.get("results"):
+        location = data["results"][0]["geometry"]["location"]
+        return {"latitude": location["lat"], "longitude": location["lng"]}
+    
+    return None
+
+def update_coords_for_restaurants():
+    restaurants = Restaurant.objects.all()
+
+    for restaurant in restaurants:
+        coords = get_coordinates_from_address(restaurant.address)
+        if coords:
+            restaurant.lat = coords["latitude"]
+            restaurant.lng = coords["longitude"]
+            restaurant.save()
+            print(f"Updated coordinates for {restaurant.restaurant_name}: {restaurant.lat}, {restaurant.lng}")
+        else:
+            print(f"Failed to get coordinates for {restaurant.restaurant_name}")
 if __name__ == "__main__":
     # fetch_and_save_boba_restaurants()
     # delete_external_images()
-    generate_random_reviews()
+    # generate_random_reviews()
+    update_coords_for_restaurants()
+    print("Script executed successfully.")
