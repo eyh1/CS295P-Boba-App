@@ -358,30 +358,37 @@ function Home() {
               }}
             />
             <Button
-            fullWidth
+              fullWidth
               variant="contained"
-              type="submit"
+              type="button"
               sx={{ color: 'white', bgcolor: "#8CC6B3", mt: 1, borderRadius: 999 }}
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 if (selectedRestaurant) {
-                    navigate('/search', {
+                  console.log("Navigating to restaurant with state:", {
+                    name_from_home: selectedRestaurant.label,
+                    pic_from_home: "",
+                    ratings_from_home: [],
+                    rest_id: selectedRestaurant.value,
+                  });
+                  navigate("/restaurant", {
                     state: {
-                        searchTerm: selectedRestaurant.label,
-                        selectedCategories: [],
-                        rating: 0,
+                      name_from_home: selectedRestaurant.label,
+                      pic_from_home: "",
+                      ratings_from_home: [],
+                      rest_id: selectedRestaurant.value,
                     },
-                    });
+                  });
                 } else {
-                    navigate('/search', {
+                  navigate('/search', {
                     state: {
-                        searchTerm: "",
-                        selectedCategories: [],
-                        rating: 0,
+                      searchTerm: "",
+                      selectedCategories: [],
+                      rating: 0,
                     },
-                    });
+                  });
                 }
-                }}
-
+              }}
             >
               {selectedRestaurant ? "Search by Restaurant" : "Explore All Restaurants"}
             </Button>
@@ -512,7 +519,7 @@ function Home() {
                   display: 'flex',
                   justifyContent: 'center',
                   // color of individual rating for category
-                  backgroundColor: "hsl(160, 36%, 98%)",
+                  backgroundColor: "hsl(160, 36%, 85%)",
                   borderRadius: 2,
                 }}
               >
