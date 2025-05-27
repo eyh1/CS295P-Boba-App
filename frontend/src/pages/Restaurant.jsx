@@ -408,7 +408,6 @@ function Restaurant() {
   const location = useLocation();
   const { name_from_home, pic_from_home, ratings_from_home, rest_id } = location.state || {};
   const [reviews, setReviews] = useState([]);
-  const [restaurants, setRestaurants] = useState([]);
   const [reviewJson, setReviewJson] = useState([]);
   const [currentRest, setCurrentRest] = useState();
   const [restaurantLatLng, setRestaurantLatLng] = useState(null);
@@ -446,39 +445,8 @@ function Restaurant() {
     checkLoginStatus();
     if (rest_id) {
     getRestaurantReviews(rest_id);
-    getRestaurants(rest_id);
   }
   }, [rest_id]);
-
-  const getRestaurants = (id) => {
-    api
-      .get("api/restaurants/")
-      .then((res) => res.data)
-      .then((data) => { 
-          setRestaurants(data); 
-          
-          if (data.length > 0 && data[0].restaurant_category_ratings) {
-            const fetchedRests = data.filter(item => item.id === id);
-            setCurrentRest((fetchedRests));
-            if (fetchedRests.length > 0 && fetchedRests[0].address) {
-              const fetchCoordinates = async () => {
-                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fetchedRests[0].address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);             
-                const data = await response.json();
-                const location = data.results[0]?.geometry.location;
-                if (location) {
-                  setRestaurantLatLng(location);
-                }
-              };
-              fetchCoordinates();
-            }
-            // console.log("rest data is", fetchedRests); 
-
-        }})
-      .catch((error) => alert(error));
-    
-    
-    
-  };
 
 
   const getRestaurantReviews = (id) => {
@@ -486,6 +454,7 @@ function Restaurant() {
       .get(`api/restaurant/${id}/reviews/`)
       .then((res) => res.data)
       .then((data) => {
+        setCurrentRest(data);
         setReviewJson(data);
         // console.log("Fetched reviews:", data);
 
