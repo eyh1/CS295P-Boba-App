@@ -19,6 +19,8 @@ import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
 import Box from '@mui/material/Box';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
+import Select from 'react-select';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   const [toppingDropdowns, setToppingDropdowns] = useState([]); // State to track dropdown instances
@@ -80,60 +82,53 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     setCategoryRatings(categoryRatings.filter((rating) => rating.category !== categoryId));
   };
 
-  const handleCategorySelect = (event, dropdownIndex) => {
-    const categoryId = parseInt(event.target.value);
-    const category = categories.find((cat) => cat.id === categoryId);
-    // if (category && !selectedCategories.includes(category)) {
-    //   setSelectedCategories([...selectedCategories, category]);
-    //   setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
-    // }
-    // if the selected category is "Base", remove any previously selected categories with category_type = "Base"
-    if (category) {
-      if (category.category_type === "Base") {
-        // Remove any previously selected Base category
-        setSelectedCategories((prev) =>
-          prev.filter((cat) => cat.category_type !== "Base")
-        );
-        setCategoryRatings((prev) =>
-          prev.filter((rating) => {
-            const cat = categories.find((c) => c.id === rating.category);
-            return cat && cat.category_type !== "Base";
-          })
-        );
-  
-        // Add the new Base category to selectedCategories and categoryRatings
-        setSelectedCategories((prev) => [...prev, category]);
-        setCategoryRatings((prev) => [
-          ...prev,
-          { category: category.id, rating: dropdownIndex }, // Default rating of 5
-        ]);
-      }
-      else { // selected category is topping
-        // Remove the previously selected topping for this dropdown
-        setSelectedCategories((prev) => {
-          const updatedCategories = prev.filter((cat) => {
-            // Remove the previous topping for this dropdown
-            return !(cat.category_type === "Topping" && toppingSelections[dropdownIndex] === cat.id);
-          });
-          return [...updatedCategories, category]; // Add the new topping
-        });
+  const handleCategorySelect = (selectedOption, dropdownIndex) => {
+    if (!selectedOption) return; // If no value is selected, return early
+    
+    const category = categories.find(cat => cat.id === selectedOption.value);
+    if (category.category_type === "Base") {
+      // Remove any previously selected Base category
+      setSelectedCategories((prev) =>
+        prev.filter((cat) => cat.category_type !== "Base")
+      );
+      setCategoryRatings((prev) =>
+        prev.filter((rating) => {
+          const cat = categories.find((c) => c.id === rating.category);
+          return cat && cat.category_type !== "Base";
+        })
+      );
 
-        setCategoryRatings((prev) => {
-          const updatedRatings = prev.filter((rating) => {
-            // Remove the previous topping rating for this dropdown
-            return !(rating.category === toppingSelections[dropdownIndex]);
-          });
-          return [...updatedRatings, { category: category.id, rating: 5 }]; // Add the new topping rating
+      // Add the new Base category to selectedCategories and categoryRatings
+      setSelectedCategories((prev) => [...prev, category]);
+      setCategoryRatings((prev) => [
+        ...prev,
+        { category: category.id, rating: 5 }, // Fixed: using category.id instead of category.value
+      ]);
+    } else { // selected category is topping
+      const categoryId = selectedOption.value;
+      // Remove the previously selected topping for this dropdown
+      setSelectedCategories((prev) => {
+        const updatedCategories = prev.filter((cat) => {
+          // Remove the previous topping for this dropdown
+          return !(cat.category_type === "Topping" && toppingSelections[dropdownIndex] === cat.id);
         });
+        return [...updatedCategories, category]; // Add the new topping
+      });
 
-        // Update the selected topping for this dropdown
-        setToppingSelections((prev) => {
-          const updatedSelections = [...prev];
-          updatedSelections[dropdownIndex] = categoryId;
-          return updatedSelections;
+      setCategoryRatings((prev) => {
+        const updatedRatings = prev.filter((rating) => {
+          // Remove the previous topping rating for this dropdown
+          return !(rating.category === toppingSelections[dropdownIndex]);
         });
-        return;
-      }
+        return [...updatedRatings, { category: categoryId, rating: 5 }]; // Add the new topping rating
+      });
+
+      // Update the selected topping for this dropdown
+      setToppingSelections((prev) => {
+        const updatedSelections = [...prev];
+        updatedSelections[dropdownIndex] = categoryId;
+        return updatedSelections;
+      });
     }
   };
 
@@ -215,16 +210,71 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       {isReviewing ? (
         <div className="d-flex flex-column align-items-center">
           {/* Base Dropdown */}
-          <label style={{ fontSize: "1.5rem" }}>Base</label> {/* Add label above the dropdown */}
+          <label style={{ fontSize: "1.5rem" }}>Base</label>
           <div className="d-flex flex-column flex-md-row gap-2 w-50 w-md-100">
-            <select className="form-control" onChange={handleCategorySelect} defaultValue="">
-              <option value="" disabled>Select a base</option>
-                {categories
-                .filter((cat) => cat.category_type === "Base")
-                .map((category) => (
-                  <option key={category.id} value={category.id}>{category.category_name}</option>
-                ))}
-            </select>
+            <Select
+              options={categories
+                .filter(cat => cat.category_type === "Base")
+                .map(category => ({
+                  value: category.id,
+                  label: category.category_name
+                }))}
+              placeholder="Select a base"
+              onChange={(selectedOption) => handleCategorySelect(selectedOption, 0)}
+              styles={{
+                container: (base) => ({
+                  ...base,
+                  width: '100%',
+                  position: 'relative',
+                  zIndex: 2
+                }),
+                control: (base) => ({
+                  ...base,
+                  boxShadow: 'none',
+                  borderColor: '#ced4da',
+                  background: 'white',
+                }),
+                placeholder: (base) => ({
+                  ...base,
+                  color: '#757575',
+                  background: 'transparent',
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  background: 'transparent',
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  background: 'white',
+                }),
+                input: (base) => ({
+                  ...base,
+                  color: 'black',
+                  background: 'transparent',
+                }),
+                menu: (base) => ({
+                  ...base,
+                  background: 'white',
+                  zIndex: 3,
+                }),
+                option: (base) => ({
+                  ...base,
+                  background: 'white',
+                  '&:hover': {
+                    background: '#f0f0f0',
+                  },
+                }),
+              }}
+              theme={(theme) => ({
+                ...theme,
+                colors: {
+                  ...theme.colors,
+                  primary: '#8CC6B3',
+                  primary25: '#f0f0f0',
+                  neutral50: '#757575',  // placeholder color
+                },
+              })}
+            />
             {/* <select
               className="form-select w-auto ms-2"
               value={
@@ -258,38 +308,76 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             <label style={{ fontSize: "1.5rem" }}>Toppings</label>
             {toppingDropdowns.map((dropdownIndex) => (
               <div key={dropdownIndex} className="d-flex flex-column flex-md-row gap-2 w-50 w-md-100 mb-2">
-                <select
-                  className="form-control me-2"
-                  onChange={(e) => handleCategorySelect(e, dropdownIndex)}
-                  value={toppingSelections[dropdownIndex] || ""}
-                >
-                  <option value="" disabled>Select any toppings</option>
-                  {categories
-                    .filter(
-                      (cat) =>
-                        cat.category_type === "Topping" &&
-                      (!toppingSelections.includes(cat.id) || toppingSelections[dropdownIndex] === cat.id)
-                  )
-                  .map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.category_name}
-                    </option>
-                  ))}
-                </select>
-                {/* Rating for topping */}
-                {/* <select
-                  className="form-select w-auto"
-                  value={
-                    categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""
-                  }
-                  onChange={(e) =>
-                    handleCategoryRatingChange(toppingSelections[dropdownIndex], e.target.value)
-                  }
-                >
-                  {[5, 4, 3, 2, 1].map((num) => (
-                    <option key={num} value={num}>{num}</option>
-                  ))}
-                </select> */}
+                <Select
+                  options={categories
+                    .filter(cat => cat.category_type === "Topping" &&
+                      (!toppingSelections.includes(cat.id) || toppingSelections[dropdownIndex] === cat.id))
+                    .map(category => ({
+                      value: category.id,
+                      label: category.category_name
+                    }))}
+                  placeholder="Select any toppings"
+                  value={categories
+                    .filter(cat => cat.id === toppingSelections[dropdownIndex])
+                    .map(category => ({
+                      value: category.id,
+                      label: category.category_name
+                    }))[0]}
+                  onChange={(selectedOption) => handleCategorySelect(selectedOption, dropdownIndex)}
+                  styles={{
+                    container: (base) => ({
+                      ...base,
+                      width: '100%',
+                      position: 'relative',
+                      zIndex: 2
+                    }),
+                    control: (base) => ({
+                      ...base,
+                      boxShadow: 'none',
+                      borderColor: '#ced4da',
+                      background: 'white',
+                    }),
+                    placeholder: (base) => ({
+                      ...base,
+                      color: '#757575',
+                      background: 'transparent',
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      background: 'transparent',
+                    }),
+                    valueContainer: (base) => ({
+                      ...base,
+                      background: 'white',
+                    }),
+                    input: (base) => ({
+                      ...base,
+                      color: 'black',
+                      background: 'transparent',
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      background: 'white',
+                      zIndex: 3,
+                    }),
+                    option: (base) => ({
+                      ...base,
+                      background: 'white',
+                      '&:hover': {
+                        background: '#f0f0f0',
+                      },
+                    }),
+                  }}
+                  theme={(theme) => ({
+                    ...theme,
+                    colors: {
+                      ...theme.colors,
+                      primary: '#8CC6B3',
+                      primary25: '#f0f0f0',
+                      neutral50: '#757575',  // placeholder color
+                    },
+                  })}
+                />
                 <Rating
                   name="simple-controlled"
                   value={categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""}
@@ -297,17 +385,16 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                     handleCategoryRatingChange(toppingSelections[dropdownIndex], e.target.value)
                   }
                 />
-                    {/* Remove Button */}
-                    <button
-                      onClick={() => {
-                        removeToppingDropdown(dropdownIndex);
-                      }}
-                      className="btn btn-danger"
-                    >
-                      Remove
-                    </button>
-                </div>
-  ))}
+                <button
+                  onClick={() => {
+                    removeToppingDropdown(dropdownIndex);
+                  }}
+                  className="btn btn-danger"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
             {/* Button to add a new dropdown */}
             <button onClick={addToppingDropdown} className="w-50 w-md-100 btn" style={{ backgroundColor: "#8CC6B3", color: "black" }}>
               Add a topping
@@ -560,7 +647,7 @@ function Restaurant() {
         alert("Error fetching restaurant reviews");
       });
   };
-``
+
   function CategoryRatingCard({ category, rating }) {
     return (
       <Card
