@@ -610,16 +610,19 @@ function Restaurant() {
               Get Directions
             </a>
           </div>
-          <div className="d-flex flex-wrap justify-content-left mt-2">
-            {restaurant_category_ratings.map((category_rating, index) => (
+
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 mt-2">
+        <div className="grid grid-rows-2 grid-flow-col gap-1 pb-1 pr-1" style={{ minWidth: "max-content" }}>
+          {restaurant_category_ratings.map((category_rating, index) => (
               <CategoryRatingCard
                 key={index}
                 category={category_rating.category_name}
                 rating={category_rating.rating}
               />
             ))}
-          </div>
-          </Grid2>
+        </div>
+      </div>
+      </Grid2>
           {/* old photo location */}
           {/* <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
             <img src={pic_source} className="drink-cha" />
