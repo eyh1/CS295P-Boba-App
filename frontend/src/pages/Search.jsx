@@ -69,7 +69,7 @@ function Search() {
       ) {
         getRestaurants(true);
       }
-    }, 200);
+    }, 300);
 
     window.addEventListener("scroll", handleScroll);
 
