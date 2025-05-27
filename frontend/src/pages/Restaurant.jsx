@@ -399,6 +399,8 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
 function Restaurant() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+    const [bookmarkId, setBookmarkId] = useState(null);
   // reviewer_Name, review_pricing, review_sweetness, is_public, review_content
   // some dummy reviews for testing
 //   const [reviews, setReviews] = useState([
@@ -443,13 +445,28 @@ function Restaurant() {
   };
 
   useEffect(() => {
+      
     checkLoginStatus();
     if (rest_id) {
     getRestaurantReviews(rest_id);
     getRestaurants(rest_id);
+    
+    getBookmarks(rest_id);
+    
+    
   }
   }, [rest_id]);
-
+    const getBookmarks = (rest_id) => {
+        api.get("api/users/bookmarks/")
+        .then(res => {
+        const found = res.data.find(b => b.restaurant.id === rest_id);
+        if (found) {
+            setIsBookmarked(true);
+            setBookmarkId(found.id);
+        }
+        })
+        .catch(err => console.error("Failed to fetch bookmarks", err));
+    }
   const getRestaurants = (id) => {
     api
       .get("api/restaurants/")
@@ -504,7 +521,7 @@ function Restaurant() {
       })
       .catch((error) => alert(error));
   };
-
+``
   function CategoryRatingCard({ category, rating }) {
     return (
       <Card
@@ -578,6 +595,29 @@ function Restaurant() {
           Math.sin(dLng / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return (R * c).toFixed(2);
+    };
+    const handleBookmark = () => {
+
+        api.post(`api/bookmark/${rest_id}/create/`)
+            .then((res) => {
+            // alert("Restaurant bookmarked!");
+            getBookmarks(rest_id)
+            setIsBookmarked(true);
+            
+            })
+            
+            .catch((err) => {
+            console.error(err);
+        });
+     };
+
+    const handleRemoveBookmark = () => {
+    api.delete(`api/bookmark/${bookmarkId}/delete/`)
+        .then(() => {
+        setIsBookmarked(false);
+        setBookmarkId(null);
+        })
+        .catch(err => console.error("Failed to remove bookmark", err));
     };
 
     const itemData = [
@@ -658,7 +698,48 @@ function Restaurant() {
             {/* Title */}
             <h1 style={{ margin: 0 }}>{restaurant}</h1>
             {/* Login to Review / Write a Review button */}
-            {isLoggedIn ? (
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,  // spacing between buttons
+                    width: "fit-content",
+                }}
+                > 
+
+                {isLoggedIn && (
+            isBookmarked ? (
+                <Button
+                variant="outlined"
+                onClick={handleRemoveBookmark}
+                sx={{
+                    color: "red",
+                    borderColor: "red",
+                    mt: 1,
+                    "&:hover": { backgroundColor: "#ffebeb" },
+                }}
+                >
+                Remove Bookmark
+                </Button>
+            ) : (
+                <Button
+                variant="contained"
+                onClick={handleBookmark}
+                sx={{
+                    mt: 1,
+                    backgroundColor: "#8CC6B3",
+                    color: "black",
+                    "&:hover": {
+                    backgroundColor: "#7bbba9",
+                    color: "white",
+                    },
+                }}
+                >
+                Add Bookmark
+                </Button>
+            )
+            ) }
+                {isLoggedIn ? (
               <button className="btn btn-secondary" onClick={() => setIsReviewing(true)}>
                 Write a Review
               </button>
@@ -673,9 +754,13 @@ function Restaurant() {
                   }}
                   style={{ backgroundColor: "#8CC6B3", color: "black" }}
                 >
-                  Login to review
+                  Login to review or bookmark
                 </Button>
                 )}
+
+              </Box>
+            
+
           </div>
 
           {/* Distance Section */}
