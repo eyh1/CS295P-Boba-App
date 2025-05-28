@@ -840,10 +840,22 @@ function Restaurant() {
                     "&:hover": {
                       color: "white",
                     },
+                    fontSize: {
+                      xs: '0.8rem', // smaller font size for mobile screens
+                      sm: '1rem'    // default font size for larger screens
+                    },
+                    padding: {
+                      xs: '10px 6px 6px 6px', // increased top padding for mobile (top, right, bottom, left)
+                      sm: '8px 22px'  // default padding for larger screens
+                    },
+                    minWidth: {
+                      xs: '120px', // smaller minimum width for mobile
+                      sm: '140px'  // default minimum width for larger screens
+                    }
                   }}
                   style={{ backgroundColor: "#8CC6B3", color: "black" }}
                 >
-                  Login to review or bookmark
+                  Login to review
                 </Button>
                 )}
 
