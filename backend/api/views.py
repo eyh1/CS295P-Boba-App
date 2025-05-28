@@ -12,7 +12,8 @@ from django.db.models import Q
 from collections import defaultdict
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
-
+from django.db.models import F, Value, FloatField, ExpressionWrapper
+from django.db.models.functions import Radians, Sin, Cos, ATan2, Sqrt
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -31,8 +32,26 @@ class ListRestaurantView(generics.ListAPIView):
     serializer_class = RestaurantListSerializer
     permission_classes = [AllowAny]
     
+    def annotate_with_distance(self, queryset, user_lat, user_lng):
+        lat1 = Radians(Value(user_lat))
+        lat2 = Radians(F('lat'))
+        dlat = Radians(F('lat') - Value(user_lat))
+        dlon = Radians(F('lng') - Value(user_lng))
+
+        a = (
+            Sin(dlat / 2) ** 2 +
+            Cos(lat1) * Cos(lat2) * Sin(dlon / 2) ** 2
+        )
+
+        c = 2 * ATan2(Sqrt(a), Sqrt(1 - a))
+        distance_expr = ExpressionWrapper(3958.8 * c, output_field=FloatField())  # Miles
+
+        return queryset.annotate(distance=distance_expr)
+    
     def get_queryset(self):
-        categories = self.request.query_params.get('categories', None)        
+        categories = self.request.query_params.get('categories', None)
+        self.lat = self.request.query_params.get('lat', None)
+        self.lng = self.request.query_params.get('lng', None)  
         queryset = Restaurant.objects.all()
                 
         if categories:
@@ -41,8 +60,14 @@ class ListRestaurantView(generics.ListAPIView):
             for category in category_list:
                 filter = Q(restaurant_category_ratings__category=category)
                 queryset = queryset.filter(filter).distinct()
+            queryset = queryset.annotate( avg_category_rating=Avg('restaurant_category_ratings__rating', filter=Q(restaurant_category_ratings__category__in=category_list))).order_by('-avg_category_rating')
 
-        return queryset
+        try:
+            lat = float(self.lat)
+            lng = float(self.lng)
+        except (TypeError, ValueError):
+            return queryset
+        return self.annotate_with_distance(queryset, lat, lng).order_by('distance')
 
     
     def list(self, request, *args, **kwargs):
@@ -62,6 +87,12 @@ class ListRestaurantView(generics.ListAPIView):
         data = serializer.data
         self.category_logic(data)
         return Response(data)
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['lat'] = self.lat
+        context['lng'] = self.lng
+        return context
     
     def category_logic(self,data):
         categories = self.request.query_params.get('categories', None)

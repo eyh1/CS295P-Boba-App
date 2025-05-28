@@ -500,9 +500,8 @@ function Restaurant() {
 //   ]); 
   const location = useLocation();
   const { name_from_home, pic_from_home, ratings_from_home, rest_id } = location.state || {};
-  console.log("Restaurant page received state:", location.state); // Debug log
+  // console.log("Restaurant page received state:", location.state); // Debug log
   const [reviews, setReviews] = useState([]);
-  const [restaurants, setRestaurants] = useState([]);
   const [reviewJson, setReviewJson] = useState([]);
   const [currentRest, setCurrentRest] = useState();
   const [restaurantLatLng, setRestaurantLatLng] = useState(null);
@@ -615,17 +614,17 @@ function Restaurant() {
 
 
   const getRestaurantReviews = (id) => {
-    console.log("Fetching reviews for restaurant:", id);
+    // console.log("Fetching reviews for restaurant:", id);
     api
       .get(`api/restaurant/${id}/reviews/`)
       .then((res) => res.data)
       .then((data) => {
-        console.log("Received review data:", data);
+        setCurrentRest(data);
         setReviewJson(data);
 
         if (data.length > 0 && data[0].reviews) {
           const fetchedReviews = data[0].reviews.map((review) => {
-            console.log("Review created_at:", review.created_at); // Add this line for debugging
+            // console.log("Review created_at:", review.created_at); // Add this line for debugging
             return {
               reviewer_Name: review.username,  
               review_pricing: review.pricing, 
@@ -639,7 +638,7 @@ function Restaurant() {
 
           setReviews(fetchedReviews);
         } else {
-          console.log("No reviews found for this restaurant");
+          // console.log("No reviews found for this restaurant");
           setReviews([]);
         }
       })
@@ -705,27 +704,10 @@ function Restaurant() {
   );
 }
 
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation, restaurant_images }) {
     const [directions, setDirections] = useState(null);
     const navigate = useNavigate();
-    const location = useLocation();
-
-    // Calculate distance in miles between two locations using the Haversine formula
-    const getDistanceInMiles = (loc1, loc2) => {
-      if (!loc1 || !loc2) return null;
-      const toRad = (value) => (value * Math.PI) / 180;
-      const R = 3958.8; // Earth's radius in miles
-      const dLat = toRad(loc2.lat - loc1.lat);
-      const dLng = toRad(loc2.lng - loc1.lng);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(loc1.lat)) *
-          Math.cos(toRad(loc2.lat)) *
-          Math.sin(dLng / 2) *
-          Math.sin(dLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return (R * c).toFixed(2);
-    };
+    
     const handleBookmark = () => {
 
         api.post(`api/bookmark/${rest_id}/create/`)
@@ -750,57 +732,6 @@ function Restaurant() {
         .catch(err => console.error("Failed to remove bookmark", err));
     };
 
-    const itemData = [
-      {
-        img: 'https://images.unsplash.com/photo-1549388604-817d15aa0110',
-        title: 'Bed',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1525097487452-6278ff080c31',
-        title: 'Books',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1523413651479-5993c3016c77',
-        title: 'Sink',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1563298723-dcfebaa392e3',
-        title: 'Kitchen',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1588436706487-9d55d73a39e3',
-        title: 'Blinds',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1574180045827-681f8a1a9622',
-        title: 'Chairs',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1530731141654-5993c3016c77',
-        title: 'Laptop',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1481277542470-605612bd2d61',
-        title: 'Doors',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7',
-        title: 'Coffee',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1516455207990-7a41ce80f7ee',
-        title: 'Storage',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1597262975002-c5c3b14bbd62',
-        title: 'Candle',
-      },
-      {
-        img: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4',
-        title: 'Coffee table',
-      },
-    ];
-
     const handleLoginClick = () => {
       navigate('/login', { 
         state: { 
@@ -820,29 +751,38 @@ function Restaurant() {
         <Grid2 container spacing={1} sx={{marginTop:8, marginBottom: 2, marginLeft: 5, marginRight: 5 }}>
           <Grid2 size={{xs:12, md: 12}} justifyContent={"start"}>
           <div>
-          <Box sx={{borderRadius: "10px",  width: "auto", height: 250, overflowY: 'scroll' }}>
-          <ImageList variant="masonry" cols={4} gap={8}>
-  {currentRest?.[0]?.restaurant_images?.map((image, index) => (
-    <ImageListItem key={index}>
+          <Box
+  sx={{
+    display: 'flex',
+    overflowX: 'auto',
+    gap: 0.5,
+    padding: 1,
+    scrollSnapType: 'x mandatory', // optional: for snapping
+  }}
+>
+  {restaurant_images.map((item) => (
+    <Box
+      key={item.id}
+      sx={{
+        flex: '0 0 auto',
+        width: 'clamp(140px, 40vw, 250px)', // fixed width or responsive via clamp
+        scrollSnapAlign: 'start', // optional: for snapping
+      }}
+    >
       <img
-        srcSet={image.image}
-        src={image.image}
-        alt={`Restaurant image ${index + 1}`}
+        src={item.image}
+        alt=""
         loading="lazy"
+        style={{
+          width: '100%',
+          height: 'clamp(150px, 25vw, 200px)',
+          objectFit: 'cover',
+          borderRadius: '8px',
+        }}
       />
-    </ImageListItem>
-  )) || itemData.map((item) => (
-    <ImageListItem key={item.img}>
-      <img
-        srcSet={currentRest?.[0]?.restaurant_images?.[0]?.image || pic_source || boba}
-        src={currentRest?.[0]?.restaurant_images?.[0]?.image || pic_source || boba}
-        alt={item.title}
-        loading="lazy"
-      />
-    </ImageListItem>
+    </Box>
   ))}
-</ImageList>
-          </Box>
+</Box>
           </div>
           <div style={{marginTop:4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             {/* Title */}
@@ -930,16 +870,19 @@ function Restaurant() {
               Get Directions
             </a>
           </div>
-          <div className="d-flex flex-wrap justify-content-left mt-2">
-            {restaurant_category_ratings.map((category_rating, index) => (
+
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 mt-2">
+        <div className="grid grid-rows-2 grid-flow-col gap-1 pb-1 pr-1" style={{ minWidth: "max-content" }}>
+          {restaurant_category_ratings.map((category_rating, index) => (
               <CategoryRatingCard
                 key={index}
                 category={category_rating.category_name}
                 rating={category_rating.rating}
               />
             ))}
-          </div>
-          </Grid2>
+        </div>
+      </div>
+      </Grid2>
           {/* old photo location */}
           {/* <Grid2 size={{ xs: 12, md: 6 }} display="flex" justifyContent="center">
             <img src={pic_source} className="drink-cha" />
@@ -1003,8 +946,7 @@ function Restaurant() {
   const entries = [
     { 
       pic: currentRest?.[0]?.restaurant_images?.[0]?.image || pic_from_home || boba,
-      name: name_from_home, 
-      ratings: [ratings_from_home[0], ratings_from_home[1], ratings_from_home[2]] 
+      name: name_from_home
     },
   ];
 
@@ -1015,14 +957,12 @@ function Restaurant() {
         key={index}
         pic_source={entry.pic}
         restaurant={entry.name}
-        rating1={entry.ratings[0]}
-        rating2={entry.ratings[1]}
-        rating3={entry.ratings[2]}
         rest_id={rest_id}
         restaurant_category_ratings={currentRest ? (currentRest[0].restaurant_category_ratings) : ([{category_name: "Pilk Tea", rating: 3}])}
         address={currentRest ? currentRest[0].address : "No address available"}
         restaurantLatLng={restaurantLatLng}
         userLocation={userLocation}
+        restaurant_images={currentRest ? currentRest[0].restaurant_images : []}
       />
       ))}
     </div>

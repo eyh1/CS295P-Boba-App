@@ -69,27 +69,30 @@ function Search() {
       ) {
         getRestaurants(true);
       }
-    }, 200);
+    }, 300);
 
     window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [nextPageUrl, loading]);
 
-  const buildUrl = (pageUrl = null) => {
+  const buildUrl = (pageUrl = null, userLat = null, userLng = null) => {
     if (pageUrl) return pageUrl; // if next page URL already contains filters, use it directly
 
     const queryParams = new URLSearchParams();
     if (selectedCategories.length > 0) {
       queryParams.append('categories', selectedCategories.join(','));
     }
-    if (rating) {
-      queryParams.append('rating', rating);
+
+    if (userLat && userLng) {
+      queryParams.set('lat', userLat);
+      queryParams.set('lng', userLng);
     }
+
     return `/api/restaurants/?${queryParams.toString()}`;
   };
 
-  const getRestaurants = (loadMore = false) => {
+  const getRestaurants = (loadMore = false, userLat = null, userLng = null) => {
     setLoading(true);
 
     let url;
@@ -101,14 +104,14 @@ function Search() {
       if (selectedCategories.length > 0) {
         queryParams.set('categories', selectedCategories.join(','));
       }
-      if (rating) {
-        queryParams.set('rating', rating);
+      if (userLat && userLng) {
+        queryParams.set('lat', userLat);
+        queryParams.set('lng', userLng);
       }
-
       parsedUrl.search = queryParams.toString();
       url = parsedUrl.toString().replace(window.location.origin, ''); // make it relative
     } else {
-      url = buildUrl();
+      url = buildUrl(null, userLat, userLng);
     }
 
     if (!url) {
@@ -153,35 +156,10 @@ function Search() {
         return (R * c).toFixed(2);
       };
 
-  // Get coordinates from address using OpenCage API
-  const getCoordinatesFromAddress = async (address) => {
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);
-    const data = await response.json();
-    if (data.status === "OK" && data.results.length > 0) {
-      const { lat, lng } = data.results[0].geometry.location;
-      return { latitude: lat, longitude: lng };
-    }
-    return null;
-  };
-
-  // Haversine formula helpers
-  const toRadians = (deg) => (deg * Math.PI) / 180;
-
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Radius of Earth in km
-    const dLat = toRadians(lat2 - lat1);
-    const dLon = toRadians(lon2 - lon1);
-    const a = Math.sin(dLat / 2) ** 2 +
-              Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-              Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
-
   // Sort restaurants by distance from user
   const sortByDistance = async () => {
     if (sortedByDistance) {
-      setRestaurants(originalRestaurants);
+      getRestaurants(false);
       setSortedByDistance(false);
       return;
     }
@@ -192,25 +170,9 @@ function Search() {
     }
 
     navigator.geolocation.getCurrentPosition(async (position) => {
-      const userLat = position.coords.latitude;
-      const userLon = position.coords.longitude;
-
-      const updated = await Promise.all(
-        restaurants.map(async (rest) => {
-          const coords = await getCoordinatesFromAddress(rest.address);
-          if (coords) {
-            const distance = getDistanceInMiles(
-              { lat: userLat, lng: userLon },
-              { lat: coords.latitude, lng: coords.longitude }
-            );
-            return { ...rest, distance };
-          }
-          return rest;
-        })
-      );
-
-      const sorted = updated.slice().sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
-      setRestaurants(sorted);
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      getRestaurants(false, lat , lng);
       setSortedByDistance(true);
     }, () => {
       alert("Unable to retrieve your location.");
@@ -268,7 +230,7 @@ function RatingCard({ entry_name, rating }) {
 }
 
   // The card that contains the pics and cafe info
-  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, image, distance, restaurant_images }) {
+  function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, address, restaurant_category_ratings, image, distance }) {
 
   const navigate = useNavigate();
   
@@ -383,7 +345,6 @@ function RatingCard({ entry_name, rating }) {
       entry.restaurant_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-
     return (
       <div>
         <Grid2
@@ -398,10 +359,9 @@ function RatingCard({ entry_name, rating }) {
         >
           {filteredEntries.map((entry, index) => (
             <Grid2 key={index} size={{ xs: 12, md: 4 }} display="flex" flexDirection="column">
-              {console.log(entry)}
               <EntryCard
                 key={index}
-                pic_source={entry.restaurant_images?.[0]?.image}
+                pic_source={entry.restaurant_image?.image}
                 restaurant={entry.restaurant_name}
                 address={entry.address}
                 rating1={entry.ratings[0]}

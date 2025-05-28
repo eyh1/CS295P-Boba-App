@@ -47,8 +47,8 @@ def download_and_store_image_to_s3(image_url, restaurant):
     
     
 
-API_KEY = YELP_API_KEY
-HEADERS = {'Authorization': f'Bearer {API_KEY}'}
+# API_KEY = YELP_API_KEY
+# HEADERS = {'Authorization': f'Bearer {API_KEY}'}
 
 def fetch_and_save_boba_restaurants():
     print("Fetching boba restaurants from Yelp...")
@@ -113,7 +113,7 @@ def generate_random_reviews():
     toppings = Category.objects.filter(category_type="Topping")
     restaurants = Restaurant.objects.all()
     for restaurant in restaurants:
-        for _ in range(5):
+        for _ in range(2):
             user = users.order_by('?').first()
             content = "This is a random review."
             #random number between 5 and 10
@@ -132,21 +132,132 @@ def generate_random_reviews():
 
             # Randomly assign categories to the review
             category = bases.order_by('?').first()
-            rating = 4.0
+            rating = random.randint(0,3)
             ReviewCategoryRating.objects.create(
                 review=review,
                 category=category,
                 rating=rating
             )
             category = toppings.order_by('?').first()
-            rating = 4.0
+            rating = random.randint(0,3)
             ReviewCategoryRating.objects.create(
                 review=review,
                 category=category,
                 rating=rating
             )
+            
+GOOGLE_API_KEY = "GOOGLE API KEY HERE"
+
+def get_coordinates_from_address(address):
+    base_url = "https://maps.googleapis.com/maps/api/geocode/json"
+    params = {
+        "address": address,
+        "key": GOOGLE_API_KEY
+    }
+
+    response = requests.get(base_url, params=params)
+    data = response.json()
+    print(data)
+
+    if data.get("status") == "OK" and data.get("results"):
+        location = data["results"][0]["geometry"]["location"]
+        return {"latitude": location["lat"], "longitude": location["lng"]}
+    
+    return None
+
+def update_coords_for_restaurants():
+    restaurants = Restaurant.objects.all()
+
+    for restaurant in restaurants:
+        coords = get_coordinates_from_address(restaurant.address)
+        if coords:
+            restaurant.lat = coords["latitude"]
+            restaurant.lng = coords["longitude"]
+            restaurant.save()
+            print(f"Updated coordinates for {restaurant.restaurant_name}: {restaurant.lat}, {restaurant.lng}")
+        else:
+            print(f"Failed to get coordinates for {restaurant.restaurant_name}")
+
+#google places api
+GOOGLE_API_KEY = "Google API Key Here"
+
+def sanitize_name(name):
+    return ''.join(c if c.isalnum() else '_' for c in name)
+
+def fetch_place_id(name, address):
+    url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
+    params = {
+        "input": f"{name}, {address}",
+        "inputtype": "textquery",
+        "fields": "place_id",
+        "key": GOOGLE_API_KEY
+    }
+    res = requests.get(url, params=params)
+    data = res.json()
+    candidates = data.get("candidates", [])
+    return candidates[0]["place_id"] if candidates else None
+
+def fetch_photo_urls(place_id):
+    details_url = "https://maps.googleapis.com/maps/api/place/details/json"
+    params = {
+        "place_id": place_id,
+        "fields": "photo",
+        "key": GOOGLE_API_KEY
+    }
+    res = requests.get(details_url, params=params)
+    photos = res.json().get("result", {}).get("photos", [])
+    photo_urls = []
+
+    for photo in photos[:3]:  # Only get 3 images
+        photo_ref = photo.get("photo_reference")
+        if photo_ref:
+            photo_url = (
+                f"https://maps.googleapis.com/maps/api/place/photo"
+                f"?maxwidth=1024&photoreference={photo_ref}&key={GOOGLE_API_KEY}"
+            )
+            photo_urls.append(photo_url)
+    
+    return photo_urls
+
+def download_and_upload_image(image_url, restaurant):
+    try:
+        response = requests.get(image_url)
+        response.raise_for_status()
+
+        ext = "jpg"
+        name = sanitize_name(restaurant.restaurant_name)
+        filename = f"{name}_{uuid.uuid4()}.{ext}"
+        image_content = ContentFile(response.content)
+
+        img = RestaurantImage(restaurant=restaurant)
+        img.image.save(filename, image_content, save=True)
+        print(f"Uploaded: {filename}")
+    except Exception as e:
+        print(f"Failed to upload image for {restaurant}: {e}")
+
+def fetch_and_save_google_photos():
+    for restaurant in Restaurant.objects.all():
+
+        print(f"Processing: {restaurant}")
+        place_id = fetch_place_id(restaurant.restaurant_name, restaurant.address)
+        if not place_id:
+            print("No place ID found.")
+            continue
+
+        photo_urls = fetch_photo_urls(place_id)
+        if not photo_urls:
+            print("No photos found.")
+            continue
+
+        for url in photo_urls:
+            download_and_upload_image(url, restaurant)
+
 
 if __name__ == "__main__":
     # fetch_and_save_boba_restaurants()
     # delete_external_images()
-    generate_random_reviews()
+    # generate_random_reviews()
+    # update_coords_for_restaurants()
+    fetch_and_save_google_photos()
+
+    
