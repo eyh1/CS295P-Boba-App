@@ -19,6 +19,8 @@ import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
 import Box from '@mui/material/Box';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
+import Select from 'react-select';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
   const [toppingDropdowns, setToppingDropdowns] = useState([]); // State to track dropdown instances
@@ -80,60 +82,53 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
     setCategoryRatings(categoryRatings.filter((rating) => rating.category !== categoryId));
   };
 
-  const handleCategorySelect = (event, dropdownIndex) => {
-    const categoryId = parseInt(event.target.value);
-    const category = categories.find((cat) => cat.id === categoryId);
-    // if (category && !selectedCategories.includes(category)) {
-    //   setSelectedCategories([...selectedCategories, category]);
-    //   setCategoryRatings([...categoryRatings, { category: category.id, rating: 5 }]);
-    // }
-    // if the selected category is "Base", remove any previously selected categories with category_type = "Base"
-    if (category) {
-      if (category.category_type === "Base") {
-        // Remove any previously selected Base category
-        setSelectedCategories((prev) =>
-          prev.filter((cat) => cat.category_type !== "Base")
-        );
-        setCategoryRatings((prev) =>
-          prev.filter((rating) => {
-            const cat = categories.find((c) => c.id === rating.category);
-            return cat && cat.category_type !== "Base";
-          })
-        );
-  
-        // Add the new Base category to selectedCategories and categoryRatings
-        setSelectedCategories((prev) => [...prev, category]);
-        setCategoryRatings((prev) => [
-          ...prev,
-          { category: category.id, rating: dropdownIndex }, // Default rating of 5
-        ]);
-      }
-      else { // selected category is topping
-        // Remove the previously selected topping for this dropdown
-        setSelectedCategories((prev) => {
-          const updatedCategories = prev.filter((cat) => {
-            // Remove the previous topping for this dropdown
-            return !(cat.category_type === "Topping" && toppingSelections[dropdownIndex] === cat.id);
-          });
-          return [...updatedCategories, category]; // Add the new topping
-        });
+  const handleCategorySelect = (selectedOption, dropdownIndex) => {
+    if (!selectedOption) return; // If no value is selected, return early
+    
+    const category = categories.find(cat => cat.id === selectedOption.value);
+    if (category.category_type === "Base") {
+      // Remove any previously selected Base category
+      setSelectedCategories((prev) =>
+        prev.filter((cat) => cat.category_type !== "Base")
+      );
+      setCategoryRatings((prev) =>
+        prev.filter((rating) => {
+          const cat = categories.find((c) => c.id === rating.category);
+          return cat && cat.category_type !== "Base";
+        })
+      );
 
-        setCategoryRatings((prev) => {
-          const updatedRatings = prev.filter((rating) => {
-            // Remove the previous topping rating for this dropdown
-            return !(rating.category === toppingSelections[dropdownIndex]);
-          });
-          return [...updatedRatings, { category: category.id, rating: 5 }]; // Add the new topping rating
+      // Add the new Base category to selectedCategories and categoryRatings
+      setSelectedCategories((prev) => [...prev, category]);
+      setCategoryRatings((prev) => [
+        ...prev,
+        { category: category.id, rating: 5 }, // Fixed: using category.id instead of category.value
+      ]);
+    } else { // selected category is topping
+      const categoryId = selectedOption.value;
+      // Remove the previously selected topping for this dropdown
+      setSelectedCategories((prev) => {
+        const updatedCategories = prev.filter((cat) => {
+          // Remove the previous topping for this dropdown
+          return !(cat.category_type === "Topping" && toppingSelections[dropdownIndex] === cat.id);
         });
+        return [...updatedCategories, category]; // Add the new topping
+      });
 
-        // Update the selected topping for this dropdown
-        setToppingSelections((prev) => {
-          const updatedSelections = [...prev];
-          updatedSelections[dropdownIndex] = categoryId;
-          return updatedSelections;
+      setCategoryRatings((prev) => {
+        const updatedRatings = prev.filter((rating) => {
+          // Remove the previous topping rating for this dropdown
+          return !(rating.category === toppingSelections[dropdownIndex]);
         });
-        return;
-      }
+        return [...updatedRatings, { category: categoryId, rating: 5 }]; // Add the new topping rating
+      });
+
+      // Update the selected topping for this dropdown
+      setToppingSelections((prev) => {
+        const updatedSelections = [...prev];
+        updatedSelections[dropdownIndex] = categoryId;
+        return updatedSelections;
+      });
     }
   };
 
@@ -215,16 +210,71 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
       {isReviewing ? (
         <div className="d-flex flex-column align-items-center">
           {/* Base Dropdown */}
-          <label style={{ fontSize: "1.5rem" }}>Base</label> {/* Add label above the dropdown */}
+          <label style={{ fontSize: "1.5rem" }}>Base</label>
           <div className="d-flex flex-column flex-md-row gap-2 w-50 w-md-100">
-            <select className="form-control" onChange={handleCategorySelect} defaultValue="">
-              <option value="" disabled>Select a base</option>
-                {categories
-                .filter((cat) => cat.category_type === "Base")
-                .map((category) => (
-                  <option key={category.id} value={category.id}>{category.category_name}</option>
-                ))}
-            </select>
+            <Select
+              options={categories
+                .filter(cat => cat.category_type === "Base")
+                .map(category => ({
+                  value: category.id,
+                  label: category.category_name
+                }))}
+              placeholder="Select a base"
+              onChange={(selectedOption) => handleCategorySelect(selectedOption, 0)}
+              styles={{
+                container: (base) => ({
+                  ...base,
+                  width: '100%',
+                  position: 'relative',
+                  zIndex: 2
+                }),
+                control: (base) => ({
+                  ...base,
+                  boxShadow: 'none',
+                  borderColor: '#ced4da',
+                  background: 'white',
+                }),
+                placeholder: (base) => ({
+                  ...base,
+                  color: '#757575',
+                  background: 'transparent',
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  background: 'transparent',
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  background: 'white',
+                }),
+                input: (base) => ({
+                  ...base,
+                  color: 'black',
+                  background: 'transparent',
+                }),
+                menu: (base) => ({
+                  ...base,
+                  background: 'white',
+                  zIndex: 3,
+                }),
+                option: (base) => ({
+                  ...base,
+                  background: 'white',
+                  '&:hover': {
+                    background: '#f0f0f0',
+                  },
+                }),
+              }}
+              theme={(theme) => ({
+                ...theme,
+                colors: {
+                  ...theme.colors,
+                  primary: '#8CC6B3',
+                  primary25: '#f0f0f0',
+                  neutral50: '#757575',  // placeholder color
+                },
+              })}
+            />
             {/* <select
               className="form-select w-auto ms-2"
               value={
@@ -258,38 +308,76 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
             <label style={{ fontSize: "1.5rem" }}>Toppings</label>
             {toppingDropdowns.map((dropdownIndex) => (
               <div key={dropdownIndex} className="d-flex flex-column flex-md-row gap-2 w-50 w-md-100 mb-2">
-                <select
-                  className="form-control me-2"
-                  onChange={(e) => handleCategorySelect(e, dropdownIndex)}
-                  value={toppingSelections[dropdownIndex] || ""}
-                >
-                  <option value="" disabled>Select any toppings</option>
-                  {categories
-                    .filter(
-                      (cat) =>
-                        cat.category_type === "Topping" &&
-                      (!toppingSelections.includes(cat.id) || toppingSelections[dropdownIndex] === cat.id)
-                  )
-                  .map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.category_name}
-                    </option>
-                  ))}
-                </select>
-                {/* Rating for topping */}
-                {/* <select
-                  className="form-select w-auto"
-                  value={
-                    categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""
-                  }
-                  onChange={(e) =>
-                    handleCategoryRatingChange(toppingSelections[dropdownIndex], e.target.value)
-                  }
-                >
-                  {[5, 4, 3, 2, 1].map((num) => (
-                    <option key={num} value={num}>{num}</option>
-                  ))}
-                </select> */}
+                <Select
+                  options={categories
+                    .filter(cat => cat.category_type === "Topping" &&
+                      (!toppingSelections.includes(cat.id) || toppingSelections[dropdownIndex] === cat.id))
+                    .map(category => ({
+                      value: category.id,
+                      label: category.category_name
+                    }))}
+                  placeholder="Select any toppings"
+                  value={categories
+                    .filter(cat => cat.id === toppingSelections[dropdownIndex])
+                    .map(category => ({
+                      value: category.id,
+                      label: category.category_name
+                    }))[0]}
+                  onChange={(selectedOption) => handleCategorySelect(selectedOption, dropdownIndex)}
+                  styles={{
+                    container: (base) => ({
+                      ...base,
+                      width: '100%',
+                      position: 'relative',
+                      zIndex: 2
+                    }),
+                    control: (base) => ({
+                      ...base,
+                      boxShadow: 'none',
+                      borderColor: '#ced4da',
+                      background: 'white',
+                    }),
+                    placeholder: (base) => ({
+                      ...base,
+                      color: '#757575',
+                      background: 'transparent',
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      background: 'transparent',
+                    }),
+                    valueContainer: (base) => ({
+                      ...base,
+                      background: 'white',
+                    }),
+                    input: (base) => ({
+                      ...base,
+                      color: 'black',
+                      background: 'transparent',
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      background: 'white',
+                      zIndex: 3,
+                    }),
+                    option: (base) => ({
+                      ...base,
+                      background: 'white',
+                      '&:hover': {
+                        background: '#f0f0f0',
+                      },
+                    }),
+                  }}
+                  theme={(theme) => ({
+                    ...theme,
+                    colors: {
+                      ...theme.colors,
+                      primary: '#8CC6B3',
+                      primary25: '#f0f0f0',
+                      neutral50: '#757575',  // placeholder color
+                    },
+                  })}
+                />
                 <Rating
                   name="simple-controlled"
                   value={categoryRatings.find((r) => r.category === toppingSelections[dropdownIndex])?.rating || ""}
@@ -297,19 +385,18 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
                     handleCategoryRatingChange(toppingSelections[dropdownIndex], e.target.value)
                   }
                 />
-                    {/* Remove Button */}
-                    <button
-                      onClick={() => {
-                        removeToppingDropdown(dropdownIndex);
-                      }}
-                      className="btn btn-danger"
-                    >
-                      Remove
-                    </button>
-                </div>
-  ))}
+                <button
+                  onClick={() => {
+                    removeToppingDropdown(dropdownIndex);
+                  }}
+                  className="btn btn-danger"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
             {/* Button to add a new dropdown */}
-            <button onClick={addToppingDropdown} className="w-50 w-md-100 btn btn-primary mb-2">
+            <button onClick={addToppingDropdown} className="w-50 w-md-100 btn" style={{ backgroundColor: "#8CC6B3", color: "black" }}>
               Add a topping
             </button>
 
@@ -375,6 +462,10 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
               className="form-check-input"
               checked={reviewInputs.is_public}
               onChange={(e) => handleReviewChange("is_public", e.target.checked)}
+              style={{
+                backgroundColor: reviewInputs.is_public ? '#8CC6B3' : 'white',
+                borderColor: '#8CC6B3'
+              }}
             />
             <label className="form-check-label">Make this review public</label>
           </div>
@@ -399,6 +490,8 @@ const ReviewComponent = ({ reviews, setReviews, rest_id, refreshReviews }) => {
 function Restaurant() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+    const [bookmarkId, setBookmarkId] = useState(null);
   // reviewer_Name, review_pricing, review_sweetness, is_public, review_content
   // some dummy reviews for testing
 //   const [reviews, setReviews] = useState([
@@ -407,13 +500,36 @@ function Restaurant() {
 //   ]); 
   const location = useLocation();
   const { name_from_home, pic_from_home, ratings_from_home, rest_id } = location.state || {};
+  // console.log("Restaurant page received state:", location.state); // Debug log
   const [reviews, setReviews] = useState([]);
   const [reviewJson, setReviewJson] = useState([]);
   const [currentRest, setCurrentRest] = useState();
   const [restaurantLatLng, setRestaurantLatLng] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
-  const getDirectionsUrl = (userLocation, address) => {
+  const navigate = useNavigate();
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "Date not available";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid date";
+      
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      };
+      return date.toLocaleString(undefined, options);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Error formatting date";
+    }
+  };
+
+  const getDirectionsUrl = (userLocation, address) => {
     const origin = userLocation ? `${userLocation.lat},${userLocation.lng}` : ""; // Return an empty string if userLocation is not available
     const destination = encodeURIComponent(address);
   
@@ -442,36 +558,94 @@ function Restaurant() {
   };
 
   useEffect(() => {
+      
     checkLoginStatus();
     if (rest_id) {
     getRestaurantReviews(rest_id);
+    getRestaurants(rest_id);
+    
+    getBookmarks(rest_id);
+    
+    
   }
   }, [rest_id]);
+    const getBookmarks = (rest_id) => {
+        api.get("api/users/bookmarks/")
+        .then(res => {
+        const found = res.data.find(b => b.restaurant.id === rest_id);
+        if (found) {
+            setIsBookmarked(true);
+            setBookmarkId(found.id);
+        }
+        })
+        .catch(err => console.error("Failed to fetch bookmarks", err));
+    }
+  const getRestaurants = (id) => {
+    api
+      .get(`api/restaurant/${id}/reviews/`)  // Using the reviews endpoint which returns restaurant data
+      .then((res) => res.data)
+      .then((data) => { 
+          if (data && data.length > 0) {
+            const restaurant = data[0];  // The first item contains the restaurant data
+            setRestaurants([restaurant]);
+            setCurrentRest([restaurant]);
+            
+            if (restaurant.address) {
+              const fetchCoordinates = async () => {
+                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(restaurant.address)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`);             
+                const data = await response.json();
+                const location = data.results[0]?.geometry.location;
+                if (location) {
+                  setRestaurantLatLng(location);
+                }
+              };
+              fetchCoordinates();
+            }
+          } else {
+            console.error("No restaurant found with ID:", id);
+            alert("Restaurant not found");
+          }
+      })
+      .catch((error) => {
+        console.error("Error fetching restaurant:", error);
+        alert("Error fetching restaurant details");
+      });
+  };
 
 
   const getRestaurantReviews = (id) => {
+    // console.log("Fetching reviews for restaurant:", id);
     api
       .get(`api/restaurant/${id}/reviews/`)
       .then((res) => res.data)
       .then((data) => {
         setCurrentRest(data);
         setReviewJson(data);
-        // console.log("Fetched reviews:", data);
 
         if (data.length > 0 && data[0].reviews) {
-          const fetchedReviews = data[0].reviews.map((review) => ({
-            reviewer_Name: review.username,  
-            review_pricing: review.pricing, 
-            review_sweetness: review.sweetness,  
-            is_public: review.public,
-            review_content: review.content, 
-            review_category_ratings: review.review_category_ratings,
-          }));
+          const fetchedReviews = data[0].reviews.map((review) => {
+            // console.log("Review created_at:", review.created_at); // Add this line for debugging
+            return {
+              reviewer_Name: review.username,  
+              review_pricing: review.pricing, 
+              review_sweetness: review.sweetness,  
+              is_public: review.public,
+              review_content: review.content, 
+              review_category_ratings: review.review_category_ratings,
+              created_at: review.created_at,
+            };
+          });
 
-          setReviews((fetchedReviews));
+          setReviews(fetchedReviews);
+        } else {
+          // console.log("No reviews found for this restaurant");
+          setReviews([]);
         }
       })
-      .catch((error) => alert(error));
+      .catch((error) => {
+        console.error("Error fetching reviews:", error);
+        alert("Error fetching restaurant reviews");
+      });
   };
 
   function CategoryRatingCard({ category, rating }) {
@@ -496,20 +670,20 @@ function Restaurant() {
     }
 
 
-  function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings }) {
+  function ReviewCard({ reviewer_Name, review_pricing, review_sweetness, is_public, review_content, review_category_ratings, created_at }) {
   return (
     <Card
-  sx={{
-    textAlign: "center", // Equivalent to "text-center"
-    boxShadow: 1, // Equivalent to "shadow-sm"
-    border: 0, // Equivalent to "border-0"
-    backgroundColor: "white", // Equivalent to "bg-light"
-    px: 3, // Padding on the left and right (px = padding-x)
-    py: 2, // Padding on the top and bottom (py = padding-y)
-    mb: 4, // Margin on the bottom (mb = margin-bottom)
-    borderRadius: 4, // Adds rounded corners (4px radius)
-  }}
->
+      sx={{
+        textAlign: "center",
+        boxShadow: 1,
+        border: 0,
+        backgroundColor: "white",
+        px: 3,
+        py: 2,
+        mb: 4,
+        borderRadius: 4,
+      }}
+    >
       <CardContent className="p-2">
         <p><strong>{is_public ? reviewer_Name : "Anonymous"}'s Review:</strong></p>
         <p><strong>Price:</strong> ${review_pricing}<br></br> <strong> Sweetness:</strong> {review_sweetness}%</p>
@@ -524,12 +698,53 @@ function Restaurant() {
             />
           ))}
         </div>
+        <p className="text-muted mt-3" style={{ fontSize: '0.9em' }}>Posted on: {formatDate(created_at)}</p>
       </CardContent>
     </Card>
   );
 }
 
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation, restaurant_images }) {
+    const [directions, setDirections] = useState(null);
+    const navigate = useNavigate();
+    
+    const handleBookmark = () => {
+
+        api.post(`api/bookmark/${rest_id}/create/`)
+            .then((res) => {
+            // alert("Restaurant bookmarked!");
+            getBookmarks(rest_id)
+            setIsBookmarked(true);
+            
+            })
+            
+            .catch((err) => {
+            console.error(err);
+        });
+     };
+
+    const handleRemoveBookmark = () => {
+    api.delete(`api/bookmark/${bookmarkId}/delete/`)
+        .then(() => {
+        setIsBookmarked(false);
+        setBookmarkId(null);
+        })
+        .catch(err => console.error("Failed to remove bookmark", err));
+    };
+
+    const handleLoginClick = () => {
+      navigate('/login', { 
+        state: { 
+          from: '/restaurant',
+          returnTo: {
+            name_from_home: restaurant,
+            pic_from_home: pic_source,
+            ratings_from_home: [rating1, rating2, rating3],
+            rest_id: rest_id
+          }
+        } 
+      });
+    };
 
     return (
       <Container>
@@ -573,14 +788,55 @@ function Restaurant() {
             {/* Title */}
             <h1 style={{ margin: 0 }}>{restaurant}</h1>
             {/* Login to Review / Write a Review button */}
-            {isLoggedIn ? (
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,  // spacing between buttons
+                    width: "fit-content",
+                }}
+                > 
+
+                {isLoggedIn && (
+            isBookmarked ? (
+                <Button
+                variant="outlined"
+                onClick={handleRemoveBookmark}
+                sx={{
+                    color: "red",
+                    borderColor: "red",
+                    mt: 1,
+                    "&:hover": { backgroundColor: "#ffebeb" },
+                }}
+                >
+                Remove Bookmark
+                </Button>
+            ) : (
+                <Button
+                variant="contained"
+                onClick={handleBookmark}
+                sx={{
+                    mt: 1,
+                    backgroundColor: "#8CC6B3",
+                    color: "black",
+                    "&:hover": {
+                    backgroundColor: "#7bbba9",
+                    color: "white",
+                    },
+                }}
+                >
+                Add Bookmark
+                </Button>
+            )
+            ) }
+                {isLoggedIn ? (
               <button className="btn btn-secondary" onClick={() => setIsReviewing(true)}>
                 Write a Review
               </button>
                 ) : (
                 <Button
                   variant="contained"
-                  href="/login" state={{ from: location }}
+                  onClick={handleLoginClick}
                   sx={{
                     "&:hover": {
                       color: "white",
@@ -588,9 +844,13 @@ function Restaurant() {
                   }}
                   style={{ backgroundColor: "#8CC6B3", color: "black" }}
                 >
-                  Login to review
+                  Login to review or bookmark
                 </Button>
                 )}
+
+              </Box>
+            
+
           </div>
 
           {/* Distance Section */}
@@ -674,6 +934,7 @@ function Restaurant() {
               is_public={entry.is_public}
               review_content={entry.review_content}
               review_category_ratings={entry.review_category_ratings}
+              created_at={entry.created_at}
             />
           ))}
         </CardContent>
@@ -682,9 +943,11 @@ function Restaurant() {
   }
 
   function CardGrid() {
-
   const entries = [
-    { pic: pic_from_home, name: name_from_home, ratings: [ratings_from_home[0], ratings_from_home[1], ratings_from_home[2]] },
+    { 
+      pic: currentRest?.[0]?.restaurant_images?.[0]?.image || pic_from_home || boba,
+      name: name_from_home
+    },
   ];
 
   return (
@@ -692,11 +955,8 @@ function Restaurant() {
       {entries.map((entry, index) => (
         <EntryCard
         key={index}
-        pic_source={entry.pic || boba}
+        pic_source={entry.pic}
         restaurant={entry.name}
-        rating1={entry.ratings[0]}
-        rating2={entry.ratings[1]}
-        rating3={entry.ratings[2]}
         rest_id={rest_id}
         restaurant_category_ratings={currentRest ? (currentRest[0].restaurant_category_ratings) : ([{category_name: "Pilk Tea", rating: 3}])}
         address={currentRest ? currentRest[0].address : "No address available"}
