@@ -22,6 +22,8 @@ class HomeCard(models.Model):
 class Restaurant(models.Model):
     restaurant_name = models.CharField(max_length=120)
     address = models.CharField(max_length=200)
+    lat = models.FloatField(null = True, blank = True)
+    lng = models.FloatField(null = True, blank = True)
     
     class Meta:
         unique_together = ["restaurant_name", "address"]
