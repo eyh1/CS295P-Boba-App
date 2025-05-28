@@ -587,7 +587,6 @@ function Restaurant() {
       .then((data) => { 
           if (data && data.length > 0) {
             const restaurant = data[0];  // The first item contains the restaurant data
-            setRestaurants([restaurant]);
             setCurrentRest([restaurant]);
             
             if (restaurant.address) {
