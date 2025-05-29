@@ -799,6 +799,7 @@ function Restaurant() {
                 {isLoggedIn && (
             isBookmarked ? (
                 <Button
+                size="small"
                 variant="outlined"
                 onClick={handleRemoveBookmark}
                 sx={{
