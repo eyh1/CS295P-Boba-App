@@ -115,7 +115,7 @@ function TopBar({setSearchTerm = () => {}, setRestaurants = () => {}}) {
         width: "100%",
         zIndex: 1000
       }}>
-        <Navbar.Brand style={{ marginLeft: "10px" }} href={null}>
+        <Navbar.Brand style={{ marginLeft: "10px" }} href="/">
                   <img src={Zooba} alt="Zooba logo" width="50" height="50" onClick={returnHome} />
 
                   Zoba
