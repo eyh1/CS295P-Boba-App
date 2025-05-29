@@ -12,7 +12,7 @@ from django.db.models import Q
 from collections import defaultdict
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
-from django.db.models import F, Value, FloatField, ExpressionWrapper
+from django.db.models import F, Value, FloatField, ExpressionWrapper, OuterRef, Subquery
 from django.db.models.functions import Radians, Sin, Cos, ATan2, Sqrt
 
 class CreateUserView(generics.CreateAPIView):
@@ -56,12 +56,18 @@ class ListRestaurantView(generics.ListAPIView):
                 
         if categories:
             category_list = categories.split(',')
-            
-            for category in category_list:
-                filter = Q(restaurant_category_ratings__category=category)
-                queryset = queryset.filter(filter).distinct()
-            queryset = queryset.annotate( avg_category_rating=Avg('restaurant_category_ratings__rating', filter=Q(restaurant_category_ratings__category__in=category_list))).order_by('-avg_category_rating')
-
+            for category_id in category_list:
+                queryset = queryset.filter(
+                restaurant_category_ratings__category__id=category_id)
+            avg_subquery = RestaurantCategoryRating.objects.filter(
+                restaurant=OuterRef('id'),
+                category__id__in=category_list
+            ).values('restaurant').annotate(
+                avg_rating=Avg('rating')
+            ).values('avg_rating')
+            queryset = queryset.annotate(
+                avg_category_rating=Subquery(avg_subquery)
+            ).order_by('-avg_category_rating')
         try:
             lat = float(self.lat)
             lng = float(self.lng)
