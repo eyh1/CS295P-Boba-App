@@ -970,7 +970,7 @@ function Restaurant() {
         pic_source={entry.pic}
         restaurant={entry.name}
         rest_id={rest_id}
-        restaurant_category_ratings={currentRest ? (currentRest[0].restaurant_category_ratings) : ([{category_name: "Pilk Tea", rating: 3}])}
+        restaurant_category_ratings={currentRest ? (currentRest[0].restaurant_category_ratings) : ([{category_name: "Tea", rating: 3}])}
         address={currentRest ? currentRest[0].address : "No address available"}
         restaurantLatLng={restaurantLatLng}
         userLocation={userLocation}
