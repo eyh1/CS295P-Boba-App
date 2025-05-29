@@ -27,12 +27,26 @@ function Form({route, method, from}) {
                     navigate(from.from || '/') // fallback to home if no specific return path
                 }
             }
-            else { // if we are registering, navigate to login
-                navigate("/login")}
+            else { // if we are registering, login automatically
+                const loginRes = await api.post("/api/token/", {username, password})
+                localStorage.setItem(ACCESS_TOKEN, loginRes.data.access)
+                localStorage.setItem(REFRESH_TOKEN, loginRes.data.refresh)
+                if (from.from === '/restaurant' && from.returnTo) {
+                    navigate(from.from, { state: from.returnTo })
+                } else {
+                    navigate(from.from || '/') // fallback to home if no specific return path
+                }
+            }
         }
         catch (error) {
             console.log(error);
-            alert(error);
+             if (error.response?.data?.username) {
+                alert("Username already exists: " + error.response.data.username[0]);
+            } else if (error.response?.data?.password) {
+                alert("Password error: " + error.response.data.password[0]);
+            } else {
+                alert("Registration failed: " + (error.response?.data?.detail || error.message));
+            }
         }
         finally {
             setLoading(false);

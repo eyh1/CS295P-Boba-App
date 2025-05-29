@@ -18,7 +18,7 @@ function Login() {
         </h1>
     <Form route = "api/token/" method = "login" from={from}/>
     <p style={{ textAlign: 'center', fontSize: '1.5rem', marginTop: '16px' }}>
-      <strong>New to Zoba? <a href="/register"><strong>Sign up</strong></a></strong>
+      <strong>New to Zoba? <a href="/register" style={{color: '#478e78', textDecoration: 'none' }}><strong>Sign up</strong></a></strong>
     </p>
     </div>
     </>

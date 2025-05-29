@@ -706,7 +706,7 @@ function Restaurant() {
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation, restaurant_images }) {
     const [directions, setDirections] = useState(null);
     const navigate = useNavigate();
-    
+
     const handleBookmark = () => {
 
         api.post(`api/bookmark/${rest_id}/create/`)
@@ -799,6 +799,7 @@ function Restaurant() {
                 {isLoggedIn && (
             isBookmarked ? (
                 <Button
+                size="small"
                 variant="outlined"
                 onClick={handleRemoveBookmark}
                 sx={{
@@ -840,10 +841,22 @@ function Restaurant() {
                     "&:hover": {
                       color: "white",
                     },
+                    fontSize: {
+                      xs: '0.8rem', // smaller font size for mobile screens
+                      sm: '1rem'    // default font size for larger screens
+                    },
+                    padding: {
+                      xs: '10px 6px 6px 6px', // increased top padding for mobile (top, right, bottom, left)
+                      sm: '8px 22px'  // default padding for larger screens
+                    },
+                    minWidth: {
+                      xs: '120px', // smaller minimum width for mobile
+                      sm: '140px'  // default minimum width for larger screens
+                    }
                   }}
                   style={{ backgroundColor: "#8CC6B3", color: "black" }}
                 >
-                  Login to review or bookmark
+                  Login to review
                 </Button>
                 )}
 
@@ -945,7 +958,7 @@ function Restaurant() {
   const entries = [
     { 
       pic: currentRest?.[0]?.restaurant_images?.[0]?.image || pic_from_home || boba,
-      name: name_from_home
+      name: currentRest?.[0]?.restaurant_name || name_from_home || "Restaurant Name",
     },
   ];
 
@@ -961,7 +974,7 @@ function Restaurant() {
         address={currentRest ? currentRest[0].address : "No address available"}
         restaurantLatLng={restaurantLatLng}
         userLocation={userLocation}
-        restaurant_images={currentRest ? currentRest[0].restaurant_images : []}
+        restaurant_images={currentRest?.[0] ? currentRest[0].restaurant_images : []}
       />
       ))}
     </div>
