@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import boba from ".././assets/chafortea.png";
 // import "../styles/Home.css"
 import { Button, Grid, Grid2, Switch, FormControlLabel, Box } from "@mui/material";
@@ -43,7 +43,11 @@ function Search() {
   const [loading, setLoading] = useState(false);  
   const [nextPageUrl, setNextPageUrl] = useState("/api/restaurants/");
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const selectedCategoriesRef = useRef(selectedCategories);
 
+  useEffect(() => {
+    selectedCategoriesRef.current = selectedCategories;
+  }, [selectedCategories]);
 
   const navigate = useNavigate();
 
@@ -105,8 +109,8 @@ function Search() {
       const queryParams = new URLSearchParams(parsedUrl.search);
 
       // Append current filters
-      if (selectedCategories.length > 0) {
-        queryParams.set('categories', selectedCategories.join(','));
+      if ((selectedCategoriesRef.current).length > 0) {
+        queryParams.set('categories', (selectedCategoriesRef.current).join(','));
       }
       if (userLat && userLng) {
         queryParams.set('lat', userLat);
@@ -218,6 +222,7 @@ function Search() {
     .then((data) => { 
       setRestaurants(data.results);
       setOriginalRestaurants(data.results);
+      setNextPageUrl(data.next);
     })
     .catch((error) => alert(error));
     setLoading(false)
