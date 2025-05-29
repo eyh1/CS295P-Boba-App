@@ -459,7 +459,7 @@ function Home() {
     <Container maxWidth="lg" sx={{ py: 8 }}>
       <Typography variant="h3" component="h1" align="center" gutterBottom sx={{pt:4, mb: 4, fontWeight: "bold", fontFamily: 'Poppins',
  } }>
-        Latest Reviews
+        Latest Positive Reviews
       </Typography>
 
       <Grid container spacing={3}>
