@@ -706,7 +706,7 @@ function Restaurant() {
   function EntryCard({ restaurant, pic_source, rating1, rating2, rating3, rest_id, restaurant_category_ratings, address, restaurantLatLng, userLocation, restaurant_images }) {
     const [directions, setDirections] = useState(null);
     const navigate = useNavigate();
-    
+
     const handleBookmark = () => {
 
         api.post(`api/bookmark/${rest_id}/create/`)
@@ -957,7 +957,7 @@ function Restaurant() {
   const entries = [
     { 
       pic: currentRest?.[0]?.restaurant_images?.[0]?.image || pic_from_home || boba,
-      name: name_from_home
+      name: currentRest?.[0]?.restaurant_name || name_from_home || "Restaurant Name",
     },
   ];
 
@@ -973,7 +973,7 @@ function Restaurant() {
         address={currentRest ? currentRest[0].address : "No address available"}
         restaurantLatLng={restaurantLatLng}
         userLocation={userLocation}
-        restaurant_images={currentRest ? currentRest[0].restaurant_images : []}
+        restaurant_images={currentRest?.[0] ? currentRest[0].restaurant_images : []}
       />
       ))}
     </div>
