@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import boba from ".././assets/chafortea.png";
 // import "../styles/Home.css"
-import { Button, Grid, Grid2, Switch, FormControlLabel } from "@mui/material";
+import { Button, Grid, Grid2, Switch, FormControlLabel, Box } from "@mui/material";
 import { useNavigate, useLocation  } from "react-router-dom";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
@@ -42,6 +42,10 @@ function Search() {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);  
   const [nextPageUrl, setNextPageUrl] = useState("/api/restaurants/");
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get("api/category/")
@@ -185,6 +189,11 @@ function Search() {
     navigate("/login");
   };
 
+  const restaurantOptions = restaurants.map((restaurant) => ({
+    value: restaurant.id,
+    label: restaurant.restaurant_name.charAt(0).toUpperCase() + restaurant.restaurant_name.slice(1)
+  }));
+
   const handleCategoryChange = (event) => {
     const value = event.target.value;
     setSelectedCategories(prev =>
@@ -207,8 +216,8 @@ function Search() {
     .get(`/api/restaurants/?${queryParams.toString()}`)
     .then((res) => res.data)
     .then((data) => { 
-      setRestaurants(data);
-      setOriginalRestaurants(data);
+      setRestaurants(data.results);
+      setOriginalRestaurants(data.results);
     })
     .catch((error) => alert(error));
     setLoading(false)
@@ -340,6 +349,8 @@ function RatingCard({ entry_name, rating }) {
 
     const entries = updatedRestaurants;
 
+    
+
     // Filter based on whats in the search bar
     const filteredEntries = entries.filter((entry) =>
       entry.restaurant_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -382,7 +393,72 @@ function RatingCard({ entry_name, rating }) {
     <div style={{ backgroundColor: " hsl(160, 36%, 95%)"//"#f2f2f2" color of page
       , minHeight: "100vh" }}>
       <TopBar setSearchTerm={setSearchTerm} setRestaurants={setRestaurants} setLoading={setLoading}/>
-      <TextField
+      <Box sx={{maxWidth: "600px", margin: "0 auto",  justifyContent: 'center', mt: 2 }} >
+      <Select
+              options={restaurantOptions}
+              placeholder="Select a restaurant"
+              openMenuOnFocus={false}
+              openMenuOnClick={false}
+              value={selectedRestaurant}
+              onChange={(selectedOption) => setSelectedRestaurant(selectedOption)}
+              styles={{
+                container: (base) => ({
+                  ...base,
+                  width: '100%',
+                }),
+                control: (base) => ({
+                  ...base,
+                  boxShadow: 'none',
+                  borderColor: '#ced4da',
+                }),
+              }}
+            />
+            <Button
+              fullWidth
+              variant="contained"
+              type="button"
+              sx={{ color: 'white', bgcolor: "#8CC6B3", mt: 1, borderRadius: 999 }}
+              onClick={(e) => {
+                e.preventDefault();
+                if (selectedRestaurant) {
+                  console.log("Navigating to restaurant with state:", {
+                    name_from_home: selectedRestaurant.label,
+                    pic_from_home: "",
+                    ratings_from_home: [],
+                    rest_id: selectedRestaurant.value,
+                  });
+                  navigate("/restaurant", {
+                    state: {
+                      name_from_home: selectedRestaurant.label,
+                      pic_from_home: "",
+                      ratings_from_home: [],
+                      rest_id: selectedRestaurant.value,
+                    },
+                  });
+                } 
+              }}
+            >
+              Search by Restaurant
+            </Button> 
+            </Box>
+            {/* <Select>
+            className="border-0 shadow-none w-80" 
+            options={restaurantOptions}
+              isMulti
+              value={searchTerm}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSubmit(e);
+                }
+              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                  disableUnderline: true,     
+              }}
+            >
+              
+            </Select>
+      {/* <TextField
           variant="standard" 
           label="Search for a cafe"
           color="success"
@@ -396,7 +472,7 @@ function RatingCard({ entry_name, rating }) {
             }
           }}
           style={{ width: '70%', minWidth: '30px', marginTop: '1rem', marginBottom: '10px'}}
-      />
+      /> */}
       <div>
       
     <Button
@@ -425,6 +501,7 @@ function RatingCard({ entry_name, rating }) {
     />
       {showFilters && (
       <form onSubmit={handleSubmit}>
+          <Box sx={{maxWidth: "600px", display: "flex", margin: "0 auto",  justifyContent: 'center',  }} >
         <fieldset>
             <Select
               options={categoryOptions}
@@ -443,24 +520,14 @@ function RatingCard({ entry_name, rating }) {
               }}
             />
         </fieldset>
-        <div style={{ marginTop: '10px' }}>
-          <label>
-            Minimum Rating:
-            <Rating
-              name="simple-controlled"
-              value={rating}
-              precision={0.5}
-              onChange={(e) =>
-                setRating(e.target.value)
-              }
-            />
-          </label>
-        </div>
-        <Button variant="outline-primary" type="submit" style={{ marginTop: '15px', backgroundColor: "#8CC6B3", // Set the button background color
+        
+        <Button variant="outline-primary" type="submit" style={{ marginLeft: '10px', backgroundColor: "#8CC6B3", // Set the button background color
     color: "white", }}>
           Apply Filter
         </Button>
+        </Box>
       </form>
+      
       )}
       <CardGrid />
 
