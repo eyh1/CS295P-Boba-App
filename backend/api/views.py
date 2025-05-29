@@ -287,7 +287,7 @@ class GetLatestPositiveReviewsView(generics.ListAPIView):
 
     def get_queryset(self):
         rating = 3.5
-        latest_positive_reviews =  Review.objects.annotate(avg_rating = Avg('review_category_ratings__rating')).filter(avg_rating__gte=rating, public=True).order_by('-created_at')[:5]
+        latest_positive_reviews =  Review.objects.annotate(avg_rating = Avg('review_category_ratings__rating')).filter(avg_rating__gte=rating, public=True).order_by('-created_at')[:6]
         return latest_positive_reviews
     
     def list(self, request, *args, **kwargs):
