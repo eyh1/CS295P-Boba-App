@@ -261,6 +261,8 @@ class GetRecommendationsView(generics.ListAPIView):
             for restaurant_category in other_user_category_ratings_set:
                 if restaurant_category not in self.recommendations and restaurant_category not in user_category_ratings:
                     self.recommendations.append(restaurant_category)
+                    if len(self.recommendations) >= 5:
+                        break
         return self.recommendations
 
     def list(self, request, *args, **kwargs):
@@ -277,6 +279,8 @@ class GetRecommendationsView(generics.ListAPIView):
             filtered_ratings = (restaurant.restaurant_category_ratings.filter(category__in=category_ids).order_by('-rating')[:4])
             restaurant_data["restaurant_category_ratings"] = RestaurantCategoryRatingSerializer(filtered_ratings, many=True).data
             restaurant_data.pop('reviews', None)
+            if restaurant_data['restaurant_images']:
+                restaurant_data['restaurant_images'] = [restaurant_data['restaurant_images'][0]]
             result.append(restaurant_data)
         return Response(result)
         
