@@ -32,6 +32,7 @@ function Search() {
       
   const [searchTerm,setSearchTerm] = useState(initialSearchTerm);
   const [restaurants, setRestaurants] = useState([]);
+  const [allRestaurants, setAllRestaurants] = useState([]);
   const [originalRestaurants, setOriginalRestaurants] = useState([]);
   const [sortedByDistance, setSortedByDistance] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -64,6 +65,7 @@ function Search() {
 
   useEffect(() => {
     getRestaurants(false);
+    getAllRestaurants();
     checkLoginStatus();
   }, [])
 
@@ -98,6 +100,14 @@ function Search() {
     }
 
     return `/api/restaurants/?${queryParams.toString()}`;
+  };
+
+  const getAllRestaurants = () => {
+    api
+      .get("/api/restaurants/names/")
+      .then((res) => res.data)
+      .then((data) => { setAllRestaurants(data)})
+      .catch((error) => alert(error));
   };
 
   const getRestaurants = (loadMore = false, userLat = null, userLng = null) => {
@@ -193,9 +203,9 @@ function Search() {
     navigate("/login");
   };
 
-  const restaurantOptions = restaurants.map((restaurant) => ({
-    value: restaurant.id,
-    label: restaurant.restaurant_name.charAt(0).toUpperCase() + restaurant.restaurant_name.slice(1)
+  const restaurantOptions = allRestaurants.map((allRestaurants) => ({
+    value: allRestaurants.id,
+    label: allRestaurants.restaurant_name.charAt(0).toUpperCase() + allRestaurants.restaurant_name.slice(1)
   }));
 
   const handleCategoryChange = (event) => {
