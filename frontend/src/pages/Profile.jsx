@@ -313,7 +313,9 @@ function Profile() {
                 <img src={profilePic} alt="Profile" style={{ borderRadius: '50%', width: '150px', height: '150px' }} />
             {/* <p>Testname</p> */}
             <p>Total Reviews Written: {reviews.length}</p>
+
             <p>Bookmarked Restaurants: {bookmarks.length}</p>
+
             <Button
                 onClick={() => {
                     fetchBookmarks();    
