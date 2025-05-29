@@ -21,6 +21,7 @@ function Profile() {
     const [categories, setCategories] = useState([]);
     const [selectedRestaurant, setSelectedRestaurant] = useState('');
     const [bookmarks, setBookmarks] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
     const [showBookmarks, setShowBookmarks] = useState(false);
 
     const navigate = useNavigate();
@@ -30,6 +31,7 @@ function Profile() {
         fetchUserReviews();
         fetchCategories();
         fetchBookmarks();
+        fetchRecommendations();
     }, []);
 
 
@@ -69,6 +71,16 @@ function Profile() {
             console.log(bookmarks);
         } catch (error) {
             console.error("Failed to fetch bookmarks:", error);
+        }
+    };
+
+    const fetchRecommendations = async () => {
+        try {
+            const response = await api.get(`api/users/fyp/`);
+            setRecommendations(response.data);
+            console.log(response.data);
+        } catch (error) {
+            console.error("Failed to fetch recs:", error);
         }
     };
 
@@ -163,7 +175,7 @@ function Profile() {
             const restaurant = bookmark.restaurant;
             const imageUrl =
             restaurant.restaurant_images?.[0]?.image ||
-            'https://via.placeholder.com/400x200';
+            profilePic;
 
             return (
             <Grid item key={bookmark.id}>
@@ -221,6 +233,74 @@ function Profile() {
         </Grid>
     );
     }
+
+    function RecommendationList() {
+    
+
+    const handleRest = (img_url, rest_name, rest_id) => {
+    
+    navigate("/restaurant", {
+      state: {
+        name_from_home: rest_name,
+        pic_from_home: img_url,
+        ratings_from_home: ["none", "none", "none"],
+        rest_id: rest_id,
+      },
+    });
+  };
+
+    return (
+        <Grid container direction="column" spacing={3}>
+        {recommendations.map((recommendation) => {
+            const restaurant = recommendation;
+            const imageUrl =
+            restaurant.restaurant_images?.[0]?.image ||
+            profilePic;
+
+            return (
+            <Grid item key={recommendation.id}>
+                <Card  sx={{ maxWidth: 400, borderRadius: 3, boxShadow: 3 }}>
+                    
+                <CardMedia
+                    component="img"
+                    height="200"
+                    image={imageUrl}
+                    alt={restaurant.restaurant_name}
+                    onClick={() => handleRest(imageUrl, restaurant.restaurant_name, restaurant.id)}
+                    sx={{'&:hover': {
+                        cursor: 'pointer',
+                    },}}
+                />
+                
+                <CardContent>
+                    
+                    <Typography variant="h6" gutterBottom>
+                    {restaurant.restaurant_name}
+                    </Typography>
+
+                    <Box
+                        sx={{
+                            px: 1,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                        >
+                        <Typography variant="body2" color="text.secondary">
+                        {restaurant.address}
+                    </Typography>
+                       
+
+                    </Box>
+                    
+                </CardContent>
+                </Card>
+            </Grid>
+            );
+        })}
+        </Grid>
+    );
+    }
     
     return <div>
     <TopBar/>
@@ -228,10 +308,14 @@ function Profile() {
     {/* Left side of page */}
     
     <Grid2 container spacing={2} sx={{marginTop:2, marginBottom: 2, marginLeft: 2, marginRight: 2, minHeight: 700, }}>
-        <Grid2 size={{ xs: 12, md: 3 }} display="flex" flexDirection="column" alignItems="center" sx={{ height: 'fit-content', border: '1px solid #ccc', borderRadius: '8px', padding: 2 }}>
-            <img src={profilePic} alt="Profile" style={{ borderRadius: '50%', width: '150px', height: '150px' }} />
+        <Grid2 size={{ xs: 12, md: 3 }} display="flex" flexDirection="column" alignItems="center" sx={{ height: 'fit-content',  padding: 2 }}>
+            <Box display="flex" flexDirection="column" alignItems="center" sx={{ height: 'fit-content', width: '100%', border: '1px solid #ccc', borderRadius: '8px', padding: 2 }}>
+                <img src={profilePic} alt="Profile" style={{ borderRadius: '50%', width: '150px', height: '150px' }} />
             {/* <p>Testname</p> */}
             <p>Total Reviews Written: {reviews.length}</p>
+
+            <p>Bookmarked Restaurants: {bookmarks.length}</p>
+
             <Button
                 onClick={() => {
                     fetchBookmarks();    
@@ -293,7 +377,16 @@ function Profile() {
                     <BookmarkList bookmarks={bookmarks} />
                 </Box>
                 )}
+            </Box>
+            <Box display="flex" flexDirection="column" alignItems="center" sx={{ maxHeight: '400px',   
+        overflowY: 'auto', height: 'fit-content', width: '100%', border: '1px solid #ccc', borderRadius: '8px', padding: 2, mt: 2 }}>
+               <Typography variant="h6" mb={2}>Recommended Restaurants </Typography>
+               <RecommendationList></RecommendationList>
+            </Box>
+            
         </Grid2>
+
+        
     
         {/* the review that take up right side of the page */}
         <Grid2
@@ -303,9 +396,9 @@ function Profile() {
             alignItems="stretch" 
             >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h5">Your Reviews</Typography>
+            <Typography variant="h5" sx={{mr: 1}}>Your Reviews</Typography>
 
-            <FormControl size="small" sx={{ width: 200 }}>
+            <FormControl size="small" sx={{ width: 180 }}>
                 <InputLabel>Filter by Restaurant</InputLabel>
                 <Select
                 value={selectedRestaurant}
